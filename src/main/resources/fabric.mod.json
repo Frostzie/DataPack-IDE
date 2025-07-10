@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "datapack-ide",
+	"version": "${version}",
+	"name": "DataPack IDE",
+	"description": "Allows in game data pack editing with a built in text editor screen.",
+	"authors": [
+		"Frostzie"
+	],
+	"contact": {
+		"sources": "https://github.com/Frostzie/DataPack-IDE"
+	},
+	"license": "LGPL-2.1",
+	"icon": "assets/datapack-ide/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "io.github.frostzie.datapackide.DataPackIDE",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"datapack-ide.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.7",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}
