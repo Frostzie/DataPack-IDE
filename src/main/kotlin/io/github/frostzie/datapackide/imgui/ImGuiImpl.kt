@@ -8,6 +8,7 @@ import imgui.flag.ImGuiConfigFlags
 import imgui.gl3.ImGuiImplGl3
 import imgui.glfw.ImGuiImplGlfw
 import io.github.frostzie.datapackide.config.DefaultLayout
+import io.github.frostzie.datapackide.utils.LoggerProvider
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gl.GlBackend
 import net.minecraft.client.texture.GlTexture
@@ -15,6 +16,7 @@ import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL30
 
 object ImGuiImpl {
+    private val logger = LoggerProvider.getLogger("ImGuiImpl")
     private val imGuiImplGlfw = ImGuiImplGlfw()
     private val imGuiImplGl3 = ImGuiImplGl3()
 
@@ -31,7 +33,14 @@ object ImGuiImpl {
         io.addConfigFlags(ImGuiConfigFlags.DockingEnable)
 
         imGuiImplGlfw.init(handle, true)
-        imGuiImplGl3.init()
+
+        val glslVersion = "#version 150"
+        val initResult = imGuiImplGl3.init(glslVersion)
+        if (!initResult) {
+            logger.error("Failed to initialize ImGui OpenGL3 implementation")
+        } else {
+            logger.info("Successfully initialized ImGui")
+        }
     }
 
     fun draw(runnable: RenderInterface) {
