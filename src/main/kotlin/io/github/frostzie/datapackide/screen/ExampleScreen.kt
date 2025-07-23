@@ -4,18 +4,19 @@ import imgui.ImGui
 import imgui.flag.ImGuiStyleVar
 import imgui.flag.ImGuiWindowFlags
 import io.github.frostzie.datapackide.imgui.ImGuiImpl
-import io.github.frostzie.datapackide.ui.EditorPanel
-import io.github.frostzie.datapackide.ui.FileExplorerPanel
 import io.github.frostzie.datapackide.ui.bar.LeftBar
 import io.github.frostzie.datapackide.ui.bar.RightBar
 import io.github.frostzie.datapackide.ui.bar.TopBar
+import io.github.frostzie.datapackide.ui.main.EditorPanel
+import io.github.frostzie.datapackide.ui.main.FileExplorerPanel
+import io.github.frostzie.datapackide.ui.settings.SettingsPanel
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
 
 class ExampleScreen : Screen(Text.literal("Example Screen")) {
 
-    private val topBarHeight = 30f
+    private val topBarHeight = 60f
     private val leftBarWidth = 60f
     private val rightBarWidth = 60f
 
@@ -24,6 +25,7 @@ class ExampleScreen : Screen(Text.literal("Example Screen")) {
     private val rightBar = RightBar()
     private val fileExplorer = FileExplorerPanel()
     private val editorPanel = EditorPanel()
+    private val settingsPanel = SettingsPanel()
 
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         ImGuiImpl.draw {
@@ -70,6 +72,8 @@ class ExampleScreen : Screen(Text.literal("Example Screen")) {
             editorPanel.render()
 
             ImGui.end()
+
+            settingsPanel.render()
         }
     }
 

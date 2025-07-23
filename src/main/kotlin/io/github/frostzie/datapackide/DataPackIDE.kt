@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide
 
 import io.github.frostzie.datapackide.screen.ExampleScreen
+import io.github.frostzie.datapackide.ui.DemoScreen
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
@@ -14,8 +15,15 @@ class DataPackIDE : ModInitializer {
     companion object {
         val LOGGER = LoggerProvider.getLogger("DataPack-IDE")
 
-        private val exampleKeybinding = KeyBinding(
+        private val openScreenKeybind = KeyBinding(
             "Open Screen",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_F10,
+            "Data Pack IDE"
+        )
+
+        private val demoScreenKeybind = KeyBinding(
+            "Demo Screen",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_F10,
             "Data Pack IDE"
@@ -25,14 +33,19 @@ class DataPackIDE : ModInitializer {
     override fun onInitialize() {
         LOGGER.info("DataPack IDE Initialized!")
 
-        //WebManager.initialize() //TODO: Load webpage
-
-        KeyBindingHelper.registerKeyBinding(exampleKeybinding)
+        KeyBindingHelper.registerKeyBinding(openScreenKeybind)
+        KeyBindingHelper.registerKeyBinding(demoScreenKeybind)
 
         ClientTickEvents.END_CLIENT_TICK.register { client ->
-            if (exampleKeybinding.wasPressed()) {
+            if (openScreenKeybind.wasPressed()) {
                 if (client.currentScreen == null) {
                     client.setScreen(ExampleScreen())
+                }
+            }
+            // TODO: Remove
+            if (demoScreenKeybind.wasPressed()) {
+                if (client.currentScreen == null) {
+                    client.setScreen(DemoScreen())
                 }
             }
         }

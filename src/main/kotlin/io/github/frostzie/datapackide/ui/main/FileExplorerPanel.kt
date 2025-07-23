@@ -1,7 +1,8 @@
-package io.github.frostzie.datapackide.ui
+package io.github.frostzie.datapackide.ui.main
 
 import imgui.ImGui
 import io.github.frostzie.datapackide.ui.UIConstants.LOCKED_WINDOW_FLAGS
+import io.github.frostzie.datapackide.ui.UiComponent
 
 /**
  * Renders the File Explorer panel.
