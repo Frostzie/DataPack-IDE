@@ -30,5 +30,17 @@
 		"java": ">=21",
 		"fabric-api": "*",
 		"fabric-language-kotlin": "*"
+	},
+
+	"custom": {
+		"modmenu": {
+			"parent": {
+				"id": "datapack-ide",
+				"name": "Data Pack IDE",
+				"description": "",
+				"icon": "assets/datapack-ide/icon.png"
+			},
+			"update_checker": true
+		}
 	}
 }

@@ -29,17 +29,25 @@ base {
 repositories {
 	mavenLocal()
 	mavenCentral()
+	maven {
+		name = "Terraformers"
+		url = "https://maven.terraformersmc.com/"
+	}
 }
-
+//Taken from Flashback
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
 
+	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+
+	// ImGui dependencies
 	shadow(implementation(rootProject.files('deps/imgui-java-binding-1.89.0.jar')))
-	shadow(implementation("io.github.spair:imgui-java-lwjgl3:1.86.10") { //TODO: Figure out how to make 1.89.10 or wait for Axiom / Flashback to update
+	shadow(implementation("io.github.spair:imgui-java-lwjgl3:1.86.10") { //TODO: Figure out how to make 1.89.0 or wait for Axiom / Flashback to update
 		exclude group: 'org.lwjgl'
 		exclude group: 'org.lwjgl.lwjgl'
 	})
@@ -110,7 +118,6 @@ shadowJar {
 	exclude("LICENSE.txt")
 }
 
-// Only build shaded jar
 tasks.build.dependsOn tasks.shadowJar
 tasks.jar.enabled = false
 

@@ -20,11 +20,11 @@ public class MinecraftClientMixin {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void initImGui(RunArgs args, CallbackInfo ci) {
-        ImGuiImpl.create(window.getHandle());
+        ImGuiImpl.INSTANCE.create(window.getHandle());
     }
 
     @Inject(method = "close", at = @At("HEAD"))
     public void closeImGui(CallbackInfo ci) {
-        ImGuiImpl.dispose();
+        ImGuiImpl.INSTANCE.dispose();
     }
 }

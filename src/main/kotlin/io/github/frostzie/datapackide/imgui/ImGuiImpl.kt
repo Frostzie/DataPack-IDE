@@ -1,5 +1,5 @@
 package io.github.frostzie.datapackide.imgui
-/*
+
 import com.mojang.blaze3d.opengl.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import imgui.ImGui
@@ -10,6 +10,7 @@ import imgui.glfw.ImGuiImplGlfw
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gl.GlBackend
 import net.minecraft.client.texture.GlTexture
+import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL30
 
@@ -22,7 +23,7 @@ object ImGuiImpl {
         ImPlot.createContext()
 
         val data = ImGui.getIO()
-        data.iniFilename = "modid.ini" // TODO; Change this to your modid
+        data.iniFilename = "DataPack-IDE"
         data.fontGlobalScale = 1f
 
         // If you want to have custom fonts, you can use the following code here
@@ -54,6 +55,7 @@ object ImGuiImpl {
         // defaultFont = generatedFonts.get(30); // Font scale is 30
         // How you can apply the font then, you can see in ExampleMixin
         data.configFlags = ImGuiConfigFlags.DockingEnable
+        ImGuiConfigFlags.ViewportsEnable
 
         // In case you want to enable Viewports on Windows, you have to do this instead of the above line:
         // data.setConfigFlags(ImGuiConfigFlags.DockingEnable | ImGuiConfigFlags.ViewportsEnable);
@@ -85,17 +87,20 @@ object ImGuiImpl {
         GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, previousFramebuffer)
 
         // Add this code if you have enabled Viewports in the create method
-//        if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
-//            final long pointer = GLFW.glfwGetCurrentContext();
-//            ImGui.updatePlatformWindows();
-//            ImGui.renderPlatformWindowsDefault();
-//
-//            GLFW.glfwMakeContextCurrent(pointer);
-//        }
+        if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
+            val pointer = GLFW.glfwGetCurrentContext()
+            ImGui.updatePlatformWindows()
+            ImGui.renderPlatformWindowsDefault()
+
+            GLFW.glfwMakeContextCurrent(pointer)
+       }
     }
 
     fun dispose() {
         ImGui.destroyContext()
+        ImPlot.destroyContext()
+        imGuiImplGl3.dispose()
+        imGuiImplGlfw.dispose()
     } // Can be used to load buffered images in ImGui
     //    public static int fromBufferedImage(BufferedImage image) {
     //        final int[] pixels = new int[image.getWidth() * image.getHeight()];
@@ -127,4 +132,3 @@ object ImGuiImpl {
     //        return texture;
     //    }
 }
- */
