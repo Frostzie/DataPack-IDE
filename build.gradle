@@ -34,7 +34,7 @@ repositories {
 		url = "https://maven.terraformersmc.com/"
 	}
 }
-//Taken from Flashback
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
@@ -45,16 +45,20 @@ dependencies {
 
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
-	// ImGui dependencies
-	shadow(implementation(rootProject.files('deps/imgui-java-binding-1.89.0.jar')))
-	shadow(implementation("io.github.spair:imgui-java-lwjgl3:1.86.10") { //TODO: Figure out how to make 1.89.0 or wait for Axiom / Flashback to update
+	// TODO: Update to newer ImGUI if possible since right now switching would crash with flashback & axiom.
+	// ImGui dependencies taken from flashback
+	shadow(implementation(rootProject.files('deps/imgui-java-binding-1.86.11-10-g0dbf36c.jar')))
+	shadow(implementation("io.github.spair:imgui-java-lwjgl3:1.86.10") {
 		exclude group: 'org.lwjgl'
 		exclude group: 'org.lwjgl.lwjgl'
 	})
-	shadow(api(rootProject.files('deps/imgui-java-natives-linux-1.89.0.jar')))
-	shadow(api(rootProject.files('deps/imgui-java-natives-macos-1.89.0.jar')))
-	shadow(api(rootProject.files('deps/imgui-java-natives-windows-1.89.0.jar')))
+	shadow(api(rootProject.files('deps/imgui-java-natives-linux-1.86.11-10-g0dbf36c.jar')))
+	shadow(api(rootProject.files('deps/imgui-java-natives-macos-1.86.11-10-g0dbf36c.jar')))
+	shadow(api(rootProject.files('deps/imgui-java-natives-windows-1.86.11-10-g0dbf36c.jar')))
 
+	shadow(implementation("org.apache.commons:commons-math3:3.6.1"))
+
+	// Native File Dialogs
 	String nfdVersion = "org.lwjgl:lwjgl-nfd:3.3.3";
 
 	shadow(implementation(nfdVersion) {

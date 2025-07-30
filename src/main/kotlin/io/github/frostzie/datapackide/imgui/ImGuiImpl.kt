@@ -98,7 +98,6 @@ object ImGuiImpl {
 
     fun dispose() {
         ImGui.destroyContext()
-        ImPlot.destroyContext()
         imGuiImplGl3.dispose()
         imGuiImplGlfw.dispose()
     } // Can be used to load buffered images in ImGui
