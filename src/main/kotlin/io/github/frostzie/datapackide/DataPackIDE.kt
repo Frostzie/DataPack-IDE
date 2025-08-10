@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide
 
-import io.github.frostzie.datapackide.screen.ExampleScreen
+import io.github.frostzie.datapackide.commands.DefaultCommands
+import io.github.frostzie.datapackide.screen.JavaFXTestWindow
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
@@ -10,31 +11,29 @@ import net.minecraft.client.util.InputUtil
 import org.lwjgl.glfw.GLFW
 
 class DataPackIDE : ModInitializer {
-
-    companion object {
-        val LOGGER = LoggerProvider.getLogger("DataPack-IDE")
-
-        private val exampleKeybinding = KeyBinding(
-            "Open Screen",
-            InputUtil.Type.KEYSYM,
-            GLFW.GLFW_KEY_F10,
-            "Data Pack IDE"
-        )
-    }
+    private val logger = LoggerProvider.getLogger("DataPackIDE")
 
     override fun onInitialize() {
-        LOGGER.info("DataPack IDE Initialized!")
+        logger.info("Pre-initializing JavaFX platform...")
+        JavaFXTestWindow.initializeJavaFX()
+        DefaultCommands.openMainScreen()
 
-        //WebManager.initialize() //TODO: Load webpage
-
-        KeyBindingHelper.registerKeyBinding(exampleKeybinding)
+        toggleJavaFXKey = KeyBindingHelper.registerKeyBinding(KeyBinding(
+            "key.datapack-ide.toggle_javafx",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_H,
+            "category.datapack-ide.general"
+        ))
 
         ClientTickEvents.END_CLIENT_TICK.register { client ->
-            if (exampleKeybinding.wasPressed()) {
-                if (client.currentScreen == null) {
-                    client.setScreen(ExampleScreen())
-                }
+            while (toggleJavaFXKey?.wasPressed() == true) {
+                logger.info("JavaFX toggle keybind pressed!")
+                JavaFXTestWindow.toggleTestWindow()
             }
         }
+    }
+
+    companion object {
+        private var toggleJavaFXKey: KeyBinding? = null
     }
 }

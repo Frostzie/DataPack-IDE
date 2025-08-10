@@ -3,15 +3,12 @@
   "package": "io.github.frostzie.datapackide.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "CaseInsensitiveCommandMapMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "overwrites": {
     "requireAnnotations": true
-  },
-  "client": [
-    "InGameHudMixin",
-    "imgui.MinecraftClientMixin"
-  ]
+  }
 }

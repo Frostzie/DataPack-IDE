@@ -1,8 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id 'org.openjfx.javafxplugin' version '0.1.0'
 	id "org.jetbrains.kotlin.jvm" version "2.2.0"
 }
 
@@ -19,14 +18,12 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
-
-	//maven {
-	//	url = uri('https://mcef-download.cinemamod.com/repositories/snapshots')
-	//}
-	//maven { url 'https://jitpack.io' }
-
-
 	mavenLocal()
+}
+
+javafx {
+	version = '21.0.8'
+	modules = ['javafx.controls', 'javafx.fxml']
 }
 
 dependencies {
@@ -37,16 +34,9 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
 
-	include implementation("io.github.spair:imgui-java-binding:${project.imgui_version}")
-	include implementation("io.github.spair:imgui-java-lwjgl3:${project.imgui_version}")
-
-	include implementation("io.github.spair:imgui-java-natives-windows:${project.imgui_version}")
-	include implementation("io.github.spair:imgui-java-natives-linux:${project.imgui_version}")
-	include implementation("io.github.spair:imgui-java-natives-macos:${project.imgui_version}")
-
-	//TODO: Use MCEF or LiquidBounce when they update to 1.21.6+
-	//modCompileOnly("com.cinemamod:mcef:${project.mcef}")
-	//modRuntimeOnly("com.cinemamod:mcef-fabric:${project.mcef_fabric}")
+	implementation "org.openjfx:javafx-controls:21.0.8"
+	implementation "org.openjfx:javafx-fxml:21.0.8"
+	implementation "org.openjfx:javafx-base:21.0.8"
 }
 
 processResources {
@@ -59,12 +49,6 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
-}
-
-tasks.withType(KotlinCompile).all {
-	kotlinOptions {
-		jvmTarget = 21
-	}
 }
 
 java {
