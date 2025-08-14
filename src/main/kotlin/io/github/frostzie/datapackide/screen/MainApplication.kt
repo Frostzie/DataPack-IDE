@@ -177,8 +177,7 @@ class MainApplication {
                 val scene = Scene(mainUI, 1000.0, 600.0)
 
                 try {
-                    val cssPath = "assets/datapack-ide/themes/custom.css"
-                    scene.stylesheets.add(cssPath)
+                    scene.stylesheets.add(javaClass.getResource("/assets/datapack-ide/themes/MenuBar.css")!!.toExternalForm())
                     LOGGER.info("Custom theme loaded successfully")
                 } catch (e: Exception) {
                     LOGGER.warn("Could not load custom theme: ${e.message}, using default styling")

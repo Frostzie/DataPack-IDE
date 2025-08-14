@@ -1,0 +1,67 @@
+
+/* Top-level MenuBar */
+.main-menu-bar {
+    -menu-bg: #333333;
+    -menu-text: #dddddd;
+    -menu-hover-bg: #444444;
+    -menu-hover-text: #ffffff;
+
+    -fx-background-color: -menu-bg;
+}
+
+/* Only color the labels that belong to the TOP-LEVEL menu nodes */
+.main-menu-bar .menu > .label {
+    -fx-text-fill: -menu-text;
+}
+
+/* Hover/active for the top titles only */
+.main-menu-bar .menu:hover,
+.main-menu-bar .menu:showing {
+    -fx-background-color: -menu-hover-bg;
+}
+.main-menu-bar .menu:hover > .label,
+.main-menu-bar .menu:showing > .label {
+    -fx-text-fill: -menu-hover-text;
+}
+
+/* Dropdown popups */
+.context-menu {
+    -menu-popup-bg: #ffffff;
+    -menu-popup-text: #1e1e1e;
+    -menu-popup-hover-bg: #e6e6e6;
+    -menu-popup-hover-text: #000000;
+
+    -fx-background-color: -menu-popup-bg;
+}
+
+/* Default text color INSIDE the popup (labels + accelerator text) */
+.context-menu .menu-item > .label,
+.context-menu .check-menu-item > .label,
+.context-menu .radio-menu-item > .label,
+.context-menu .menu > .label, /* submenu entry */
+.context-menu .menu-item > .accelerator-text {
+    -fx-text-fill: -menu-popup-text;
+}
+
+/* Hover/focus colors inside the popup */
+.context-menu .menu-item:hover,
+.context-menu .menu-item:focused {
+    -fx-background-color: -menu-popup-hover-bg;
+}
+.context-menu .menu-item:hover > .label,
+.context-menu .menu-item:focused > .label,
+.context-menu .menu-item:hover > .accelerator-text,
+.context-menu .menu-item:focused > .accelerator-text {
+    -fx-text-fill: -menu-popup-hover-text;
+}
+
+/* Optional emphasis for selected check/radio items */
+.context-menu .check-menu-item:checked > .label,
+.context-menu .radio-menu-item:selected > .label {
+    -fx-font-weight: bold;
+}
+
+/* Popup separator on light background */
+.context-menu .separator {
+    -fx-background-color: derive(-menu-popup-bg, -10%);
+}
