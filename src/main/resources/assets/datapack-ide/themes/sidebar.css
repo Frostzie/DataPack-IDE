@@ -1,5 +1,18 @@
+/* Container VBox */
+.left-sidebar {
+    -fx-background-color: #2b2b2b;
+    -fx-padding: 10;
+    -fx-spacing: 10;
+    -fx-pref-width: 40;
+}
+
+/* Button chrome */
 .sidebar-button {
     -size: 32;
+    -icon-size: 24;
+    -icon-color: #808080;
+    -icon-hover-color: #ffffff;
+
     -fx-min-height: -size;
     -fx-min-width: -size;
     -fx-max-height: -size;
@@ -12,4 +25,41 @@
 
 .sidebar-button:hover {
     -fx-background-color: #444444;
+}
+
+.svg-icon {
+    -fx-fill: -icon-color;
+    -fx-stroke: -icon-color;
+    -fx-stroke-width: 1.5;
+}
+
+.sidebar-button:hover .svg-icon {
+    -fx-fill: -icon-hover-color;
+    -fx-stroke: -icon-hover-color;
+}
+
+/* Individual icon tweaks */
+
+.icon-folder {}
+
+.icon-search {
+    -fx-fill: transparent;
+    -fx-stroke-width: 2;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+.sidebar-button:hover .icon-search {
+    -fx-fill: transparent;
+}
+
+.icon-run {
+    -fx-stroke-width: 2;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
+.icon-settings {
+    -fx-stroke-width: 2;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
 }
