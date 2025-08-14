@@ -1,7 +1,7 @@
 package io.github.frostzie.datapackide
 
 import io.github.frostzie.datapackide.commands.DefaultCommands
-import io.github.frostzie.datapackide.screen.JavaFXTestWindow
+import io.github.frostzie.datapackide.screen.MainApplication
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
@@ -15,25 +15,25 @@ class DataPackIDE : ModInitializer {
 
     override fun onInitialize() {
         logger.info("Pre-initializing JavaFX platform...")
-        JavaFXTestWindow.initializeJavaFX()
-        DefaultCommands.openMainScreen()
+        MainApplication.initializeJavaFX()
+        DefaultCommands.registerCommands()
 
-        toggleJavaFXKey = KeyBindingHelper.registerKeyBinding(KeyBinding(
-            "key.datapack-ide.toggle_javafx",
+        toggleIDEKey = KeyBindingHelper.registerKeyBinding(KeyBinding(
+            "key.datapack-ide.toggle_ide",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_H,
             "category.datapack-ide.general"
         ))
 
         ClientTickEvents.END_CLIENT_TICK.register { client ->
-            while (toggleJavaFXKey?.wasPressed() == true) {
-                logger.info("JavaFX toggle keybind pressed!")
-                JavaFXTestWindow.toggleTestWindow()
+            while (toggleIDEKey?.wasPressed() == true) {
+                logger.info("IDE toggle keybind pressed!")
+                MainApplication.toggleMainWindow()
             }
         }
     }
 
     companion object {
-        private var toggleJavaFXKey: KeyBinding? = null
+        private var toggleIDEKey: KeyBinding? = null
     }
 }

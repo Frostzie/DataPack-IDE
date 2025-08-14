@@ -1,0 +1,15 @@
+.sidebar-button {
+    -size: 32;
+    -fx-min-height: -size;
+    -fx-min-width: -size;
+    -fx-max-height: -size;
+    -fx-max-width: -size;
+
+    -fx-background-color: transparent;
+    -fx-background-radius: 4;
+    -fx-padding: 4;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #444444;
+}
