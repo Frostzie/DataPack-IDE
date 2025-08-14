@@ -5,7 +5,6 @@ yarn_mappings = "1.21.8+build.1"
 loom_version = "1.11-SNAPSHOT"
 loader_version = "0.17.2"
 fabric_version = "0.131.0+1.21.8"
-
 kotlin = "2.1.0"
 fabric_kotlin = "1.13.4+kotlin.2.2.0"
 modmenu = "15.0.0-beta.3"

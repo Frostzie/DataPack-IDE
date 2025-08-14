@@ -4,6 +4,7 @@ import io.github.frostzie.datapackide.screen.elements.bars.LeftSidebar
 import io.github.frostzie.datapackide.screen.elements.bars.MenuBar
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import javafx.application.Platform
 import javafx.scene.control.Label
 import javafx.scene.layout.BorderPane
@@ -13,6 +14,7 @@ import javafx.scene.Scene
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import org.slf4j.Logger
+import kotlin.system.exitProcess
 
 //TODO: After adding editing and file explorer window move to use css just like everything else.
 //TODO: For text editor use: https://github.com/FXMisc/RichTextFX
@@ -25,6 +27,7 @@ class MainApplication {
         private val LOGGER: Logger = LoggerProvider.getLogger("MainApplication")
         private var primaryStage: Stage? = null
         private var fxInitialized = false
+        private var isStandaloneMode = false //TODO: Make a standalone version without minecraft for testing windows
 
         // UI Components
         private var menuBar: MenuBar? = null
@@ -34,20 +37,31 @@ class MainApplication {
         fun initializeJavaFX() {
             if (!fxInitialized) {
                 System.setProperty("javafx.allowSystemPropertiesAccess", "true")
+                System.setProperty("prism.allowhidpi", "false")
+
                 try {
-                    Platform.startup {
-                        Platform.setImplicitExit(false)
+                    if (isStandaloneMode) {
+                        JavaFXInitializer.setImplicitExit(false)
                         fxInitialized = true
                         createMainWindow()
-                        LOGGER.info("JavaFX Platform initialized and main window pre-created!")
+                        LOGGER.info("JavaFX initialized in standalone mode!")
+                    } else {
+                        JavaFXInitializer.startup {
+                            JavaFXInitializer.setImplicitExit(false)
+                            fxInitialized = true
+                            createMainWindow()
+                            LOGGER.info("JavaFX Platform initialized and main window pre-created!")
+                        }
                     }
                 } catch (e: IllegalStateException) {
                     fxInitialized = true
-                    Platform.runLater {
-                        Platform.setImplicitExit(false)
+                    JavaFXInitializer.runLater {
+                        JavaFXInitializer.setImplicitExit(!isStandaloneMode)
                         createMainWindow()
                         LOGGER.info("JavaFX Platform was already initialized, main window pre-created!")
                     }
+                } catch (e: Exception) {
+                    LOGGER.error("Failed to initialize JavaFX", e)
                 }
             }
         }
@@ -119,8 +133,13 @@ class MainApplication {
         }
 
         private fun exitApplication() {
-            hideMainWindow()
-            LOGGER.info("Application exit requested")
+            if (isStandaloneMode) {
+                Platform.exit()
+                exitProcess(0)
+            } else {
+                hideMainWindow()
+                LOGGER.info("Application exit requested")
+            }
         }
 
         private fun performUndo() {
@@ -161,7 +180,7 @@ class MainApplication {
                 initializeJavaFX()
                 return
             }
-            Platform.runLater {
+            JavaFXInitializer.runLater {
                 if (primaryStage == null) {
                     createMainWindow()
                 }
@@ -182,25 +201,35 @@ class MainApplication {
                 val scene = Scene(mainUI, 1000.0, 600.0)
 
                 try {
-                    scene.stylesheets.add(javaClass.getResource("/assets/datapack-ide/themes/MenuBar.css")!!.toExternalForm())
-                    LOGGER.info("Custom theme loaded successfully")
+                    val cssUrl = MainApplication::class.java.getResource("/assets/datapack-ide/themes/MenuBar.css")
+                    if (cssUrl != null) {
+                        scene.stylesheets.add(cssUrl.toExternalForm())
+                        LOGGER.info("Custom theme loaded successfully")
+                    } else {
+                        LOGGER.warn("Custom theme file not found, using default styling")
+                    }
                 } catch (e: Exception) {
                     LOGGER.warn("Could not load custom theme: ${e.message}, using default styling")
                 }
 
                 stage.scene = scene
-                stage.title = "DataPack IDE"
+                stage.title = "DataPack IDE ${if (isStandaloneMode) "(Standalone)" else ""}"
                 stage.initStyle(StageStyle.DECORATED)
                 stage.width = 1000.0
                 stage.height = 600.0
                 stage.centerOnScreen()
 
                 stage.setOnCloseRequest { e ->
-                    e.consume()
-                    LOGGER.info("Close button pressed, hiding window...")
-                    Platform.runLater {
-                        stage.hide()
-                        LOGGER.info("Window hidden via close button!")
+                    if (isStandaloneMode) {
+                        Platform.exit()
+                        exitProcess(0)
+                    } else {
+                        e.consume()
+                        LOGGER.info("Close button pressed, hiding window...")
+                        JavaFXInitializer.runLater {
+                            stage.hide()
+                            LOGGER.info("Window hidden via close button!")
+                        }
                     }
                 }
 
@@ -212,7 +241,7 @@ class MainApplication {
         }
 
         fun hideMainWindow() {
-            Platform.runLater {
+            JavaFXInitializer.runLater {
                 primaryStage?.takeIf { it.isShowing }?.let {
                     it.hide()
                     LOGGER.info("Main IDE Window hidden via hideMainWindow()!")
