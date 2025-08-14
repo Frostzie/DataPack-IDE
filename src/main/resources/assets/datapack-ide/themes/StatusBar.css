@@ -1,0 +1,24 @@
+.status-bar {
+    -status-bg: #2b2b2b;
+    -status-text: #dddddd;
+    -status-separator: #555555;
+
+    -fx-background-color: -status-bg;
+    -fx-padding: 5 10 5 10;
+    -fx-spacing: 20;
+    -fx-alignment: center-left;
+}
+
+.status-label {
+    -fx-text-fill: -status-text;
+    -fx-font-size: 12px;
+}
+
+.status-spacer {
+    /* invisible flexible spacer */
+}
+
+.status-separator {
+    -fx-background-color: -status-separator;
+    -fx-pref-width: 1;
+}

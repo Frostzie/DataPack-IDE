@@ -14,6 +14,11 @@ import javafx.stage.Stage
 import javafx.stage.StageStyle
 import org.slf4j.Logger
 
+//TODO: After adding editing and file explorer window move to use css just like everything else.
+//TODO: For text editor use: https://github.com/FXMisc/RichTextFX
+//TODO: File explorer not sure if any dependencies needed or make fully ourselves
+//TODO: Add move explanation to css files since they later will be used as custom theme import examples!
+
 class MainApplication {
 
     companion object {

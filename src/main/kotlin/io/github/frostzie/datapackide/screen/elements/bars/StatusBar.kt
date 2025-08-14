@@ -2,7 +2,6 @@ package io.github.frostzie.datapackide.screen.elements.bars
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.beans.property.SimpleStringProperty
-import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.Separator
 import javafx.scene.layout.HBox
@@ -31,28 +30,22 @@ class StatusBar : HBox() {
     private val ideVersionLabel = Label()
 
     init {
-        setupStatusBar()
+        styleClass.add("status-bar")
+        stylesheets.add(javaClass.getResource("/assets/datapack-ide/themes/StatusBar.css")?.toExternalForm())
         createStatusElements()
         bindProperties()
         LOGGER.info("Status bar initialized")
     }
 
-    private fun setupStatusBar() {
-        spacing = 20.0
-        style = "-fx-padding: 5;"
-        alignment = Pos.CENTER_LEFT
-        styleClass.add("status-bar")
-    }
-
     private fun createStatusElements() {
         cursorLabel.styleClass.add("status-label")
         encodingLabel.styleClass.add("status-label")
+        ideVersionLabel.styleClass.add("status-label")
 
         val spacer = Region().apply {
             setHgrow(this, Priority.ALWAYS)
+            styleClass.add("status-spacer")
         }
-
-        ideVersionLabel.styleClass.add("status-label")
 
         children.addAll(
             cursorLabel,
