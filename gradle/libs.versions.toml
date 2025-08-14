@@ -1,0 +1,33 @@
+[versions]
+version = "0.0.1-dev"
+minecraft = "1.21.8"
+yarn_mappings = "1.21.8+build.1"
+loom_version = "1.11-SNAPSHOT"
+loader_version = "0.17.2"
+fabric_version = "0.131.0+1.21.8"
+
+kotlin = "2.1.0"
+fabric_kotlin = "1.13.4+kotlin.2.2.0"
+modmenu = "15.0.0-beta.3"
+devauth = "1.2.1"
+javafx = "21.0.8"
+javafx_plugin = "0.1.0"
+
+[libraries]
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+yarn = { module = "net.fabricmc:yarn", version.ref = "yarn_mappings" }
+fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "loader_version" }
+fabric_api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_version" }
+fabric_kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric_kotlin" }
+modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
+devauth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
+
+javafxcontrols = { module = "org.openjfx:javafx-controls", version.ref = "javafx"}
+javafxfxml = { module = "org.openjfx:javafx-fxml", version.ref = "javafx"}
+javafxbase = { module = "org.openjfx:javafx-base", version.ref = "javafx"}
+
+
+[plugins]
+fabric_loom = { id = "fabric-loom", version.ref = "loom_version"}
+kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+javafx = { id = "org.openjfx.javafxplugin", version.ref = "javafx_plugin" }
