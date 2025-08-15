@@ -1,8 +1,13 @@
 .status-bar {
-    -status-bg: #2b2b2b;
-    -status-text: #dddddd;
+    -status-border: #2b2b2b;
+    -status-bg: #181818;
+    -status-text: #cccccc;
     -status-separator: #555555;
 
+    -fx-border-color: -status-border;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    
     -fx-background-color: -status-bg;
     -fx-padding: 5 10 5 10;
     -fx-spacing: 20;
