@@ -1,11 +1,15 @@
 
 /* Top-level MenuBar */
 .main-menu-bar {
-    -menu-bg: #333333;
+    -menu-border: #2b2b2b;
+    -menu-bg: #181818;
     -menu-text: #dddddd;
     -menu-hover-bg: #444444;
     -menu-hover-text: #ffffff;
 
+    -fx-border-color: -menu-border;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
     -fx-background-color: -menu-bg;
 }
 
