@@ -1,0 +1,143 @@
+/* New File Window Root */
+.new-file-window {
+    -fx-background-color: #252526;
+    -fx-text-fill: #dddddd;
+    -fx-pref-width: 400;
+    -fx-pref-height: 320;
+    -fx-border-color: #444444;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 0, 2);
+
+    -popup-bg: #252526;
+    -popup-text: #dddddd;
+    -input-bg: #383838;
+    -input-text: #ffffff;
+    -input-border: #555555;
+    -input-border-focus: #0078d4;
+    -button-bg: #404040;
+    -button-hover-bg: #4a4a4a;
+    -button-text: #dddddd;
+    -create-button-bg: #0078d4;
+    -create-button-hover-bg: #106ebe;
+    -cancel-button-bg: #6d6d6d;
+    -cancel-button-hover-bg: #7a7a7a;
+
+    -fx-background-color: -popup-bg; /* Dark background for the whole window */
+    -fx-text-fill: -popup-text;
+    -fx-border-color: #444444; /* Subtle border */
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 2); /* Drop shadow for depth */
+}
+
+/* Container for main content */
+.content-container {
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-alignment: top-center;
+}
+
+/* Header */
+.popup-header {
+    -fx-background-color: #333333;
+    -fx-border-color: transparent transparent #444444 transparent;
+    -fx-border-width: 1px;
+    -fx-padding: 10;
+}
+
+/* Title */
+.title-label {
+    -fx-text-fill: -popup-text;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Input Sections */
+.input-section {
+    -fx-alignment: center-left;
+}
+
+.input-label {
+    -fx-text-fill: -popup-text;
+    -fx-font-size: 12px;
+    -fx-font-weight: normal;
+}
+
+/* File Name Input */
+.filename-input {
+    -fx-background-color: -input-bg;
+    -fx-text-fill: -input-text;
+    -fx-border-color: -input-border;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 12px;
+    -fx-prompt-text-fill: derive(-input-text, -30%);
+}
+
+.filename-input:focused {
+    -fx-border-color: -input-border-focus;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, -input-border-focus, 3, 0, 0, 0);
+}
+
+/* Make listview invisible (blend with background) */
+.file-type-list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-padding: 0;
+}
+
+/* Hide vertical/horizontal scroll bars */
+.file-type-list-view .scroll-bar:vertical,
+.file-type-list-view .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-max-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+}
+
+/* List cells default */
+.file-type-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -input-text;
+    -fx-padding: 6 10;
+    -fx-font-size: 12px;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}
+
+/* Hover (soft box) */
+.file-type-list-view .list-cell:hover {
+    -fx-background-color: derive(-input-bg, 15%);
+    -fx-background-radius: 5px;
+}
+
+/* Selected (IntelliJ-style highlight) */
+.file-type-list-view .list-cell:filled:selected {
+    -fx-background-color: -input-border-focus;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0,120,212,0.3), 6, 0, 0, 1);
+}
+
+/* Button Section */
+.button-section {
+    -fx-padding: 10 0 0 0;
+}
+
+/* Custom Close Button for Popup */
+.close-button-popup {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cccccc;
+    -fx-font-size: 16px;
+    -fx-padding: 0 8 0 8;
+    -fx-cursor: hand;
+}
+
+.close-button-popup:hover {
+    -fx-background-color: #e81123; /* Red on hover */
+    -fx-text-fill: white;
+}

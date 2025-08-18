@@ -1,0 +1,170 @@
+/* Text Editor */
+.text-editor-container {
+    -editor-bg: #1e1e1e;
+    -editor-text: #d4d4d4;
+    -editor-selection-bg: #264f78;
+    -editor-selection-text: #ffffff;
+    -editor-caret: #ffffff;
+    -editor-line-highlight: #2a2a2a;
+    -scrollbar-bg: #2b2b2b;
+    -scrollbar-thumb: #555555;
+    -scrollbar-thumb-hover: #777777;
+
+    -fx-background-color: -editor-bg;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+}
+
+/* Main Text Area */
+.main-text-area {
+    -fx-background-color: -editor-bg;
+    -fx-text-fill: -editor-text;
+    -fx-highlight-fill: -editor-selection-bg;
+    -fx-highlight-text-fill: -editor-selection-text;
+    -fx-font-family: "Consolas", "Monaco", "Lucida Console", monospace;
+    -fx-font-size: 14px;
+    -fx-padding: 10;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.main-text-area:focused {
+    -fx-background-color: -editor-bg;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+}
+
+.main-text-area .content {
+    -fx-background-color: -editor-bg;
+    -fx-padding: 0;
+}
+
+/* Remove default TextArea styling */
+.main-text-area .scroll-pane {
+    -fx-background-color: -editor-bg;
+    -fx-border-color: transparent;
+}
+
+.main-text-area .scroll-pane .viewport {
+    -fx-background-color: -editor-bg;
+}
+
+.main-text-area .scroll-pane .corner {
+    -fx-background-color: -scrollbar-bg;
+}
+
+/* Text Editor Scroll Pane */
+.text-editor-scroll {
+    -fx-background-color: -editor-bg;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.text-editor-scroll .viewport {
+    -fx-background-color: -editor-bg;
+}
+
+.text-editor-scroll .corner {
+    -fx-background-color: -scrollbar-bg;
+}
+
+/* Custom Scrollbars */
+.text-editor-scroll .scroll-bar:horizontal,
+.text-editor-scroll .scroll-bar:vertical {
+    -fx-background-color: -scrollbar-bg;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+}
+
+.text-editor-scroll .scroll-bar .track {
+    -fx-background-color: -scrollbar-bg;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}
+
+.text-editor-scroll .scroll-bar .thumb {
+    -fx-background-color: -scrollbar-thumb;
+    -fx-background-insets: 2;
+    -fx-background-radius: 4;
+    -fx-border-color: transparent;
+}
+
+.text-editor-scroll .scroll-bar .thumb:hover {
+    -fx-background-color: -scrollbar-thumb-hover;
+}
+
+.text-editor-scroll .scroll-bar .thumb:pressed {
+    -fx-background-color: derive(-scrollbar-thumb-hover, 20%);
+}
+
+/* Scroll Bar Buttons */
+.text-editor-scroll .scroll-bar .increment-button,
+.text-editor-scroll .scroll-bar .decrement-button {
+    -fx-background-color: -scrollbar-bg;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-shape: null;
+    -fx-padding: 0;
+}
+
+.text-editor-scroll .scroll-bar .increment-arrow,
+.text-editor-scroll .scroll-bar .decrement-arrow {
+    -fx-background-color: -scrollbar-thumb;
+    -fx-padding: 0;
+    -fx-shape: null;
+}
+
+.text-editor-scroll .scroll-bar:horizontal .increment-button,
+.text-editor-scroll .scroll-bar:horizontal .decrement-button {
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-min-width: 0;
+}
+
+.text-editor-scroll .scroll-bar:vertical .increment-button,
+.text-editor-scroll .scroll-bar:vertical .decrement-button {
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+    -fx-min-height: 0;
+}
+
+/* Syntax highlighting preparation for RichTextFX */
+.text-editor-container .keyword {
+    -fx-fill: #569cd6;
+}
+
+.text-editor-container .string {
+    -fx-fill: #ce9178;
+}
+
+.text-editor-container .comment {
+    -fx-fill: #6a9955;
+}
+
+.text-editor-container .number {
+    -fx-fill: #b5cea8;
+}
+
+.text-editor-container .operator {
+    -fx-fill: #d4d4d4;
+}
+
+/* JSON-specific highlighting */
+.text-editor-container .json-key {
+    -fx-fill: #9cdcfe;
+}
+
+.text-editor-container .json-value {
+    -fx-fill: #ce9178;
+}
+
+.text-editor-container .json-bracket {
+    -fx-fill: #ffd700;
+}

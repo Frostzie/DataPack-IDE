@@ -1,0 +1,120 @@
+/* Title Bar */
+.title-bar {
+    -title-bg: #181818;
+    -title-border: #2b2b2b;
+    -title-text: #dddddd;
+
+    -fx-background-color: -title-bg;
+    -fx-border-color: -title-border;
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+    -fx-alignment: center-left;
+    -fx-min-height: 32;
+    -fx-max-height: 32;
+    -fx-pref-height: 32;
+}
+
+/* Menu Bar within Title Bar */
+.title-bar .title-menu-bar {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+/* Override MenuBar styling when in title bar */
+.title-bar .title-menu-bar .menu > .label {
+    -fx-text-fill: -title-text;
+    -fx-font-size: 13px;
+    -fx-padding: 6 12 6 12;
+}
+
+.title-bar .title-menu-bar .menu:hover,
+.title-bar .title-menu-bar .menu:showing {
+    -fx-background-color: #444444;
+}
+
+.title-bar .title-menu-bar .menu:hover > .label,
+.title-bar .title-menu-bar .menu:showing > .label {
+    -fx-text-fill: #ffffff;
+}
+
+/* Title Spacer */
+.title-spacer {
+    -fx-background-color: transparent;
+}
+
+/* Window Controls Container */
+.window-controls {
+    -fx-background-color: transparent;
+    -fx-spacing: 0;
+    -fx-alignment: center-right;
+}
+
+/* Window Control Buttons */
+.window-control-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-width: 0;
+    -fx-text-fill: -title-text;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-min-width: 46;
+    -fx-max-width: 46;
+    -fx-pref-width: 46;
+    -fx-min-height: 32;
+    -fx-max-height: 32;
+    -fx-pref-height: 32;
+    -fx-cursor: hand;
+}
+
+.window-control-button:hover {
+    -fx-background-color: #444444;
+    -fx-text-fill: #ffffff;
+}
+
+/* Specific button styling */
+.minimize-button:hover {
+    -fx-background-color: #404040;
+}
+
+.maximize-button:hover {
+    -fx-background-color: #404040;
+}
+
+.close-button {
+    -fx-font-size: 16px;
+}
+
+.close-button:hover {
+    -fx-background-color: #e81123;
+    -fx-text-fill: #ffffff;
+}
+
+.title-bar .context-menu {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 4);
+}
+
+.title-bar .context-menu .menu-item > .label,
+.title-bar .context-menu .check-menu-item > .label,
+.title-bar .context-menu .radio-menu-item > .label,
+.title-bar .context-menu .menu > .label,
+.title-bar .context-menu .menu-item > .accelerator-text {
+    -fx-text-fill: #1e1e1e;
+}
+
+.title-bar .context-menu .menu-item:hover,
+.title-bar .context-menu .menu-item:focused {
+    -fx-background-color: #e6e6e6;
+}
+
+.title-bar .context-menu .menu-item:hover > .label,
+.title-bar .context-menu .menu-item:focused > .label,
+.title-bar .context-menu .menu-item:hover > .accelerator-text,
+.title-bar .context-menu .menu-item:focused > .accelerator-text {
+    -fx-text-fill: #000000;
+}

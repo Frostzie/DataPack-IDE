@@ -46,7 +46,6 @@ class MenuBar : javafx.scene.control.MenuBar() {
         menus.addAll(
             createFileMenu(),
             createEditMenu(),
-            createViewMenu(),
             createDatapackMenu(),
             createHelpMenu()
         )
@@ -99,32 +98,6 @@ class MenuBar : javafx.scene.control.MenuBar() {
                 createMenuItem("Find", "menu-item-find", KeyCode.F, KeyCombination.CONTROL_DOWN) { onFind?.invoke() },
                 createMenuItem("Replace", "menu-item-replace", KeyCode.R, KeyCombination.CONTROL_DOWN) { onReplace?.invoke() }
             )
-        }
-    }
-
-    private fun createViewMenu(): Menu {
-        return Menu("View").apply {
-            styleClass.add("menu-view")
-            val toggleSidebarItem = CheckMenuItem("Show Sidebar").apply {
-                isSelected = true
-                styleClass.add("menu-item-toggle-sidebar")
-                setOnAction { logger.info("Toggle Sidebar: $isSelected") }
-            }
-
-            val toggleStatusBarItem = CheckMenuItem("Show Status Bar").apply {
-                isSelected = true
-                styleClass.add("menu-item-toggle-statusbar")
-                setOnAction { logger.info("Toggle Status Bar: $isSelected") }
-            }
-
-            val themeMenu = Menu("Theme").apply {
-                styleClass.add("menu-theme")
-                val darkThemeItem = RadioMenuItem("Dark Theme").apply { styleClass.add("menu-item-darktheme") }
-                val lightThemeItem = RadioMenuItem("Light Theme").apply { styleClass.add("menu-item-lighttheme") }
-                items.addAll(darkThemeItem, lightThemeItem)
-            }
-
-            items.addAll(toggleSidebarItem, toggleStatusBarItem, SeparatorMenuItem(), themeMenu)
         }
     }
 

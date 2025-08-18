@@ -1,38 +1,37 @@
 package io.github.frostzie.datapackide.screen
 
+import io.github.frostzie.datapackide.screen.elements.TextEditor
 import io.github.frostzie.datapackide.screen.elements.bars.LeftSidebar
-import io.github.frostzie.datapackide.screen.elements.bars.MenuBar
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
+import io.github.frostzie.datapackide.screen.elements.bars.TitleBar
+import io.github.frostzie.datapackide.screen.handlers.MenuActionHandler
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import javafx.application.Platform
-import javafx.scene.control.Label
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.Scene
 import javafx.stage.Stage
 import javafx.stage.StageStyle
-import org.slf4j.Logger
 import kotlin.system.exitProcess
-
-//TODO: After adding editing and file explorer window move to use css just like everything else.
-//TODO: For text editor use: https://github.com/FXMisc/RichTextFX
-//TODO: File explorer not sure if any dependencies needed or make fully ourselves
-//TODO: Add move explanation to css files since they later will be used as custom theme import examples!
 
 class MainApplication {
 
     companion object {
-        private val LOGGER: Logger = LoggerProvider.getLogger("MainApplication")
+        private val logger = LoggerProvider.getLogger("MainApplication")
         private var primaryStage: Stage? = null
         private var fxInitialized = false
-        private var isStandaloneMode = false //TODO: Make a standalone version without minecraft for testing windows
+        private var isStandaloneMode = false
 
         // UI Components
-        private var menuBar: MenuBar? = null
+        private var titleBar: TitleBar? = null
         private var leftSidebar: LeftSidebar? = null
         private var statusBar: StatusBar? = null
+        private var textEditor: TextEditor? = null
+
+        // Action handler
+        private var menuActionHandler: MenuActionHandler? = null
 
         fun initializeJavaFX() {
             if (!fxInitialized) {
@@ -44,13 +43,13 @@ class MainApplication {
                         JavaFXInitializer.setImplicitExit(false)
                         fxInitialized = true
                         createMainWindow()
-                        LOGGER.info("JavaFX initialized in standalone mode!")
+                        logger.info("JavaFX initialized in standalone mode!")
                     } else {
                         JavaFXInitializer.startup {
                             JavaFXInitializer.setImplicitExit(false)
                             fxInitialized = true
                             createMainWindow()
-                            LOGGER.info("JavaFX Platform initialized and main window pre-created!")
+                            logger.info("JavaFX Platform initialized and main window pre-created!")
                         }
                     }
                 } catch (e: IllegalStateException) {
@@ -58,29 +57,32 @@ class MainApplication {
                     JavaFXInitializer.runLater {
                         JavaFXInitializer.setImplicitExit(!isStandaloneMode)
                         createMainWindow()
-                        LOGGER.info("JavaFX Platform was already initialized, main window pre-created!")
+                        logger.info("JavaFX Platform was already initialized, main window pre-created!")
                     }
                 } catch (e: Exception) {
-                    LOGGER.error("Failed to initialize JavaFX", e)
+                    logger.error("Failed to initialize JavaFX", e)
                 }
             }
         }
 
-        private fun createMainUI(): BorderPane {
+        private fun createMainUI(stage: Stage): BorderPane {
             val root = BorderPane()
-
-            // Initialize components
-            menuBar = MenuBar().also { setupMenuBarCallbacks(it) }
+            
+            titleBar = TitleBar(stage, isStandaloneMode)
             leftSidebar = LeftSidebar()
             statusBar = StatusBar()
-
-            val placeholder = Label("File Explorer and Text Editor currently not implemented!")
+            textEditor = TextEditor()
+            
+            menuActionHandler = MenuActionHandler(textEditor, statusBar, primaryStage)
+            
+            setupTitleBarCallbacks()
+            setupTextEditorBindings()
+            
             val mainContent = VBox().apply {
-                children.addAll(menuBar, placeholder)
-                VBox.setVgrow(placeholder, Priority.ALWAYS)
+                children.addAll(titleBar, textEditor)
+                VBox.setVgrow(textEditor, Priority.ALWAYS)
             }
-
-            // Layout components
+            
             root.left = leftSidebar
             root.center = mainContent
             root.bottom = statusBar
@@ -88,48 +90,47 @@ class MainApplication {
             return root
         }
 
-        private fun setupMenuBarCallbacks(menuBar: MenuBar) {
-            menuBar.onNewFile = { createNewFile() }
-            menuBar.onOpenFile = { openFile() }
-            menuBar.onSaveFile = { saveCurrentFile() }
-            menuBar.onSaveAsFile = { saveAsFile() }
-            menuBar.onCloseFile = { closeCurrentFile() }
-            menuBar.onExit = { exitApplication() }
-
-            menuBar.onUndo = { performUndo() }
-            menuBar.onRedo = { performRedo() }
-            menuBar.onCut = { performCut() }
-            menuBar.onCopy = { performCopy() }
-            menuBar.onPaste = { performPaste() }
-            menuBar.onFind = { showFindDialog() }
-            menuBar.onReplace = { showReplaceDialog() }
-
-            menuBar.onRunDatapack = { runDatapack() }
-            menuBar.onValidateDatapack = { validateDatapack() }
-            menuBar.onPackageDatapack = { packageDatapack() }
-
-            menuBar.onPreferences = { showPreferences() }
+        private fun setupTextEditorBindings() {
+            textEditor?.let { editor ->
+                statusBar?.let { status ->
+                    editor.onCursorPositionChanged = { line, column ->
+                        status.updateCursorPosition(line, column)
+                    }
+                    logger.debug("Text editor bindings set up with status bar")
+                }
+            }
         }
 
-        // Menu action implementations replaced with placeholders since editor is removed
-        private fun createNewFile() {
-            LOGGER.info("createNewFile() disabled as Editor is removed")
-        }
+        private fun setupTitleBarCallbacks() {
+            titleBar?.let { bar ->
+                menuActionHandler?.let { handler ->
+                    // File menu
+                    bar.onNewFile = { handler.createNewFile() }
+                    bar.onOpenFile = { handler.openFile() }
+                    bar.onSaveFile = { handler.saveCurrentFile() }
+                    bar.onSaveAsFile = { handler.saveAsFile() }
+                    bar.onCloseFile = { handler.closeCurrentFile() }
+                    bar.onExit = { exitApplication() }
 
-        private fun openFile() {
-            LOGGER.info("openFile() disabled as Editor is removed")
-        }
+                    // Edit menu
+                    bar.onUndo = { handler.performUndo() }
+                    bar.onRedo = { handler.performRedo() }
+                    bar.onCut = { handler.performCut() }
+                    bar.onCopy = { handler.performCopy() }
+                    bar.onPaste = { handler.performPaste() }
+                    bar.onFind = { handler.showFindDialog() }
+                    bar.onReplace = { handler.showReplaceDialog() }
 
-        private fun saveCurrentFile() {
-            LOGGER.info("saveCurrentFile() disabled as Editor is removed")
-        }
+                    // Datapack menu
+                    bar.onRunDatapack = { handler.runDatapack() }
+                    bar.onValidateDatapack = { handler.validateDatapack() }
+                    bar.onPackageDatapack = { handler.packageDatapack() }
 
-        private fun saveAsFile() {
-            LOGGER.info("saveAsFile() disabled as Editor is removed")
-        }
-
-        private fun closeCurrentFile() {
-            LOGGER.info("closeCurrentFile() disabled as Editor is removed")
+                    // Help menu
+                    bar.onPreferences = { handler.showPreferences() }
+                    bar.onAbout = { handler.showAbout() }
+                }
+            }
         }
 
         private fun exitApplication() {
@@ -138,41 +139,8 @@ class MainApplication {
                 exitProcess(0)
             } else {
                 hideMainWindow()
-                LOGGER.info("Application exit requested")
+                logger.info("Application exit requested")
             }
-        }
-
-        private fun performUndo() {
-        }
-
-        private fun performRedo() {
-        }
-
-        private fun performCut() {
-        }
-
-        private fun performCopy() {
-        }
-
-        private fun performPaste() {
-        }
-
-        private fun showFindDialog() {
-        }
-
-        private fun showReplaceDialog() {
-        }
-
-        private fun runDatapack() {
-        }
-
-        private fun validateDatapack() {
-        }
-
-        private fun packageDatapack() {
-        }
-
-        private fun showPreferences() {
         }
 
         fun showMainWindow() {
@@ -186,7 +154,8 @@ class MainApplication {
                 }
                 primaryStage?.show()
                 primaryStage?.toFront()
-                LOGGER.info("Main IDE Window shown!")
+                textEditor?.requestFocus()
+                logger.info("Main IDE Window shown!")
             }
         }
 
@@ -195,48 +164,60 @@ class MainApplication {
 
             try {
                 val stage = Stage()
-
-                // Create UI components
-                val mainUI = createMainUI()
-                val scene = Scene(mainUI, 1000.0, 600.0)
-
-                try {
-                    val cssUrl = MainApplication::class.java.getResource("/assets/datapack-ide/themes/MenuBar.css")
-                    if (cssUrl != null) {
-                        scene.stylesheets.add(cssUrl.toExternalForm())
-                        LOGGER.info("Custom theme loaded successfully")
-                    } else {
-                        LOGGER.warn("Custom theme file not found, using default styling")
-                    }
-                } catch (e: Exception) {
-                    LOGGER.warn("Could not load custom theme: ${e.message}, using default styling")
-                }
-
+                
+                val mainUI = createMainUI(stage)
+                val scene = Scene(mainUI, 1200.0, 800.0)
+                
+                loadStylesheets(scene)
+                
                 stage.scene = scene
                 stage.title = "DataPack IDE ${if (isStandaloneMode) "(Standalone)" else ""}"
-                stage.initStyle(StageStyle.DECORATED)
-                stage.width = 1000.0
-                stage.height = 600.0
+                
+                stage.initStyle(StageStyle.UNDECORATED)
+                stage.width = 1200.0
+                stage.height = 800.0
                 stage.centerOnScreen()
-
+                
                 stage.setOnCloseRequest { e ->
                     if (isStandaloneMode) {
                         Platform.exit()
                         exitProcess(0)
                     } else {
                         e.consume()
-                        LOGGER.info("Close button pressed, hiding window...")
+                        logger.info("Close button pressed, hiding window...")
                         JavaFXInitializer.runLater {
                             stage.hide()
-                            LOGGER.info("Window hidden via close button!")
+                            logger.info("Window hidden via close button!")
                         }
                     }
                 }
 
                 primaryStage = stage
-                LOGGER.info("Main IDE Window created (hidden)!")
+                logger.info("Main IDE Window created with custom title bar (hidden)!")
             } catch (e: Exception) {
-                LOGGER.error("Failed to create main window: ${e.message}", e)
+                logger.error("Failed to create main window: ${e.message}", e)
+            }
+        }
+
+        private fun loadStylesheets(scene: Scene) {
+            val cssFiles = listOf(
+                "/assets/datapack-ide/themes/MenuBar.css",
+                "/assets/datapack-ide/themes/TitleBar.css"
+            )
+
+            try {
+                cssFiles.forEach { cssPath ->
+                    val cssUrl = MainApplication::class.java.getResource(cssPath)
+                    if (cssUrl != null) {
+                        scene.stylesheets.add(cssUrl.toExternalForm())
+                        logger.debug("Loaded CSS: $cssPath")
+                    } else {
+                        logger.warn("CSS file not found: $cssPath")
+                    }
+                }
+                logger.info("Custom themes loaded successfully")
+            } catch (e: Exception) {
+                logger.warn("Could not load custom themes: ${e.message}, using default styling")
             }
         }
 
@@ -244,7 +225,7 @@ class MainApplication {
             JavaFXInitializer.runLater {
                 primaryStage?.takeIf { it.isShowing }?.let {
                     it.hide()
-                    LOGGER.info("Main IDE Window hidden via hideMainWindow()!")
+                    logger.info("Main IDE Window hidden via hideMainWindow()!")
                 }
             }
         }
@@ -255,7 +236,7 @@ class MainApplication {
 
         fun toggleMainWindow() {
             if (!fxInitialized) {
-                LOGGER.info("JavaFX not initialized yet, initializing...")
+                logger.info("JavaFX not initialized yet, initializing...")
                 initializeJavaFX()
                 return
             }
@@ -265,13 +246,14 @@ class MainApplication {
                 }
                 primaryStage?.let { stage ->
                     if (stage.isShowing) {
-                        LOGGER.info("Window is showing, hiding it...")
+                        logger.info("Window is showing, hiding it...")
                         stage.hide()
-                        LOGGER.info("Main IDE Window hidden!")
+                        logger.info("Main IDE Window hidden!")
                     } else {
                         stage.show()
                         stage.toFront()
-                        LOGGER.info("Main IDE Window shown!")
+                        textEditor?.requestFocus()
+                        logger.info("Main IDE Window shown!")
                     }
                 }
             }
