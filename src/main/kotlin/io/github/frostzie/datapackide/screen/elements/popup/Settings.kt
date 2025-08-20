@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.screen.elements.popup
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
@@ -39,8 +40,7 @@ class Settings(private val parentStage: Stage?) {
         val scene = Scene(content, 600.0, 500.0)
 
         try {
-            val cssUrl = Settings::class.java.getResource("/assets/datapack-ide/themes/Settings.css")
-            cssUrl?.let { scene.stylesheets.add(it.toExternalForm()) }
+            CSSManager.applyPopupStyles(scene, "Settings")
         } catch (e: Exception) {
             logger.warn("Could not load Settings CSS: ${e.message}")
         }

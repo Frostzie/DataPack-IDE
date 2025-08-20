@@ -15,7 +15,7 @@ object FileUtils {
 
     private val logger = LoggerProvider.getLogger("FileUtils")
 
-    private val configDir: Path = FabricLoader.getInstance().configDir.resolve("datapack_ide")
+    private val configDir: Path = FabricLoader.getInstance().configDir.resolve("datapack-ide")
     private val datapacksDir: Path = configDir.resolve("datapacks")
     private val recentFilesFile: Path = configDir.resolve("recent_files.json")
 

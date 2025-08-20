@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
@@ -37,7 +38,7 @@ class MenuBar : javafx.scene.control.MenuBar() {
 
     init {
         styleClass.add("main-menu-bar")
-        stylesheets.add(javaClass.getResource("/assets/datapack-ide/themes/MenuBar.css")?.toExternalForm())
+        CSSManager.applyToComponent(stylesheets, "MenuBar")
         createMenus()
         logger.info("MenuBar initialized")
     }

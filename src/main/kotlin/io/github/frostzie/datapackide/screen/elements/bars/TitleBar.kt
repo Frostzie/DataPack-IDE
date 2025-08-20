@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.control.Button
@@ -53,7 +54,7 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
 
     private fun setupTitleBar() {
         styleClass.add("title-bar")
-        stylesheets.add(javaClass.getResource("/assets/datapack-ide/themes/TitleBar.css")?.toExternalForm())
+        CSSManager.applyToComponent(stylesheets, "TitleBar")
         alignment = Pos.CENTER_LEFT
         spacing = 10.0
         prefHeight = 32.0

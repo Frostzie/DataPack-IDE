@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.screen.elements
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextArea
@@ -34,7 +35,7 @@ class TextEditor : VBox() {
 
     private fun setupTextEditor() {
         styleClass.add("text-editor-container")
-        stylesheets.add(javaClass.getResource("/assets/datapack-ide/themes/TextEditor.css")?.toExternalForm())
+        CSSManager.applyToComponent(stylesheets, "TextEditor")
 
         textArea = TextArea().apply {
             styleClass.add("main-text-area")

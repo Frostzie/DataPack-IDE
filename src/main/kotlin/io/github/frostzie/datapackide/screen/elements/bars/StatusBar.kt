@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.Label
 import javafx.scene.control.Separator
@@ -31,7 +32,7 @@ class StatusBar : HBox() {
 
     init {
         styleClass.add("status-bar")
-        stylesheets.add(javaClass.getResource("/assets/datapack-ide/themes/StatusBar.css")?.toExternalForm())
+        CSSManager.applyToComponent(stylesheets, "StatusBar")
         createStatusElements()
         bindProperties()
         LOGGER.info("Status bar initialized")

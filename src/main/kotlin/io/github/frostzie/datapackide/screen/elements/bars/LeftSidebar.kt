@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.scene.control.Button
 import javafx.scene.control.ContentDisplay
 import javafx.scene.control.Tooltip
@@ -22,7 +23,7 @@ class LeftSidebar : VBox() {
 
     private fun setupSidebar() {
         styleClass.add("left-sidebar")
-        stylesheets.add(javaClass.getResource("/assets/datapack-ide/themes/sidebar.css")?.toExternalForm())
+        CSSManager.applyToComponent(stylesheets, "LeftBar")
         logger.info("Left sidebar initialized")
     }
 

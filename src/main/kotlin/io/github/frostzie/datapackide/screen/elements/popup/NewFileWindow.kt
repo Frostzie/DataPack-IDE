@@ -2,6 +2,7 @@ package io.github.frostzie.datapackide.screen.elements.popup
 
 import io.github.frostzie.datapackide.utils.FileUtils
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.*
@@ -50,8 +51,7 @@ class NewFileWindow(private val parentStage: Stage?) {
         val scene = Scene(content)
 
         try {
-            val cssUrl = NewFileWindow::class.java.getResource("/assets/datapack-ide/themes/NewFileWindow.css")
-            cssUrl?.let { scene.stylesheets.add(it.toExternalForm()) }
+            CSSManager.applyPopupStyles(scene, "NewFileWindow")
         } catch (e: Exception) {
             logger.warn("Could not load NewFileWindow CSS: ${e.message}")
         }
