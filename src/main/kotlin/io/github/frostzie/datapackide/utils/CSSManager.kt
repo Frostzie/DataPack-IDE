@@ -19,7 +19,8 @@ object CSSManager {
         "TextEditor.css",
         "NewFileWindow.css",
         "Settings.css",
-        "LeftBar.css"
+        "LeftBar.css",
+        "FileTree.css"
     )
 
     /**

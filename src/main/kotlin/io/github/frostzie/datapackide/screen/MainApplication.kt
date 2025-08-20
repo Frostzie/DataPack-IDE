@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.screen
 
 import io.github.frostzie.datapackide.screen.elements.TextEditor
+import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftSidebar
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
 import io.github.frostzie.datapackide.screen.elements.bars.TitleBar
@@ -9,6 +10,7 @@ import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import javafx.application.Platform
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.Scene
@@ -27,6 +29,7 @@ class MainApplication {
         // UI Components
         private var titleBar: TitleBar? = null
         private var leftSidebar: LeftSidebar? = null
+        private var fileTreeView: FileTreeView? = null
         private var statusBar: StatusBar? = null
         private var textEditor: TextEditor? = null
 
@@ -67,27 +70,48 @@ class MainApplication {
 
         private fun createMainUI(stage: Stage): BorderPane {
             val root = BorderPane()
-            
+
             titleBar = TitleBar(stage, isStandaloneMode)
             leftSidebar = LeftSidebar()
+            fileTreeView = FileTreeView()
             statusBar = StatusBar()
             textEditor = TextEditor()
-            
+
             menuActionHandler = MenuActionHandler(textEditor, statusBar, primaryStage)
-            
+
             setupTitleBarCallbacks()
             setupTextEditorBindings()
-            
-            val mainContent = VBox().apply {
-                children.addAll(titleBar, textEditor)
-                VBox.setVgrow(textEditor, Priority.ALWAYS)
+            setupEventHandlers()
+
+            val contentArea = HBox().apply {
+                children.addAll(fileTreeView, textEditor)
+                HBox.setHgrow(textEditor, Priority.ALWAYS)
+                spacing = 0.0
             }
-            
+
+            val mainContent = VBox().apply {
+                children.addAll(titleBar, contentArea)
+                VBox.setVgrow(contentArea, Priority.ALWAYS)
+            }
+
             root.left = leftSidebar
             root.center = mainContent
             root.bottom = statusBar
 
             return root
+        }
+
+        private fun setupEventHandlers() {
+            io.github.frostzie.datapackide.events.EventBus.register<io.github.frostzie.datapackide.events.FileOpenEvent> { event ->
+                logger.info("FileOpenEvent received: ${event.filePath}")
+                try {
+                    val content = event.filePath.toFile().readText()
+                    textEditor?.setText(content, event.filePath.toString())
+                    logger.info("File opened successfully: ${event.filePath.fileName}")
+                } catch (e: Exception) {
+                    logger.error("Failed to open file: ${event.filePath}", e)
+                }
+            }
         }
 
         private fun setupTextEditorBindings() {
@@ -164,20 +188,20 @@ class MainApplication {
 
             try {
                 val stage = Stage()
-                
+
                 val mainUI = createMainUI(stage)
                 val scene = Scene(mainUI, 1200.0, 800.0)
-                
+
                 loadStylesheets(scene)
-                
+
                 stage.scene = scene
                 stage.title = "DataPack IDE ${if (isStandaloneMode) "(Standalone)" else ""}"
-                
+
                 stage.initStyle(StageStyle.UNDECORATED)
                 stage.width = 1200.0
                 stage.height = 800.0
                 stage.centerOnScreen()
-                
+
                 stage.setOnCloseRequest { e ->
                     if (isStandaloneMode) {
                         Platform.exit()
@@ -202,7 +226,8 @@ class MainApplication {
         private fun loadStylesheets(scene: Scene) {
             val cssFiles = listOf(
                 "/assets/datapack-ide/themes/MenuBar.css",
-                "/assets/datapack-ide/themes/TitleBar.css"
+                "/assets/datapack-ide/themes/TitleBar.css",
+                "/assets/datapack-ide/themes/FileTree.css"
             )
 
             try {

@@ -1,0 +1,116 @@
+/* File Tree Container */
+.file-tree-container {
+    -fx-background-color: #252526;
+    -fx-border-color: #3c3c3c;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 5;
+    -fx-spacing: 5;
+    -fx-pref-width: 250;
+    -fx-min-width: 200;
+    -fx-max-width: 400;
+}
+
+/* Placeholder Label */
+.file-tree-placeholder {
+    -fx-text-fill: #8c8c8c;
+    -fx-font-size: 12px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-padding: 20;
+}
+
+/* Tree View */
+.file-tree {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* Tree View Background */
+.file-tree .tree-table-view,
+.file-tree .tree-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* Tree Cell */
+.file-tree .tree-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cccccc;
+    -fx-padding: 2 5;
+    -fx-background-insets: 0;
+    -fx-background-radius: 3;
+    -fx-font-size: 12px;
+}
+
+/* Tree Cell Hover */
+.file-tree .tree-cell:hover {
+    -fx-background-color: #2a2d2e;
+}
+
+/* Tree Cell Selected */
+.file-tree .tree-cell:selected {
+    -fx-background-color: #094771;
+    -fx-text-fill: #ffffff;
+}
+
+/* Tree Cell Selected and Focused */
+.file-tree .tree-cell:focused:selected {
+    -fx-background-color: #0e639c;
+    -fx-text-fill: #ffffff;
+}
+
+/* File and Folder Items */
+.file-tree .file-item {
+    -fx-text-fill: #cccccc;
+}
+
+.file-tree .folder-item {
+    -fx-text-fill: #dcb67a;
+    -fx-font-weight: normal;
+}
+
+/* Hide tree view scrollbars */
+.file-tree .scroll-bar:horizontal,
+.file-tree .scroll-bar:vertical {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.file-tree .scroll-bar .track {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.file-tree .scroll-bar .thumb {
+    -fx-background-color: #555555;
+    -fx-background-insets: 2;
+    -fx-background-radius: 4;
+}
+
+.file-tree .scroll-bar .thumb:hover {
+    -fx-background-color: #777777;
+}
+
+/* Disclosure Node (expand/collapse arrows) */
+.file-tree .tree-cell .tree-disclosure-node {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.file-tree .tree-cell .tree-disclosure-node .arrow {
+    -fx-background-color: #8c8c8c;
+    -fx-padding: 0;
+    -fx-shape: "M0,0 L4,4 L0,8 Z";
+}
+
+.file-tree .tree-cell:expanded .tree-disclosure-node .arrow {
+    -fx-rotate: 90;
+}

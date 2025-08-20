@@ -1,5 +1,7 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.DirectorySelectedEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.scene.control.Button
@@ -8,6 +10,7 @@ import javafx.scene.control.Tooltip
 import javafx.scene.shape.FillRule
 import javafx.scene.shape.SVGPath
 import javafx.scene.layout.VBox
+import javafx.stage.DirectoryChooser
 import kotlin.math.min
 
 class LeftSidebar : VBox() {
@@ -43,6 +46,21 @@ class LeftSidebar : VBox() {
 
     private fun onFileExplorer() {
         logger.info("File Explorer button clicked")
+
+        val directoryChooser = DirectoryChooser().apply {
+            title = "Select Directory"
+            try {
+                initialDirectory = java.io.File(System.getProperty("user.home")) // TODO: change to .mc or saves folder
+            } catch (e: Exception) {
+                logger.warn("Could not set initial directory", e)
+            }
+        }
+
+        val selectedDirectory = directoryChooser.showDialog(scene.window)
+        if (selectedDirectory != null) {
+            logger.info("Directory selected: ${selectedDirectory.absolutePath}")
+            EventBus.post(DirectorySelectedEvent(selectedDirectory.toPath()))
+        }
     }
 
     private fun onRun() {
