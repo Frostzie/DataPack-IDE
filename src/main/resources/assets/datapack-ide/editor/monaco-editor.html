@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monaco Editor</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            background-color: #1e1e1e;
+        }
+        #container {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+
+<!-- Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<script>
+    let editor;
+    let currentFilePath = null;
+    let isModified = false;
+
+    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+
+    require(['vs/editor/editor.main'], function () {
+        editor = monaco.editor.create(document.getElementById('container'), {
+            value: '',
+            language: 'json',
+            theme: 'vs-dark',
+            automaticLayout: true,
+            fontSize: 14,
+            fontFamily: 'Consolas, Monaco, "Lucida Console", monospace',
+            lineNumbers: 'on',
+            renderWhitespace: 'selection',
+            minimap: { enabled: true },
+            scrollBeyondLastLine: false,
+            wordWrap: 'off',
+            folding: true,
+            bracketPairColorization: { enabled: true },
+            suggest: {
+                snippetsPreventQuickSuggestions: false
+            }
+        });
+
+        // Handle content changes
+        editor.onDidChangeModelContent(() => {
+            if (!isModified) {
+                isModified = true;
+                notifyModified();
+            }
+            notifyContentChanged();
+        });
+
+        // Handle cursor position changes
+        editor.onDidChangeCursorPosition(() => {
+            const position = editor.getPosition();
+            notifyCursorChanged(position.lineNumber, position.column);
+        });
+
+        // Editor is ready
+        window.editorReady = true;
+        if (window.onEditorReady) {
+            window.onEditorReady();
+        }
+    });
+
+    // Language detection based on file extension
+    function detectLanguage(filePath) {
+        // For now, only JSON is supported.
+        // Future versions will add mcfunction support.
+        return 'json';
+    }
+
+    // External API for Java/Kotlin
+    window.monacoAPI = {
+        setText: function(content, filePath) {
+            if (editor) {
+                const language = detectLanguage(filePath);
+                monaco.editor.setModelLanguage(editor.getModel(), language);
+                editor.setValue(content || '');
+                currentFilePath = filePath;
+                isModified = false;
+                notifyModified();
+            }
+        },
+
+        getText: function() {
+            return editor ? editor.getValue() : '';
+        },
+
+        insertText: function(text) {
+            if (editor) {
+                const position = editor.getPosition();
+                editor.executeEdits('insert-text', [{
+                    range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+                    text: text
+                }]);
+            }
+        },
+
+        markAsSaved: function() {
+            isModified = false;
+            notifyModified();
+        },
+
+        isModified: function() {
+            return isModified;
+        },
+
+        getCurrentFilePath: function() {
+            return currentFilePath;
+        },
+
+        undo: function() {
+            if (editor) {
+                editor.trigger('keyboard', 'undo', null);
+            }
+        },
+
+        redo: function() {
+            if (editor) {
+                editor.trigger('keyboard', 'redo', null);
+            }
+        },
+
+        cut: function() {
+            if (editor) {
+                editor.trigger('keyboard', 'editor.action.clipboardCutAction', null);
+            }
+        },
+
+        copy: function() {
+            if (editor) {
+                editor.trigger('keyboard', 'editor.action.clipboardCopyAction', null);
+            }
+        },
+
+        paste: function() {
+            if (editor) {
+                editor.trigger('keyboard', 'editor.action.clipboardPasteAction', null);
+            }
+        },
+
+        selectAll: function() {
+            if (editor) {
+                editor.trigger('keyboard', 'editor.action.selectAll', null);
+            }
+        },
+
+        find: function(searchText) {
+            if (editor) {
+                editor.trigger('keyboard', 'actions.find', null);
+                // Set the search text if provided
+                if (searchText) {
+                    editor.getContrib('editor.contrib.findController').getState().searchString = searchText;
+                }
+            }
+        },
+
+        focus: function() {
+            if (editor) {
+                editor.focus();
+            }
+        },
+
+        setEditable: function(editable) {
+            if (editor) {
+                editor.updateOptions({ readOnly: !editable });
+            }
+        },
+
+        // Future LSP integration point
+        setLanguageServer: function(serverConfig) {
+            // This will be implemented with LSP from SpyGlass
+            console.log('Language server configuration:', serverConfig);
+        }
+    };
+
+    // Notification functions for Java callbacks
+    function notifyContentChanged() {
+        if (window.javaCallback && window.javaCallback.onContentChanged) {
+            window.javaCallback.onContentChanged();
+        }
+    }
+
+    function notifyModified() {
+        if (window.javaCallback && window.javaCallback.onModifiedChanged) {
+            window.javaCallback.onModifiedChanged(isModified);
+        }
+    }
+
+    function notifyCursorChanged(line, column) {
+        if (window.javaCallback && window.javaCallback.onCursorPositionChanged) {
+            window.javaCallback.onCursorPositionChanged(line, column);
+        }
+    }
+</script>
+</body>
+</html>
