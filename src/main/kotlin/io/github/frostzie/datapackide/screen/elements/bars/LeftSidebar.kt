@@ -7,11 +7,10 @@ import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.scene.control.Button
 import javafx.scene.control.ContentDisplay
 import javafx.scene.control.Tooltip
-import javafx.scene.shape.FillRule
-import javafx.scene.shape.SVGPath
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
-import kotlin.math.min
 
 class LeftSidebar : VBox() {
 
@@ -84,31 +83,19 @@ class LeftSidebar : VBox() {
             styleClass.add("sidebar-button")
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
 
-            val svgPath = SVGPath().apply {
-                content = loadSvgPath(iconName)
-                fillRule = FillRule.NON_ZERO
-                styleClass.addAll("svg-icon", "icon-$iconName")
+        val iconPath = "/assets/datapack-ide/themes/icon/$iconName.png"
+        val iconStream = javaClass.getResourceAsStream(iconPath)
+            ?: throw IllegalArgumentException("Icon not found: $iconPath")
+
+        val imageView = ImageView(Image(iconStream)).apply {
+            isPreserveRatio = true
+            fitWidth = iconSize
+            fitHeight = iconSize
+            styleClass.add("sidebar-icon")
             }
 
-            val bounds = svgPath.layoutBounds
-            if (bounds.width > 0 && bounds.height > 0) {
-                val scale = min(iconSize / bounds.width, iconSize / bounds.height)
-                svgPath.scaleX = scale
-                svgPath.scaleY = scale
-            }
-
-            graphic = svgPath
+        graphic = imageView
         }
     }
 
-    private fun loadSvgPath(iconName: String): String {
-        val path = "/assets/datapack-ide/themes/icon/$iconName.svg"
-        val stream = javaClass.getResourceAsStream(path)
-            ?: throw IllegalArgumentException("Icon not found: $path")
-        val xml = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
-        val regex = Regex("""<path[^>]*\sd=["']([^"']+)["']""", RegexOption.IGNORE_CASE)
-        val match = regex.find(xml)
-            ?: throw IllegalStateException("No <path d=\"...\"> found in $path")
-        return match.groupValues[1]
-    }
 }

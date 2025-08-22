@@ -31,39 +31,10 @@
     -fx-background-color: #444444;
 }
 
-.svg-icon {
-    -fx-fill: -icon-color;
-    -fx-stroke: -icon-color;
-    -fx-stroke-width: 1.5;
+.sidebar-icon {
+    -fx-effect: innershadow(gaussian, -icon-color, 10, 0.7, 0, 0);
 }
 
-.sidebar-button:hover .svg-icon {
-    -fx-fill: -icon-hover-color;
-    -fx-stroke: -icon-hover-color;
-}
-
-/* Individual icon tweaks */
-
-.icon-folder {}
-
-.icon-search {
-    -fx-fill: transparent;
-    -fx-stroke-width: 2;
-    -fx-stroke-line-cap: round;
-    -fx-stroke-line-join: round;
-}
-.sidebar-button:hover .icon-search {
-    -fx-fill: transparent;
-}
-
-.icon-run {
-    -fx-stroke-width: 2;
-    -fx-stroke-line-cap: round;
-    -fx-stroke-line-join: round;
-}
-
-.icon-settings {
-    -fx-stroke-width: 2;
-    -fx-stroke-line-cap: round;
-    -fx-stroke-line-join: round;
+.sidebar-button:hover .sidebar-icon {
+    -fx-effect: innershadow(gaussian, -icon-hover-color, 10, 0.7, 0, 0);
 }
