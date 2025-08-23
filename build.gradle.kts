@@ -33,6 +33,7 @@ dependencies {
 	implementation(libs.javafxcontrols)
 	implementation(libs.javafxfxml)
 	implementation(libs.javafxbase)
+	implementation(libs.javafxweb)
 }
 
 tasks.named<ProcessResources>("processResources") {
