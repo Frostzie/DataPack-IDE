@@ -5,6 +5,10 @@ import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.control.Button
+import javafx.scene.control.ContentDisplay
+import javafx.scene.control.Tooltip
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
@@ -21,6 +25,8 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
     private val menuBar: MenuBar
     private var xOffset = 0.0
     private var yOffset = 0.0
+    private var menuBarVisible = true
+    private var hideToolsButton: Button
 
     // Callbacks for menu actions - will be set by MainApplication
     var onNewFile: (() -> Unit)? = null
@@ -45,9 +51,10 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
     init {
         setupTitleBar()
         menuBar = createMenuBar()
+        hideToolsButton = createHideToolsButton()
         val windowControls = createWindowControls()
 
-        layoutComponents(menuBar, windowControls)
+        layoutComponents(hideToolsButton, menuBar, windowControls)
         setupDragHandling()
         logger.info("Title bar initialized")
     }
@@ -56,8 +63,30 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
         styleClass.add("title-bar")
         CSSManager.applyToComponent(stylesheets, "TitleBar")
         alignment = Pos.CENTER_LEFT
-        spacing = 10.0
+        spacing = 0.0
         prefHeight = 32.0
+    }
+
+    private fun createHideToolsButton(): Button {
+        return Button().apply {
+            styleClass.addAll("hide-tools-button", "window-control-button")
+            contentDisplay = ContentDisplay.GRAPHIC_ONLY
+            tooltip = Tooltip("Toggle Menu Bar")
+            //TODO: remove hardcoded path
+            val iconPath = "/assets/datapack-ide/themes/icon/HideTools.png"
+            val iconStream = javaClass.getResourceAsStream(iconPath)
+                ?: throw IllegalArgumentException("Icon not found: $iconPath")
+
+            val imageView = ImageView(Image(iconStream)).apply {
+                isPreserveRatio = true
+                fitWidth = 16.0
+                fitHeight = 16.0
+                styleClass.add("hide-tools-icon")
+            }
+
+            graphic = imageView
+            setOnAction { toggleMenuBar() }
+        }
     }
 
     private fun createMenuBar(): MenuBar {
@@ -86,7 +115,7 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
         }
     }
 
-    //TODO: Change to svg or better icons at least
+    //TODO: Change to png icons
     private fun createWindowControls(): HBox {
         val windowControls = HBox().apply {
             alignment = Pos.CENTER_RIGHT
@@ -131,13 +160,20 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
         return windowControls
     }
 
-    private fun layoutComponents(menuBar: MenuBar, windowControls: HBox) {
+    private fun layoutComponents(hideToolsButton: Button, menuBar: MenuBar, windowControls: HBox) {
         val spacer = Region().apply {
             setHgrow(this, Priority.ALWAYS)
             styleClass.add("title-spacer")
         }
 
-        children.addAll(menuBar, spacer, windowControls)
+        children.addAll(hideToolsButton, menuBar, spacer, windowControls)
+    }
+
+    private fun toggleMenuBar() {
+        menuBarVisible = !menuBarVisible
+        menuBar.isVisible = menuBarVisible
+        menuBar.isManaged = menuBarVisible
+        logger.info("Menu bar visibility toggled: $menuBarVisible")
     }
 
     private fun setupDragHandling() {

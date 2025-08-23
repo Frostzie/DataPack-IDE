@@ -18,6 +18,9 @@ class LeftSidebar : VBox() {
         private val logger = LoggerProvider.getLogger("LeftSidebar")
     }
 
+    var onToggleTextEditor: ((Boolean) -> Unit)? = null
+    private var textEditorVisible = true
+
     init {
         setupSidebar()
         createButtons()
@@ -34,7 +37,8 @@ class LeftSidebar : VBox() {
             SidebarButton("folder",   "File Explorer") { onFileExplorer() },
             SidebarButton("search",   "Search")        { onSearch() },
             SidebarButton("play",      "Run")           { onRun() },
-            SidebarButton("settings", "Settings") { onSettings() }
+            SidebarButton("settings", "Settings") { onSettings() },
+            SidebarButton("HideTools", "Toggle Text Editor (TEMP)") { onToggleTextEditorVisibility() } //TODO: remove this is only temporary
         )
         children.addAll(buttons)
     }
@@ -70,6 +74,12 @@ class LeftSidebar : VBox() {
         logger.info("Settings button clicked")
     }
 
+    private fun onToggleTextEditorVisibility() {
+        textEditorVisible = !textEditorVisible
+        logger.info("Text editor visibility toggled: $textEditorVisible")
+        onToggleTextEditor?.invoke(textEditorVisible)
+    }
+
     private inner class SidebarButton(
         iconName: String,
         tooltipText: String,
@@ -83,19 +93,18 @@ class LeftSidebar : VBox() {
             styleClass.add("sidebar-button")
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
 
-        val iconPath = "/assets/datapack-ide/themes/icon/$iconName.png"
-        val iconStream = javaClass.getResourceAsStream(iconPath)
-            ?: throw IllegalArgumentException("Icon not found: $iconPath")
+            val iconPath = "/assets/datapack-ide/themes/icon/$iconName.png"
+            val iconStream = javaClass.getResourceAsStream(iconPath)
+                ?: throw IllegalArgumentException("Icon not found: $iconPath")
 
-        val imageView = ImageView(Image(iconStream)).apply {
-            isPreserveRatio = true
-            fitWidth = iconSize
-            fitHeight = iconSize
-            styleClass.add("sidebar-icon")
+            val imageView = ImageView(Image(iconStream)).apply {
+                isPreserveRatio = true
+                fitWidth = iconSize
+                fitHeight = iconSize
+                styleClass.add("sidebar-icon")
             }
 
-        graphic = imageView
+            graphic = imageView
         }
     }
-
 }

@@ -5,6 +5,7 @@ import io.github.frostzie.datapackide.events.FileOpenEvent
 import io.github.frostzie.datapackide.events.DirectorySelectedEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.CSSManager
+import io.github.frostzie.datapackide.utils.ResizableUtils
 import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import java.io.File
@@ -13,11 +14,15 @@ import kotlin.io.path.*
 
 /**
  * Simple file tree view that displays files and folders
+ * Now supports horizontal resizing by dragging the right edge
  */
 class FileTreeView : VBox() {
 
     companion object {
         private val logger = LoggerProvider.getLogger("FileTreeView")
+        private const val DEFAULT_WIDTH = 250.0
+        private const val MIN_WIDTH = 150.0
+        private const val MAX_WIDTH = 600.0
     }
 
     private lateinit var treeView: TreeView<File>
@@ -26,16 +31,27 @@ class FileTreeView : VBox() {
     init {
         setupFileTree()
         setupEventListeners()
-        logger.info("File tree view initialized")
+        setupResizableFeature()
+        logger.info("File tree view initialized with resizable functionality")
     }
 
     private fun setupFileTree() {
         styleClass.add("file-tree-container")
         CSSManager.applyToComponent(stylesheets, "FileTree")
 
+        prefWidth = DEFAULT_WIDTH
+
+        prefHeight = USE_COMPUTED_SIZE
+        maxHeight = Double.MAX_VALUE
+        minHeight = 0.0
+
         treeView = TreeView<File>().apply {
             styleClass.add("file-tree")
             isShowRoot = false
+
+            prefHeight = USE_COMPUTED_SIZE
+            maxHeight = Double.MAX_VALUE
+            minHeight = 0.0
 
             setCellFactory {
                 object : TreeCell<File>() {
@@ -67,9 +83,14 @@ class FileTreeView : VBox() {
         val placeholderLabel = Label("No directory selected.\nClick the folder icon to select a directory.").apply {
             styleClass.add("file-tree-placeholder")
             isWrapText = true
+            prefHeight = USE_COMPUTED_SIZE
+            maxHeight = Double.MAX_VALUE
         }
 
         children.addAll(placeholderLabel, treeView)
+
+        VBox.setVgrow(treeView, javafx.scene.layout.Priority.ALWAYS)
+        VBox.setVgrow(placeholderLabel, javafx.scene.layout.Priority.ALWAYS)
 
         treeView.isVisible = false
         treeView.isManaged = false
@@ -79,6 +100,17 @@ class FileTreeView : VBox() {
         EventBus.register<DirectorySelectedEvent> { event ->
             loadDirectory(event.directoryPath)
         }
+    }
+
+    private fun setupResizableFeature() {
+        ResizableUtils.makeFileTreeResizable(
+            fileTreeContainer = this,
+            minWidth = MIN_WIDTH,
+            maxWidth = MAX_WIDTH,
+            resizeZoneWidth = 8.0
+        )
+
+        logger.debug("FileTree resizable feature configured")
     }
 
     private fun loadDirectory(directoryPath: Path) {
@@ -139,6 +171,21 @@ class FileTreeView : VBox() {
         } catch (e: Exception) {
             logger.error("Failed to load directory contents: ${directory.absolutePath}", e)
         }
+    }
+
+    /**
+     * Reset FileTree width to default
+     */
+    fun resetToDefaultWidth() {
+        ResizableUtils.resetFileTreeWidth(this, DEFAULT_WIDTH)
+        logger.info("FileTree width reset to default")
+    }
+
+    /**
+     * Check if the FileTree is currently being resized
+     */
+    fun isResizing(): Boolean {
+        return ResizableUtils.isCurrentlyResizing()
     }
 
     fun getCurrentDirectory(): Path? = currentDirectory

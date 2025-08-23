@@ -8,12 +8,14 @@ import io.github.frostzie.datapackide.screen.elements.bars.TitleBar
 import io.github.frostzie.datapackide.screen.handlers.MenuActionHandler
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
+import io.github.frostzie.datapackide.utils.WindowResizeUtils
 import javafx.application.Platform
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.Scene
+import javafx.scene.layout.Region
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import kotlin.system.exitProcess
@@ -32,6 +34,7 @@ class MainApplication {
         private var fileTreeView: FileTreeView? = null
         private var statusBar: StatusBar? = null
         private var textEditor: TextEditor? = null
+        private var contentArea: HBox? = null
 
         // Action handler
         private var menuActionHandler: MenuActionHandler? = null
@@ -82,11 +85,16 @@ class MainApplication {
             setupTitleBarCallbacks()
             setupTextEditorBindings()
             setupEventHandlers()
+            setupSidebarCallbacks()
+            setupWindowResizing(stage, root)
 
-            val contentArea = HBox().apply {
+            contentArea = HBox().apply {
                 children.addAll(fileTreeView, textEditor)
                 HBox.setHgrow(textEditor, Priority.ALWAYS)
+                HBox.setHgrow(fileTreeView, Priority.NEVER) // Prevent HBox from resizing FileTree
                 spacing = 0.0
+                prefHeight = Region.USE_COMPUTED_SIZE
+                maxHeight = Double.MAX_VALUE
             }
 
             val mainContent = VBox().apply {
@@ -98,7 +106,27 @@ class MainApplication {
             root.center = mainContent
             root.bottom = statusBar
 
+            BorderPane.setAlignment(mainContent, javafx.geometry.Pos.TOP_LEFT)
+
             return root
+        }
+
+        private fun setupWindowResizing(stage: Stage, rootNode: BorderPane) {
+            WindowResizeUtils.makeStageResizable(
+                stage = stage,
+                rootNode = rootNode,
+                minWidth = 800.0,
+                minHeight = 600.0
+            )
+            logger.debug("Window resizing functionality enabled")
+        }
+
+        private fun setupSidebarCallbacks() {
+            leftSidebar?.onToggleTextEditor = { visible ->
+                textEditor?.isVisible = visible
+                textEditor?.isManaged = visible
+                logger.info("Text editor visibility set to: $visible")
+            }
         }
 
         private fun setupEventHandlers() {
@@ -200,6 +228,8 @@ class MainApplication {
                 stage.initStyle(StageStyle.UNDECORATED)
                 stage.width = 1200.0
                 stage.height = 800.0
+                stage.minWidth = 800.0
+                stage.minHeight = 600.0
                 stage.centerOnScreen()
 
                 stage.setOnCloseRequest { e ->

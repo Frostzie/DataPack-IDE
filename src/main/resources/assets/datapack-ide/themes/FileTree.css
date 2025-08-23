@@ -5,9 +5,12 @@
     -fx-border-width: 0 1 0 0;
     -fx-padding: 5;
     -fx-spacing: 5;
-    -fx-pref-width: 250;
-    -fx-min-width: 200;
-    -fx-max-width: 400;
+    -fx-fill-height: true;
+}
+
+/* Resize cursor area hint */
+.file-tree-container:hover {
+    -fx-border-color: #4c4c4c;
 }
 
 /* Placeholder Label */
@@ -75,12 +78,20 @@
     -fx-font-weight: normal;
 }
 
-/* Hide tree view scrollbars */
-.file-tree .scroll-bar:horizontal,
+/* Horizontal scrollbar */
+.file-tree .scroll-bar:horizontal {
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+    -fx-min-height: 0;
+    -fx-opacity: 0;
+}
+
+/* Keep vertical scrollbar but style it */
 .file-tree .scroll-bar:vertical {
     -fx-background-color: #2b2b2b;
     -fx-border-color: transparent;
     -fx-background-insets: 0;
+    -fx-pref-width: 8;
 }
 
 .file-tree .scroll-bar .track {
@@ -91,12 +102,21 @@
 
 .file-tree .scroll-bar .thumb {
     -fx-background-color: #555555;
-    -fx-background-insets: 2;
-    -fx-background-radius: 4;
+    -fx-background-insets: 1;
+    -fx-background-radius: 3;
 }
 
 .file-tree .scroll-bar .thumb:hover {
     -fx-background-color: #777777;
+}
+
+/* Scroll buttons */
+.file-tree .scroll-bar .increment-button,
+.file-tree .scroll-bar .decrement-button {
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+    -fx-min-height: 0;
+    -fx-opacity: 0;
 }
 
 /* Disclosure Node (expand/collapse arrows) */
@@ -113,4 +133,15 @@
 
 .file-tree .tree-cell:expanded .tree-disclosure-node .arrow {
     -fx-rotate: 90;
+}
+
+/* Visual feedback for resize operations */
+.file-tree-container .tree-view {
+    -fx-mouse-transparent: false;
+}
+
+/* Text wrapping behavior during resize */
+.file-tree .tree-cell .label {
+    -fx-text-overrun: ellipsis;
+    -fx-ellipsis-string: "...";
 }
