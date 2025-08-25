@@ -3,10 +3,7 @@ console.log('DataPack IDE Editor starting...');
 let view;
 let currentUri = 'file:///root/untitled.txt';
 
-// --- CodeMirror Modules ---
-// These will be populated by initializeCodeMirror
 let EditorState, basicSetup, indentWithTab, undo, redo, keymap, EditorView;
-// Store extensions to recreate state
 let editorExtensions;
 
 const initialContent = '';
@@ -189,8 +186,18 @@ async function initializeCodeMirror() {
     }
 }
 
-window.initializeEditor = async function() {
-    log('Java host called initializeEditor(). Starting editor initialization...');
+if (document.readyState === 'loading') {
+    const listener = async () => {
+        document.removeEventListener('DOMContentLoaded', listener);
+        await startEditor();
+    };
+    document.addEventListener('DOMContentLoaded', listener);
+} else {
+    startEditor();
+}
+
+async function startEditor() {
+    log('Starting editor initialization...');
 
     try {
         await initializeCodeMirror();
@@ -202,4 +209,4 @@ window.initializeEditor = async function() {
             loadingMessage.style.color = 'red';
         }
     }
-};
+}
