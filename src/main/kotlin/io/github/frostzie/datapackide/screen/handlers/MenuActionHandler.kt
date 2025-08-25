@@ -1,6 +1,6 @@
 package io.github.frostzie.datapackide.screen.handlers
 
-import io.github.frostzie.datapackide.screen.elements.TextEditor
+import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
 import io.github.frostzie.datapackide.screen.elements.popup.NewFileWindow
 import io.github.frostzie.datapackide.screen.elements.popup.Settings

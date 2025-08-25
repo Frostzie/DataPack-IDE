@@ -55,3 +55,36 @@ data class FileOpenEvent(val filePath: Path)
  * Event fired when a directory is selected for file tree
  */
 data class DirectorySelectedEvent(val directoryPath: Path)
+
+/**
+ * Event fired when editor content changes
+ */
+data class EditorContentChangedEvent(
+    val content: String,
+    val filePath: String?
+)
+
+/**
+ * Event fired when editor cursor position changes
+ */
+data class EditorCursorChangedEvent(
+    val line: Int,
+    val column: Int,
+    val filePath: String?
+)
+
+/**
+ * Event fired when a file is saved
+ */
+data class FileSavedEvent(
+    val filePath: Path,
+    val content: String
+)
+
+/**
+ * Event fired when editor gains/loses focus
+ */
+data class EditorFocusEvent(
+    val hasFocus: Boolean,
+    val filePath: String?
+)

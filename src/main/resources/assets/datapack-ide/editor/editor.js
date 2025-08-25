@@ -1,8 +1,13 @@
 console.log('DataPack IDE Editor starting...');
 
 let view;
-let currentLanguage = 'plaintext';
 let currentUri = 'file:///root/untitled.txt';
+
+// --- CodeMirror Modules ---
+// These will be populated by initializeCodeMirror
+let EditorState, basicSetup, indentWithTab, undo, redo, keymap, EditorView;
+// Store extensions to recreate state
+let editorExtensions;
 
 const initialContent = '';
 const DEBUG = true;
@@ -15,9 +20,9 @@ function safeJavaCall(method, ...args) {
     if (window.javaConnector && typeof window.javaConnector[method] === 'function') {
         window.javaConnector[method](...args);
     } else {
-        log(`Java connector method ${method} not available, using temporary fallback.`);
+        log(`Java connector or method ${method} not available, using fallback.`);
         // Temporary fallback simulation for testing without Java connector
-        if (method === 'onEditorReady') {
+        if (method === 'editorReady') {
             log('Simulated Java connector: Editor is ready.');
         } else if (method === 'onContentChanged') {
             log('Simulated Java connector: Content changed. Content length:', args[0]?.length || 0);
@@ -31,9 +36,19 @@ async function initializeCodeMirror() {
     try {
         log('Loading CodeMirror modules...');
 
-        const { basicSetup, EditorState, EditorView } = await import('https://cdn.jsdelivr.net/npm/@codemirror/basic-setup@0.20.0/+esm');
-        const { indentWithTab } = await import('https://cdn.jsdelivr.net/npm/@codemirror/commands@0.20.0/+esm');
-        const { keymap } = await import('https://cdn.jsdelivr.net/npm/@codemirror/view@0.20.6/+esm');
+        // Dynamically import and assign to wider-scope variables
+        const basicSetupModule = await import('https://cdn.jsdelivr.net/npm/@codemirror/basic-setup@0.20.0/+esm');
+        EditorState = basicSetupModule.EditorState;
+        EditorView = basicSetupModule.EditorView;
+        basicSetup = basicSetupModule.basicSetup;
+
+        const commandsModule = await import('https://cdn.jsdelivr.net/npm/@codemirror/commands@0.20.0/+esm');
+        indentWithTab = commandsModule.indentWithTab;
+        undo = commandsModule.undo;
+        redo = commandsModule.redo;
+
+        const viewModule = await import('https://cdn.jsdelivr.net/npm/@codemirror/view@0.20.6/+esm');
+        keymap = viewModule.keymap;
 
         log('CodeMirror modules loaded successfully');
 
@@ -48,7 +63,14 @@ async function initializeCodeMirror() {
         const onChange = EditorView.updateListener.of((update) => {
             if (!update.docChanged) return;
             const content = getContent(update.state);
-            safeJavaCall('onContentChanged', content);
+            safeJavaCall('contentChanged', content);
+        });
+
+        const onCursorChange = EditorView.updateListener.of((update) => {
+            if (!update.selectionSet) return;
+            const pos = update.state.selection.main.head;
+            const line = update.state.doc.lineAt(pos);
+            safeJavaCall('cursorPositionChanged', line.number, (pos - line.from) + 1);
         });
 
         const sizeTheme = EditorView.theme({
@@ -57,87 +79,108 @@ async function initializeCodeMirror() {
             '.cm-scroller': { overflow: 'auto' },
         });
 
+        editorExtensions = [
+            basicSetup,
+            keymap.of([indentWithTab]),
+            onCursorChange,
+            onChange,
+            sizeTheme,
+        ];
+
         view = new EditorView({
             parent: container,
             state: EditorState.create({
                 doc: initialContent,
-                extensions: [
-                    basicSetup,
-                    keymap.of([indentWithTab]),
-                    onChange,
-                    sizeTheme,
-                ],
+                extensions: editorExtensions,
             }),
         });
 
         log('CodeMirror view created successfully');
 
-        window.editorAPI = {
-            setText(content, uri) {
-                if (!view) return;
-                log('CodeMirror: setText called with', content?.length || 0, 'characters');
-                if (uri && uri !== currentUri) {
-                    currentUri = uri;
-                }
-                view.dispatch({
-                    changes: {
-                        from: 0,
-                        to: view.state.doc.length,
-                        insert: content || ''
-                    }
-                });
-            },
+        window.editorSetContent = function(content, newUri) {
+            if (!view) return;
+            log('CodeMirror: editorSetContent called with', content?.length || 0, 'characters for URI:', newUri);
 
-            getText() {
-                return view ? view.state.doc.toString() : '';
-            },
+            const newState = EditorState.create({
+                doc: content || '',
+                extensions: editorExtensions
+            });
+            view.setState(newState);
 
-            setLanguage(language) {
-                if (language !== currentLanguage) {
-                    currentLanguage = language;
-                    log('CodeMirror: setLanguage', language);
-                    if (!window.javaConnector) {
-                        log('Simulated: Pretending language is json');
-                        currentLanguage = 'json';
-                    }
-                }
-            },
-
-            insertText(text) {
-                if (!view) return;
-                const pos = view.state.selection.main.head;
-                view.dispatch({
-                    changes: { from: pos, insert: text }
-                });
-            },
-
-            getSelectedText() {
-                if (!view) return '';
-                const selection = view.state.selection.main;
-                return view.state.doc.sliceString(selection.from, selection.to);
-            },
-
-            selectAll() {
-                if (!view) return;
-                view.dispatch({
-                    selection: { anchor: 0, head: view.state.doc.length }
-                });
-            },
-
-            focus() {
-                if (view) view.focus();
-            },
-
-            dispose() {
-                if (view) {
-                    view.destroy();
-                    view = null;
-                    log('Editor view disposed');
-                }
+            if (newUri) {
+                currentUri = newUri;
             }
         };
 
-        safeJavaCall('onEditorReady');
+        window.editorGetContent = function() {
+            return view ? view.state.doc.toString() : '';
+        };
+
+        window.editorInsertText = function(text) {
+            if (!view) return;
+            const pos = view.state.selection.main.head;
+            view.dispatch({
+                changes: { from: pos, insert: text }
+            });
+        };
+
+        window.editorGetSelectedText = function() {
+            if (!view) return '';
+            const selection = view.state.selection.main;
+            return view.state.doc.sliceString(selection.from, selection.to);
+        };
+
+        window.editorCut = function() {
+            document.execCommand('cut');
+        };
+
+        window.editorCopy = function() {
+            document.execCommand('copy');
+        };
+
+        window.editorPaste = function() {
+            document.execCommand('paste');
+        };
+
+        window.editorUndo = function() {
+            if (view) undo(view);
+        };
+
+        window.editorRedo = function() {
+            if (view) redo(view);
+        };
+
+        window.editorSelectAll = function() {
+            if (!view) return;
+            view.dispatch({
+                selection: { anchor: 0, head: view.state.doc.length }
+            });
+        };
+
+        window.editorFind = function(searchText) {
+            // TODO: Implement find functionality. CodeMirror 6 has extensions for this.
+            log("Find not implemented yet. Searched for:", searchText);
+            return false;
+        };
+
+        window.editorSetEditable = function(editable) {
+            if (!view) return;
+            view.contentDOM.contentEditable = editable;
+        };
+
+        window.editorFocus = function() {
+            if (view) view.focus();
+        };
+
+        window.disposeEditor = function() {
+            if (view) {
+                view.destroy();
+                view = null;
+                log('Editor view disposed');
+            }
+        };
+
+        safeJavaCall('editorReady');
         log('CodeMirror initialization complete');
 
     } catch (error) {
@@ -146,18 +189,8 @@ async function initializeCodeMirror() {
     }
 }
 
-if (document.readyState === 'loading') {
-    const listener = async () => {
-        document.removeEventListener('DOMContentLoaded', listener);
-        await startEditor();
-    };
-    document.addEventListener('DOMContentLoaded', listener);
-} else {
-    startEditor();
-}
-
-async function startEditor() {
-    log('Starting editor initialization...');
+window.initializeEditor = async function() {
+    log('Java host called initializeEditor(). Starting editor initialization...');
 
     try {
         await initializeCodeMirror();
@@ -169,7 +202,4 @@ async function startEditor() {
             loadingMessage.style.color = 'red';
         }
     }
-}
-
-window.getEditorAPI = () => window.editorAPI;
-window.getView = () => view;
+};
