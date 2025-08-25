@@ -37,6 +37,8 @@
 
 .hide-tools-icon {
     -fx-opacity: 1.0;
+    -fx-fit-width: 16;
+    -fx-fit-height: 16;
 }
 
 .hide-tools-button:hover .hide-tools-icon {

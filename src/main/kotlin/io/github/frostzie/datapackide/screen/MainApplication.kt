@@ -8,7 +8,7 @@ import io.github.frostzie.datapackide.screen.elements.bars.TitleBar
 import io.github.frostzie.datapackide.screen.handlers.MenuActionHandler
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
-import io.github.frostzie.datapackide.utils.WindowResizeUtils
+import io.github.frostzie.datapackide.utils.ResizeHandler
 import javafx.application.Platform
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
@@ -73,6 +73,7 @@ class MainApplication {
 
         private fun createMainUI(stage: Stage): BorderPane {
             val root = BorderPane()
+            root.styleClass.add("window") // Add CSS class for drop shadow
 
             titleBar = TitleBar(stage, isStandaloneMode)
             leftSidebar = LeftSidebar()
@@ -80,13 +81,12 @@ class MainApplication {
             statusBar = StatusBar()
             textEditor = TextEditor()
 
-            menuActionHandler = MenuActionHandler(textEditor, statusBar, primaryStage)
+            menuActionHandler = MenuActionHandler(textEditor, statusBar, stage)
 
             setupTitleBarCallbacks()
             setupTextEditorBindings()
             setupEventHandlers()
             setupSidebarCallbacks()
-            setupWindowResizing(stage, root)
 
             contentArea = HBox().apply {
                 children.addAll(fileTreeView, textEditor)
@@ -107,18 +107,42 @@ class MainApplication {
             root.bottom = statusBar
 
             BorderPane.setAlignment(mainContent, javafx.geometry.Pos.TOP_LEFT)
+            setupStageDimensions(stage, root)
 
             return root
         }
 
-        private fun setupWindowResizing(stage: Stage, rootNode: BorderPane) {
-            WindowResizeUtils.makeStageResizable(
-                stage = stage,
-                rootNode = rootNode,
-                minWidth = 800.0,
-                minHeight = 600.0
-            )
-            logger.debug("Window resizing functionality enabled")
+        private fun setupStageDimensions(stage: Stage, root: BorderPane) {
+            val minContentWidth = 800.0
+            val minContentHeight = 600.0
+            val maxContentWidth = Double.MAX_VALUE
+            val maxContentHeight = Double.MAX_VALUE
+
+            val borderWidth = 2.0
+            val titleBarHeight = 32.0
+            val statusBarHeight = 24.0
+            val leftSidebarWidth = 40.0
+
+            root.minWidth = minContentWidth + borderWidth
+            root.maxWidth = maxContentWidth + borderWidth
+            root.minHeight = minContentHeight + titleBarHeight + statusBarHeight + borderWidth
+            root.maxHeight = maxContentHeight + titleBarHeight + statusBarHeight + borderWidth
+
+            stage.minWidth = root.minWidth + 4.0
+            stage.minHeight = root.minHeight + 4.0
+            stage.maxWidth = root.maxWidth + 4.0
+            stage.maxHeight = root.maxHeight + 4.0
+
+            logger.debug("Stage dimensions set: min=${stage.minWidth}x${stage.minHeight}, max=${stage.maxWidth}x${stage.maxHeight}")
+        }
+
+        private fun setupWindowResizing(stage: Stage) {
+            if (stage.style == StageStyle.UNDECORATED) {
+                ResizeHandler.install(stage, 32.0, 7.0, 0.0) // titlebarHeight=32, pullEdgeDepth=7, indentation=0
+                logger.debug("ResizeHandler installed for undecorated window")
+            } else {
+                logger.debug("ResizeHandler not installed - stage is decorated")
+            }
         }
 
         private fun setupSidebarCallbacks() {
@@ -216,6 +240,7 @@ class MainApplication {
 
             try {
                 val stage = Stage()
+                stage.initStyle(StageStyle.UNDECORATED)
 
                 val mainUI = createMainUI(stage)
                 val scene = Scene(mainUI, 1200.0, 800.0)
@@ -224,13 +249,12 @@ class MainApplication {
 
                 stage.scene = scene
                 stage.title = "DataPack IDE ${if (isStandaloneMode) "(Standalone)" else ""}"
-
-                stage.initStyle(StageStyle.UNDECORATED)
                 stage.width = 1200.0
                 stage.height = 800.0
-                stage.minWidth = 800.0
-                stage.minHeight = 600.0
+                stage.isResizable = true
                 stage.centerOnScreen()
+
+                setupWindowResizing(stage)
 
                 stage.setOnCloseRequest { e ->
                     if (isStandaloneMode) {
@@ -247,7 +271,7 @@ class MainApplication {
                 }
 
                 primaryStage = stage
-                logger.info("Main IDE Window created with custom title bar (hidden)!")
+                logger.info("Main IDE Window created with ResizeHandler (hidden)!")
             } catch (e: Exception) {
                 logger.error("Failed to create main window: ${e.message}", e)
             }
@@ -257,7 +281,8 @@ class MainApplication {
             val cssFiles = listOf(
                 "/assets/datapack-ide/themes/MenuBar.css",
                 "/assets/datapack-ide/themes/TitleBar.css",
-                "/assets/datapack-ide/themes/FileTree.css"
+                "/assets/datapack-ide/themes/FileTree.css",
+                "/assets/datapack-ide/themes/Window.css"
             )
 
             try {

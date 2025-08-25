@@ -2,8 +2,8 @@
 .file-tree-container {
     -fx-background-color: #252526;
     -fx-border-color: #3c3c3c;
-    -fx-border-width: 0 1 0 0;
-    -fx-padding: 5;
+    -fx-border-width: 0 1px 0 0;
+    -fx-padding: 5px;
     -fx-spacing: 5;
     -fx-fill-height: true;
 }
@@ -18,7 +18,7 @@
     -fx-text-fill: #8c8c8c;
     -fx-font-size: 12px;
     -fx-text-alignment: center;
-    -fx-alignment: center;
+    -fx-alignment: top-center;
     -fx-padding: 20;
 }
 

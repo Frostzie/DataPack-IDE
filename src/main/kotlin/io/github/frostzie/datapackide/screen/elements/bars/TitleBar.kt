@@ -3,10 +3,10 @@ package io.github.frostzie.datapackide.screen.elements.bars
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.application.Platform
-import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.ContentDisplay
 import javafx.scene.control.Tooltip
+import javafx.scene.effect.ColorAdjust
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.MouseEvent
@@ -62,9 +62,6 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
     private fun setupTitleBar() {
         styleClass.add("title-bar")
         CSSManager.applyToComponent(stylesheets, "TitleBar")
-        alignment = Pos.CENTER_LEFT
-        spacing = 0.0
-        prefHeight = 32.0
     }
 
     private fun createHideToolsButton(): Button {
@@ -79,9 +76,9 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
 
             val imageView = ImageView(Image(iconStream)).apply {
                 isPreserveRatio = true
-                fitWidth = 16.0
-                fitHeight = 16.0
                 styleClass.add("hide-tools-icon")
+
+                effect = ColorAdjust(0.0, 0.0, 1.0, 0.0)
             }
 
             graphic = imageView
@@ -115,11 +112,8 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
         }
     }
 
-    //TODO: Change to png icons
     private fun createWindowControls(): HBox {
         val windowControls = HBox().apply {
-            alignment = Pos.CENTER_RIGHT
-            spacing = 0.0
             styleClass.add("window-controls")
         }
 

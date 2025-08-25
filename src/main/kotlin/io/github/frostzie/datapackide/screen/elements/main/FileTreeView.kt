@@ -4,8 +4,8 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.FileOpenEvent
 import io.github.frostzie.datapackide.events.DirectorySelectedEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.ComponentResizer
 import io.github.frostzie.datapackide.utils.CSSManager
-import io.github.frostzie.datapackide.utils.ResizableUtils
 import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import java.io.File
@@ -14,7 +14,6 @@ import kotlin.io.path.*
 
 /**
  * Simple file tree view that displays files and folders
- * Now supports horizontal resizing by dragging the right edge
  */
 class FileTreeView : VBox() {
 
@@ -31,8 +30,8 @@ class FileTreeView : VBox() {
     init {
         setupFileTree()
         setupEventListeners()
-        setupResizableFeature()
-        logger.info("File tree view initialized with resizable functionality")
+        ComponentResizer.install(this, 4.0, MIN_WIDTH, MAX_WIDTH)
+        logger.info("File tree view initialized")
     }
 
     private fun setupFileTree() {
@@ -40,6 +39,8 @@ class FileTreeView : VBox() {
         CSSManager.applyToComponent(stylesheets, "FileTree")
 
         prefWidth = DEFAULT_WIDTH
+        minWidth = MIN_WIDTH
+        maxWidth = MAX_WIDTH
 
         prefHeight = USE_COMPUTED_SIZE
         maxHeight = Double.MAX_VALUE
@@ -87,10 +88,13 @@ class FileTreeView : VBox() {
             maxHeight = Double.MAX_VALUE
         }
 
+        treeView.cursorProperty().bind(this.cursorProperty())
+        placeholderLabel.cursorProperty().bind(this.cursorProperty())
+
         children.addAll(placeholderLabel, treeView)
 
-        VBox.setVgrow(treeView, javafx.scene.layout.Priority.ALWAYS)
-        VBox.setVgrow(placeholderLabel, javafx.scene.layout.Priority.ALWAYS)
+        setVgrow(treeView, javafx.scene.layout.Priority.ALWAYS)
+        setVgrow(placeholderLabel, javafx.scene.layout.Priority.ALWAYS)
 
         treeView.isVisible = false
         treeView.isManaged = false
@@ -100,17 +104,6 @@ class FileTreeView : VBox() {
         EventBus.register<DirectorySelectedEvent> { event ->
             loadDirectory(event.directoryPath)
         }
-    }
-
-    private fun setupResizableFeature() {
-        ResizableUtils.makeFileTreeResizable(
-            fileTreeContainer = this,
-            minWidth = MIN_WIDTH,
-            maxWidth = MAX_WIDTH,
-            resizeZoneWidth = 8.0
-        )
-
-        logger.debug("FileTree resizable feature configured")
     }
 
     private fun loadDirectory(directoryPath: Path) {
@@ -171,21 +164,6 @@ class FileTreeView : VBox() {
         } catch (e: Exception) {
             logger.error("Failed to load directory contents: ${directory.absolutePath}", e)
         }
-    }
-
-    /**
-     * Reset FileTree width to default
-     */
-    fun resetToDefaultWidth() {
-        ResizableUtils.resetFileTreeWidth(this, DEFAULT_WIDTH)
-        logger.info("FileTree width reset to default")
-    }
-
-    /**
-     * Check if the FileTree is currently being resized
-     */
-    fun isResizing(): Boolean {
-        return ResizableUtils.isCurrentlyResizing()
     }
 
     fun getCurrentDirectory(): Path? = currentDirectory

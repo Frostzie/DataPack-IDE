@@ -6,6 +6,7 @@ import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import javafx.stage.Modality
 import javafx.stage.Stage
@@ -145,7 +146,7 @@ class Settings(private val parentStage: Stage?) {
                 }
             }
 
-            val spacer = javafx.scene.layout.Region().apply {
+            val spacer = Region().apply {
                 HBox.setHgrow(this, Priority.ALWAYS)
             }
 

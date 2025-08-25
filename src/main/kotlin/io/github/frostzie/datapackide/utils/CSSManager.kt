@@ -20,7 +20,8 @@ object CSSManager {
         "NewFileWindow.css",
         "Settings.css",
         "LeftBar.css",
-        "FileTree.css"
+        "FileTree.css",
+        "Window.css"
     )
 
     /**
