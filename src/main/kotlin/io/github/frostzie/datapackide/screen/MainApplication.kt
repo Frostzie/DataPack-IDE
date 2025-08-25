@@ -86,7 +86,6 @@ class MainApplication {
             setupTitleBarCallbacks()
             setupTextEditorBindings()
             setupEventHandlers()
-            setupSidebarCallbacks()
 
             contentArea = HBox().apply {
                 children.addAll(fileTreeView, textEditor)
@@ -142,14 +141,6 @@ class MainApplication {
                 logger.debug("ResizeHandler installed for undecorated window")
             } else {
                 logger.debug("ResizeHandler not installed - stage is decorated")
-            }
-        }
-
-        private fun setupSidebarCallbacks() {
-            leftSidebar?.onToggleTextEditor = { visible ->
-                textEditor?.isVisible = visible
-                textEditor?.isManaged = visible
-                logger.info("Text editor visibility set to: $visible")
             }
         }
 

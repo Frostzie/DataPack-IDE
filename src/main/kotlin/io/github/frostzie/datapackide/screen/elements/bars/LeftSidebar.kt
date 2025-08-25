@@ -18,9 +18,6 @@ class LeftSidebar : VBox() {
         private val logger = LoggerProvider.getLogger("LeftSidebar")
     }
 
-    var onToggleTextEditor: ((Boolean) -> Unit)? = null
-    private var textEditorVisible = true
-
     init {
         setupSidebar()
         createButtons()
@@ -35,10 +32,7 @@ class LeftSidebar : VBox() {
     private fun createButtons() {
         val buttons = listOf(
             SidebarButton("folder",   "File Explorer") { onFileExplorer() },
-            SidebarButton("search",   "Search")        { onSearch() },
-            SidebarButton("play",      "Run")           { onRun() },
-            SidebarButton("settings", "Settings") { onSettings() },
-            SidebarButton("HideTools", "Toggle Text Editor (TEMP)") { onToggleTextEditorVisibility() } //TODO: remove this is only temporary
+            SidebarButton("search",   "Search")        { onSearch() }
         )
         children.addAll(buttons)
     }
@@ -52,8 +46,20 @@ class LeftSidebar : VBox() {
 
         val directoryChooser = DirectoryChooser().apply {
             title = "Select Directory"
-            try {
-                initialDirectory = java.io.File(System.getProperty("user.home")) // TODO: change to .mc or saves folder
+            try { //TODO: Allow custom dir vie settings
+                val os = System.getProperty("os.name").lowercase()
+                val minecraftPath = when {
+                    os.contains("win") -> System.getenv("APPDATA")?.let { java.io.File(it, ".minecraft") }
+                    os.contains("mac") -> java.io.File(System.getProperty("user.home"), "Library/Application Support/minecraft")
+                    else -> java.io.File(System.getProperty("user.home"), ".minecraft")
+                }
+
+                if (minecraftPath != null && minecraftPath.exists()) {
+                    initialDirectory = minecraftPath
+                } else {
+                    initialDirectory = java.io.File(System.getProperty("user.home"))
+                    logger.warn(".minecraft directory not found, falling back to user home.")
+                }
             } catch (e: Exception) {
                 logger.warn("Could not set initial directory", e)
             }
@@ -64,20 +70,6 @@ class LeftSidebar : VBox() {
             logger.info("Directory selected: ${selectedDirectory.absolutePath}")
             EventBus.post(DirectorySelectedEvent(selectedDirectory.toPath()))
         }
-    }
-
-    private fun onRun() {
-        logger.info("Run button clicked")
-    }
-
-    private fun onSettings() {
-        logger.info("Settings button clicked")
-    }
-
-    private fun onToggleTextEditorVisibility() {
-        textEditorVisible = !textEditorVisible
-        logger.info("Text editor visibility toggled: $textEditorVisible")
-        onToggleTextEditor?.invoke(textEditorVisible)
     }
 
     private inner class SidebarButton(

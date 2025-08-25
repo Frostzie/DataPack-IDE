@@ -1,5 +1,6 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
+import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand.executeCommandButton
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.application.Platform
@@ -23,10 +24,10 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
     }
 
     private val menuBar: MenuBar
-    private var xOffset = 0.0
-    private var yOffset = 0.0
     private var menuBarVisible = true
     private var hideToolsButton: Button
+    private var runDataPackButton: Button
+    private var settingsButton: Button
 
     // Callbacks for menu actions - will be set by MainApplication
     var onNewFile: (() -> Unit)? = null
@@ -52,10 +53,11 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
         setupTitleBar()
         menuBar = createMenuBar()
         hideToolsButton = createHideToolsButton()
+        runDataPackButton = createRunDataPackButton()
+        settingsButton = createSettingsButton()
         val windowControls = createWindowControls()
 
-        layoutComponents(hideToolsButton, menuBar, windowControls)
-        setupDragHandling()
+        layoutComponents(hideToolsButton, runDataPackButton, menuBar, settingsButton, windowControls)
         logger.info("Title bar initialized")
     }
 
@@ -83,6 +85,49 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
 
             graphic = imageView
             setOnAction { toggleMenuBar() }
+        }
+    }
+
+    private fun createRunDataPackButton(): Button {
+        return Button().apply {
+            styleClass.addAll("run-datapack-button", "window-control-button")
+            contentDisplay = ContentDisplay.GRAPHIC_ONLY
+            tooltip = Tooltip("Reload Datapack")
+            //TODO: remove hardcoded path
+            val iconPath = "/assets/datapack-ide/themes/icon/play.png"
+            val iconStream = javaClass.getResourceAsStream(iconPath)
+                ?: throw IllegalArgumentException("Icon not found: $iconPath")
+
+            val imageView = ImageView(Image(iconStream)).apply {
+                isPreserveRatio = true
+                styleClass.add("run-datapack-icon")
+
+                effect = ColorAdjust(0.0, 0.0, 1.0, 0.0)
+            }
+
+            graphic = imageView
+            setOnAction { executeCommandButton() }
+        }
+    }
+
+    private fun createSettingsButton(): Button {
+        return Button().apply {
+            styleClass.addAll("settings-button", "window-control-button")
+            contentDisplay = ContentDisplay.GRAPHIC_ONLY
+            tooltip = Tooltip("Settings")
+            //TODO: remove hardcoded path
+            val iconPath = "/assets/datapack-ide/themes/icon/settings.png"
+            val iconStream = javaClass.getResourceAsStream(iconPath)
+                ?: throw IllegalArgumentException("Icon not found: $iconPath")
+
+            val imageView = ImageView(Image(iconStream)).apply {
+                isPreserveRatio = true
+                styleClass.add("settings-icon")
+                effect = ColorAdjust(0.0, 0.0, 1.0, 0.0)
+            }
+
+            graphic = imageView
+            setOnAction { onPreferences?.invoke() }
         }
     }
 
@@ -154,13 +199,13 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
         return windowControls
     }
 
-    private fun layoutComponents(hideToolsButton: Button, menuBar: MenuBar, windowControls: HBox) {
+    private fun layoutComponents(hideToolsButton: Button, runDataPackButton: Button, menuBar: MenuBar, settingsButton: Button, windowControls: HBox) {
         val spacer = Region().apply {
             setHgrow(this, Priority.ALWAYS)
             styleClass.add("title-spacer")
         }
 
-        children.addAll(hideToolsButton, menuBar, spacer, windowControls)
+        children.addAll(hideToolsButton, menuBar, spacer, runDataPackButton, settingsButton, windowControls)
     }
 
     private fun toggleMenuBar() {
@@ -168,35 +213,6 @@ class TitleBar(private val stage: Stage, private val isStandaloneMode: Boolean =
         menuBar.isVisible = menuBarVisible
         menuBar.isManaged = menuBarVisible
         logger.info("Menu bar visibility toggled: $menuBarVisible")
-    }
-
-    private fun setupDragHandling() {
-        setOnMousePressed { event: MouseEvent ->
-            if (event.isPrimaryButtonDown && !isClickOnControl(event)) {
-                xOffset = event.sceneX
-                yOffset = event.sceneY
-                logger.debug("Drag started at: ${event.sceneX}, ${event.sceneY}")
-            }
-        }
-
-        setOnMouseDragged { event: MouseEvent ->
-            if (event.isPrimaryButtonDown && !isClickOnControl(event)) {
-                if (stage.isMaximized) {
-                    stage.isMaximized = false
-                    xOffset = stage.width / 2
-                    logger.debug("Window restored from maximized during drag")
-                }
-                stage.x = event.screenX - xOffset
-                stage.y = event.screenY - yOffset
-            }
-        }
-
-        setOnMouseClicked { event ->
-            if (event.clickCount == 2 && event.isPrimaryButtonDown && !isClickOnControl(event)) {
-                stage.isMaximized = !stage.isMaximized
-                logger.debug("Window maximize toggled via double-click: ${stage.isMaximized}")
-            }
-        }
     }
 
     private fun isClickOnControl(event: MouseEvent): Boolean {
