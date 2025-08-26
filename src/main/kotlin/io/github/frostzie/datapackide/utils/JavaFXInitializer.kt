@@ -11,6 +11,7 @@ object JavaFXInitializer {
     private var setImplicitExitMethod: Method? = null
 
     init {
+        logger.info("os.name=${System.getProperty("os.name")}, os.arch=${System.getProperty("os.arch")}")
         // Set fallback and verbose debugging BEFORE JavaFX starts
         System.setProperty("prism.order", "es2,sw")   // try hardware ES2, then software
         System.setProperty("prism.verbose", "true")  // prints which pipeline is picked/tried
