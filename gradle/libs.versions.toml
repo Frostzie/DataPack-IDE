@@ -25,7 +25,7 @@ javafxcontrols = { module = "org.openjfx:javafx-controls", version.ref = "javafx
 javafxfxml = { module = "org.openjfx:javafx-fxml", version.ref = "javafx"}
 javafxbase = { module = "org.openjfx:javafx-base", version.ref = "javafx"}
 javafxweb = { module = "org.openjfx:javafx-web", version.ref = "javafx"}
-
+javafxmedia = { module = "org.openjfx:javafx-media", version.ref = "javafx"}
 
 [plugins]
 fabric_loom = { id = "fabric-loom", version.ref = "loom_version"}

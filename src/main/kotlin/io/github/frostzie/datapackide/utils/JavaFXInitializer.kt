@@ -10,6 +10,13 @@ object JavaFXInitializer {
     private var runLaterMethod: Method? = null
     private var setImplicitExitMethod: Method? = null
 
+    init {
+        // Set fallback and verbose debugging BEFORE JavaFX starts
+        System.setProperty("prism.order", "es2,sw")   // try hardware ES2, then software
+        System.setProperty("prism.verbose", "true")  // prints which pipeline is picked/tried
+        System.setProperty("prism.text", "t2k")
+    }
+
     fun isJavaFXAvailable(): Boolean {
         if (isJavaFXAvailable != null) return isJavaFXAvailable!!
 
@@ -56,6 +63,9 @@ object JavaFXInitializer {
         }
 
         try {
+            // Ensure the same properties are set right before startup
+            System.setProperty("prism.order", "es2,sw")
+            System.setProperty("prism.verbose", "true")
             startupMethod?.invoke(null, runnable)
         } catch (e: IllegalStateException) {
             logger.info("JavaFX Platform already initialized")
