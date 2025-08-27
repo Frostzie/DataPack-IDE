@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide
 
 import io.github.frostzie.datapackide.commands.DefaultCommands
+import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.screen.MainApplication
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
@@ -25,6 +26,7 @@ class DataPackIDE : ModInitializer {
             logger.warn("JavaFX is not available - GUI features will be disabled")
         }
 
+        ConfigManager.initialize()
         DefaultCommands.registerCommands()
 
         toggleIDEKey = KeyBindingHelper.registerKeyBinding(KeyBinding(

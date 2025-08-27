@@ -1,5 +1,6 @@
 package io.github.frostzie.datapackide.screen.elements.main
 
+import io.github.frostzie.datapackide.config.WebsiteConfig
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.FileOpenEvent
 import io.github.frostzie.datapackide.events.EditorContentChangedEvent
@@ -17,7 +18,7 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 
 /**
- * WebView-based text editor that renders the website from assets folder
+ * WebView-based text editor that renders the website from config folder
  */
 class TextEditor : VBox() {
 
@@ -45,14 +46,14 @@ class TextEditor : VBox() {
 
         webView = WebView().apply {
             styleClass.add("main-webview")
-            val htmlUrl = this@TextEditor.javaClass.getResource("/assets/datapack-ide/editor/index.html")
+            val htmlPath = WebsiteConfig.getWebsiteIndexPath()
 
-            if (htmlUrl != null) {
-                engine.load(htmlUrl.toExternalForm())
-                logger.info("Loading editor website from: ${htmlUrl.toExternalForm()}")
+            if (htmlPath.toFile().exists()) {
+                engine.load(htmlPath.toUri().toString())
+                logger.info("Loading editor website from config: $htmlPath")
             } else {
-                engine.loadContent("<html><body><h3>Error: Editor website not found</h3></body></html>")
-                logger.error("Editor website not found in assets")
+                engine.loadContent("<html><body><h3>Error: Editor website not found in config</h3></body></html>")
+                logger.error("Editor website not found in config directory: $htmlPath")
             }
 
             engine.loadWorker.stateProperty().addListener { _, _, newState ->
