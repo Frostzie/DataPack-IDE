@@ -2,20 +2,16 @@ import org.gradle.api.tasks.bundling.Jar
 
 val javafxVersion = "21.0.8"
 
-val osName = System.getProperty("os.name").lowercase()
-val arch = System.getProperty("os.arch").lowercase()
+// http://insecure.repo1.maven.org/maven2/org/openjfx/javafx-base/21.0.8/
+val javafxClassifiers = listOf(
+	"win",
+	"mac",
+	"mac-aarch64",
+	"linux"
+)
 
-val javafxClassifier = when {
-	osName.contains("win") && (arch.contains("aarch64") || arch.contains("arm64")) -> "win-aarch64"
-	osName.contains("win") -> "win"
-	osName.contains("mac") && (arch.contains("aarch64") || arch.contains("arm64")) -> "mac-aarch64"
-	osName.contains("mac") -> "mac"
-	osName.contains("linux") && (arch.contains("aarch64") || arch.contains("arm64")) -> "linux-aarch64"
-	osName.contains("linux") -> "linux"
-	else -> throw GradleException("Unsupported OS/arch for JavaFX: $osName / $arch")
-}
-
-fun javafxDep(module: String) = "org.openjfx:javafx-$module:$javafxVersion:$javafxClassifier"
+fun javafxDep(module: String, classifier: String) =
+	"org.openjfx:javafx-$module:$javafxVersion:$classifier"
 
 plugins {
 	java
@@ -25,7 +21,7 @@ plugins {
 	alias(libs.plugins.javafx)
 }
 
-version = (libs.versions.version.get())
+version = libs.versions.version.get()
 group = project.findProperty("maven_group") as String
 
 base {
@@ -49,19 +45,19 @@ dependencies {
 	modImplementation(libs.modmenu)
 	modRuntimeOnly(libs.devauth)
 
-	implementation(javafxDep("base"))
-	implementation(javafxDep("graphics"))
-	implementation(javafxDep("controls"))
-	implementation(javafxDep("fxml"))
-	implementation(javafxDep("web"))
-	implementation(javafxDep("media"))
+	for (classifier in javafxClassifiers) {
+		implementation(javafxDep("base", classifier))
+		implementation(javafxDep("graphics", classifier))
+		implementation(javafxDep("controls", classifier))
+		implementation(javafxDep("web", classifier))
+		implementation(javafxDep("media", classifier))
 
-	include(javafxDep("base"))
-	include(javafxDep("graphics"))
-	include(javafxDep("controls"))
-	include(javafxDep("fxml"))
-	include(javafxDep("web"))
-	include(javafxDep("media"))
+		include(javafxDep("base", classifier))
+		include(javafxDep("graphics", classifier))
+		include(javafxDep("controls", classifier))
+		include(javafxDep("web", classifier))
+		include(javafxDep("media", classifier))
+	}
 }
 
 tasks.named<ProcessResources>("processResources") {
@@ -80,6 +76,12 @@ tasks.named<Jar>("jar") {
 	from("LICENSE") {
 		rename { "${it}_${project.findProperty("archives_base_name")}" }
 	}
+	exclude("module-info.class")
+	exclude("**/module-info.class")
+	exclude("META-INF/MANIFEST.MF")
+	exclude("META-INF/*.SF")
+	exclude("META-INF/*.DSA")
+	exclude("META-INF/*.RSA")
 
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
