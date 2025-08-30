@@ -37,7 +37,7 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
     private static enum CHECK {
         LOW,
         HIGH,
-        NONE;
+        NONE
     }
 
     /** Stage to which the handler is implemented */
@@ -168,12 +168,12 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
                 case LOW :// LEFT
                     min = Math.max(x - maxWidth, (0 - pad));
                     max = x2 - minWidth;
-                    x = clip(x + dX, min, max);
+                    x = Math.clamp(x + dX, min, max);
                     break;
                 case HIGH : // RIGHT
                     min = x + minWidth;
                     max = Math.min(x + maxWidth, SCREEN_BOUNDS.getWidth() + pad);
-                    x2 = clip(x2 + dX, min, max);
+                    x2 = Math.clamp(x2 + dX, min, max);
                 default :
                     break;
             }
@@ -182,12 +182,12 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
                 case LOW : // TOP
                     min = Math.max(y2 - maxHeight, (0 - pad));
                     max = y2 - minHeight;
-                    y = clip(y + dY, min, max);
+                    y = Math.clamp(y + dY, min, max);
                     break;
                 case HIGH :// BOTTOM
                     min = y + minHeight;
                     max = Math.min(y + maxHeight, SCREEN_BOUNDS.getHeight() + pad);
-                    y2 = clip(y2 + dY, min, max);
+                    y2 = Math.clamp(y2 + dY, min, max);
                 default :
                     break;
             }
@@ -201,7 +201,6 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
 
             this.stage.setX(startRectangle.getMinX() + dX);
             this.stage.setY(startRectangle.getMinY() + dY);
-            stagePositionInsideScreen();
 
         } else if (!isNone() && MouseEvent.MOUSE_RELEASED.equals(mouseEventType) && mouseEvent.getClickCount() == 2) {
             /* The stage side is expanded or minimized by double-clicking */
@@ -214,7 +213,7 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
                     if (x > (0 - pad)) {
                         min = Math.max(x - maxWidth, (0 - pad));
                         max = x2 - minWidth;
-                        x = clip((0 - pad), min, max);
+                        x = Math.clamp((0 - pad), min, max);
                     } else {
                         x = x2 - minWidth;
                     }
@@ -223,7 +222,7 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
                     if (x2 < SCREEN_BOUNDS.getWidth() + pad) {
                         min = x + minWidth;
                         max = Math.min(x + maxWidth, SCREEN_BOUNDS.getWidth() + pad);
-                        x2 = clip(SCREEN_BOUNDS.getWidth() + pad, min, max);
+                        x2 = Math.clamp(SCREEN_BOUNDS.getWidth() + pad, min, max);
                     } else {
                         x2 = x + minWidth;
                     }
@@ -236,7 +235,7 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
                     if (y > (0 - pad)) {
                         min = Math.max(y2 - maxHeight, (0 - pad));
                         max = y2 - minHeight;
-                        y = clip((0 - pad), min, max);
+                        y = Math.clamp((0 - pad), min, max);
                     } else {
                         y = y2 - minHeight;
                     }
@@ -245,7 +244,7 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
                     if (y2 < SCREEN_BOUNDS.getHeight() + pad) {
                         min = y + minHeight;
                         max = Math.min(y + maxHeight, SCREEN_BOUNDS.getHeight() + pad);
-                        y2 = clip(SCREEN_BOUNDS.getHeight() + pad, min, max);
+                        y2 = Math.clamp(SCREEN_BOUNDS.getHeight() + pad, min, max);
                     } else {
                         y2 = y + minHeight;
                     }
@@ -260,16 +259,6 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
         }
     }
 
-    private double clip(double checkValue, double minValue, double maxValue) {
-        if (checkValue < minValue) {
-            return minValue;
-        }
-        if (checkValue > maxValue) {
-            return maxValue;
-        }
-        return checkValue; // unmodified
-    }
-
     private void setXYCheck(CHECK X, CHECK Y) {
         checkX = X;
         checkY = Y;
@@ -278,23 +267,6 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
     /** @return true if checkX and checkY is set to CHECK.NONE */
     private boolean isNone() {
         return checkX.equals(CHECK.NONE) && checkY.equals(CHECK.NONE);
-    }
-
-    private void stagePositionInsideScreen() {
-        int width = (int) this.stage.getWidth();
-        int height = (int) this.stage.getHeight();
-
-        if (stage.getX() + width - pad >= SCREEN_BOUNDS.getWidth()) {
-            stage.setX(SCREEN_BOUNDS.getWidth() - width + pad);
-        }
-        if (stage.getX() + pad < 0.0D) {
-            stage.setX(0.0D - pad);
-        }
-        if (stage.getY() + height - pad >= SCREEN_BOUNDS.getHeight()) {
-            stage.setY(SCREEN_BOUNDS.getHeight() - height + pad);
-        }
-        if (stage.getY() + pad < 0.0D)
-            stage.setY(0.0D - pad);
     }
 
     private void updateStagePosition(double x1, double y1, double x2, double y2) {
