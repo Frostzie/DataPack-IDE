@@ -201,7 +201,6 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
 
             this.stage.setX(startRectangle.getMinX() + dX);
             this.stage.setY(startRectangle.getMinY() + dY);
-
         } else if (!isNone() && MouseEvent.MOUSE_RELEASED.equals(mouseEventType) && mouseEvent.getClickCount() == 2) {
             /* The stage side is expanded or minimized by double-clicking */
             double min, max;
