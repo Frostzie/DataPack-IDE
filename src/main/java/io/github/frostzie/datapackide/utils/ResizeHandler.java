@@ -25,8 +25,8 @@ import javafx.stage.Stage;
 
 public class ResizeHandler implements EventHandler<MouseEvent> {
 
-    public static ResizeHandler install(Stage stage, double titlebarHeight, double pullEdgeDepth, double indentation) {
-        ResizeHandler handler = new ResizeHandler(stage, titlebarHeight, pullEdgeDepth, indentation);
+    public static ResizeHandler install(Stage stage, double topbarHeight, double pullEdgeDepth, double indentation) {
+        ResizeHandler handler = new ResizeHandler(stage, topbarHeight, pullEdgeDepth, indentation);
         stage.getScene().addEventHandler(MouseEvent.ANY, handler);
         return handler;
     }
@@ -43,7 +43,7 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
     /** Stage to which the handler is implemented */
     final private Stage stage;
     /** Area from top to consider for stage reposition */
-    double titlebarHeight;
+    double topbarHeight;
     /** Space to consider around the stage border for resizing */
     final private int depth;
     /** padding space to render in the CSS effect drop shadow */
@@ -59,9 +59,9 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
 
     private boolean inRepositioningArea = false;
 
-    private ResizeHandler(Stage stage, double titlebarHeight, double pullEdgeDepth, double indentation) {
+    private ResizeHandler(Stage stage, double topbarHeight, double pullEdgeDepth, double indentation) {
         this.stage = stage;
-        this.titlebarHeight = titlebarHeight;
+        this.topbarHeight = topbarHeight;
         pad = indentation;
         depth = (int) (indentation + pullEdgeDepth);
 
@@ -71,6 +71,19 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
         maxHeight = stage.getMaxHeight();
     }
 
+    private boolean isStageMaximized() {
+        for (Screen screen : Screen.getScreensForRectangle(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight())) {
+            Rectangle2D visualBounds = screen.getVisualBounds();
+            if (stage.getX() == visualBounds.getMinX() &&
+                stage.getY() == visualBounds.getMinY() &&
+                stage.getWidth() == visualBounds.getWidth() &&
+                stage.getHeight() == visualBounds.getHeight()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void handle(MouseEvent mouseEvent) {
         EventType<? extends MouseEvent> mouseEventType = mouseEvent.getEventType();
@@ -78,11 +91,12 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
         final double lY = mouseEvent.getSceneY();
         final double sW = stage.getWidth();
         final double sH = stage.getHeight();
+        final boolean isMaximized = isStageMaximized();
 
         if (MouseEvent.MOUSE_MOVED.equals(mouseEventType)) {
             if (startDrag == null) {
                 Cursor cursor = Cursor.DEFAULT;
-                if (lX > pad && lX < sW - pad && lY > pad && lY < sH - pad) {
+                if (!isMaximized && lX > pad && lX < sW - pad && lY > pad && lY < sH - pad) {
                     if (lX < depth && lY < depth) cursor = Cursor.NW_RESIZE;
                     else if (lX < depth && lY > sH - depth) cursor = Cursor.SW_RESIZE;
                     else if (lX > sW - depth && lY < depth) cursor = Cursor.NE_RESIZE;
@@ -108,32 +122,36 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
         final double mY = mouseEvent.getScreenY();
 
         if (MouseEvent.MOUSE_PRESSED.equals(mouseEventType)) {
-            if (lX < depth && lY < depth) {
-                setXYCheck(CHECK.LOW, CHECK.LOW);
-            } else if (lX < depth && lY > sH - depth) {
-                setXYCheck(CHECK.LOW, CHECK.HIGH);
-            } else if (lX > sW - depth && lY < depth) {
-                setXYCheck(CHECK.HIGH, CHECK.LOW);
-            } else if (lX > sW - depth && lY > sH - depth) {
-                setXYCheck(CHECK.HIGH, CHECK.HIGH);
-            } else if (lX < depth) {
-                setXYCheck(CHECK.LOW, CHECK.NONE);
-            } else if (lX > sW - depth) {
-                setXYCheck(CHECK.HIGH, CHECK.NONE);
-            } else if (lY < depth) {
-                setXYCheck(CHECK.NONE, CHECK.LOW);
-            } else if (lY > sH - depth) {
-                setXYCheck(CHECK.NONE, CHECK.HIGH);
+            if (isMaximized) {
+                setXYCheck(CHECK.NONE, CHECK.NONE);
             } else {
-                setXYCheck(CHECK.NONE, CHECK.NONE);
+                if (lX < depth && lY < depth) {
+                    setXYCheck(CHECK.LOW, CHECK.LOW);
+                } else if (lX < depth && lY > sH - depth) {
+                    setXYCheck(CHECK.LOW, CHECK.HIGH);
+                } else if (lX > sW - depth && lY < depth) {
+                    setXYCheck(CHECK.HIGH, CHECK.LOW);
+                } else if (lX > sW - depth && lY > sH - depth) {
+                    setXYCheck(CHECK.HIGH, CHECK.HIGH);
+                } else if (lX < depth) {
+                    setXYCheck(CHECK.LOW, CHECK.NONE);
+                } else if (lX > sW - depth) {
+                    setXYCheck(CHECK.HIGH, CHECK.NONE);
+                } else if (lY < depth) {
+                    setXYCheck(CHECK.NONE, CHECK.LOW);
+                } else if (lY > sH - depth) {
+                    setXYCheck(CHECK.NONE, CHECK.HIGH);
+                } else {
+                    setXYCheck(CHECK.NONE, CHECK.NONE);
+                }
+
+                /* check mouse is not inside the resize border space */
+                if (lX < pad || lY < pad || lX > sW - pad || lY > sH - pad) {
+                    setXYCheck(CHECK.NONE, CHECK.NONE);
+                }
             }
 
-            /* check mouse is not inside the resize border space */
-            if (lX < pad || lY < pad || lX > sW - pad || lY > sH - pad) {
-                setXYCheck(CHECK.NONE, CHECK.NONE);
-            }
-
-            inRepositioningArea = lY >= depth && lY < this.titlebarHeight + pad;
+            inRepositioningArea = lY >= depth && lY < this.topbarHeight + pad;
 
             startDrag = new Point2D(mX, mY);
             startRectangle = new Rectangle2D(stage.getX(), stage.getY(), sW, sH);

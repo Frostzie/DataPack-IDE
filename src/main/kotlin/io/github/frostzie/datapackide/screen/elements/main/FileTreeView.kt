@@ -4,6 +4,7 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.FileOpenEvent
 import io.github.frostzie.datapackide.events.DirectorySelectedEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.utils.ComponentResizer
 import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.scene.control.*
@@ -19,9 +20,6 @@ class FileTreeView : VBox() {
 
     companion object {
         private val logger = LoggerProvider.getLogger("FileTreeView")
-        private const val DEFAULT_WIDTH = 250.0
-        private const val MIN_WIDTH = 150.0
-        private const val MAX_WIDTH = 600.0
     }
 
     private lateinit var treeView: TreeView<File>
@@ -30,7 +28,7 @@ class FileTreeView : VBox() {
     init {
         setupFileTree()
         setupEventListeners()
-        ComponentResizer.install(this, 4.0, MIN_WIDTH, MAX_WIDTH)
+        ComponentResizer.install(this, UIConstants.FILE_TREE_RESIZER_WIDTH, UIConstants.FILE_TREE_MIN_WIDTH, UIConstants.FILE_TREE_MAX_WIDTH)
         logger.info("File tree view initialized")
     }
 
@@ -38,9 +36,9 @@ class FileTreeView : VBox() {
         styleClass.add("file-tree-container")
         CSSManager.applyToComponent(stylesheets, "FileTree")
 
-        prefWidth = DEFAULT_WIDTH
-        minWidth = MIN_WIDTH
-        maxWidth = MAX_WIDTH
+        prefWidth = UIConstants.FILE_TREE_DEFAULT_WIDTH
+        minWidth = UIConstants.FILE_TREE_MIN_WIDTH
+        maxWidth = UIConstants.FILE_TREE_MAX_WIDTH
 
         prefHeight = USE_COMPUTED_SIZE
         maxHeight = Double.MAX_VALUE

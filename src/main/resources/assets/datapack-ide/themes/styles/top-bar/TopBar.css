@@ -1,0 +1,80 @@
+/* Title Bar */
+.title-bar {
+    -title-bg: #181818;
+    -title-border: #2b2b2b;
+    -title-text: #dddddd;
+
+    -fx-background-color: -title-bg;
+    -fx-border-color: -title-border;
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+    -fx-alignment: center-left;
+}
+
+/* Common style for icon buttons on the title bar (Hide Menu, Run, Settings) */
+.title-bar-icon-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-width: 0;
+    -fx-padding: 8;
+    -fx-min-width: 46;
+    -fx-max-width: 46;
+    -fx-pref-width: 46;
+    -fx-cursor: hand;
+}
+
+.title-bar-icon-button:hover {
+    -fx-background-color: #444444;
+}
+
+/* Icon styles within the buttons */
+.hide-tools-icon,
+.run-datapack-icon,
+.settings-icon {
+    -fx-fit-width: 16;
+    -fx-fit-height: 16;
+}
+
+/* Menu Bar within Title Bar */
+.title-bar .title-menu-bar {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+/* Override MenuBar styling when in title bar */
+.title-bar .title-menu-bar .menu > .label {
+    -fx-text-fill: -title-text;
+    -fx-font-size: 13px;
+    -fx-padding: 6 12 6 12;
+}
+
+.title-bar .title-menu-bar .menu:hover,
+.title-bar .title-menu-bar .menu:showing {
+    -fx-background-color: #444444;
+}
+
+.title-bar .title-menu-bar .menu:hover > .label,
+.title-bar .title-menu-bar .menu:showing > .label {
+    -fx-text-fill: #ffffff;
+}
+
+/* Title Spacer */
+.title-spacer {
+    -fx-background-color: transparent;
+}
+
+/*
+ * Context menu styling for menus that appear from the title bar.
+ * This overrides the default context menu styling from MenuBar.css
+ * to add a border and drop shadow.
+ * The styling for the items inside the context menu is inherited from MenuBar.css.
+ */
+.title-bar .context-menu {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 4);
+}

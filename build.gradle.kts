@@ -45,6 +45,9 @@ dependencies {
 	modImplementation(libs.modmenu)
 	modRuntimeOnly(libs.devauth)
 
+	implementation(libs.ikonli)
+	include(libs.ikonli)
+
 	for (classifier in javafxClassifiers) {
 		implementation(javafxDep("base", classifier))
 		implementation(javafxDep("graphics", classifier))

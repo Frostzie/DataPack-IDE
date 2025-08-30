@@ -1,5 +1,6 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
+import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.beans.property.SimpleStringProperty
@@ -32,6 +33,9 @@ class StatusBar : HBox() {
 
     init {
         styleClass.add("status-bar")
+        prefHeight = UIConstants.STATUS_BAR_HEIGHT
+        minHeight = UIConstants.STATUS_BAR_HEIGHT
+        maxHeight = UIConstants.STATUS_BAR_HEIGHT
         CSSManager.applyToComponent(stylesheets, "StatusBar")
         createStatusElements()
         bindProperties()

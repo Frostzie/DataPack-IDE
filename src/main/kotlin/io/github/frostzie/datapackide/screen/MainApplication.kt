@@ -4,16 +4,17 @@ import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftSidebar
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
-import io.github.frostzie.datapackide.screen.elements.bars.TitleBar
 import io.github.frostzie.datapackide.screen.handlers.MenuActionHandler
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
+import io.github.frostzie.datapackide.screen.elements.bars.top.TopBar
+import io.github.frostzie.datapackide.utils.UIConstants
+import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.ResizeHandler
 import javafx.application.Platform
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
-import javafx.scene.layout.VBox
 import javafx.scene.Scene
 import javafx.scene.layout.Region
 import javafx.stage.Stage
@@ -29,7 +30,7 @@ class MainApplication {
         private var isStandaloneMode = false
 
         // UI Components
-        private var titleBar: TitleBar? = null
+        private var topBar: TopBar? = null
         private var leftSidebar: LeftSidebar? = null
         private var fileTreeView: FileTreeView? = null
         private var statusBar: StatusBar? = null
@@ -75,7 +76,7 @@ class MainApplication {
             val root = BorderPane()
             root.styleClass.add("window") // Add CSS class for drop shadow
 
-            titleBar = TitleBar(stage, isStandaloneMode)
+            topBar = TopBar(stage, isStandaloneMode)
             leftSidebar = LeftSidebar()
             fileTreeView = FileTreeView()
             statusBar = StatusBar()
@@ -83,7 +84,7 @@ class MainApplication {
 
             menuActionHandler = MenuActionHandler(textEditor, statusBar, stage)
 
-            setupTitleBarCallbacks()
+            setupTopBarCallbacks()
             setupTextEditorBindings()
             setupEventHandlers()
 
@@ -96,16 +97,15 @@ class MainApplication {
                 maxHeight = Double.MAX_VALUE
             }
 
-            val mainContent = VBox().apply {
-                children.addAll(titleBar, contentArea)
-                VBox.setVgrow(contentArea, Priority.ALWAYS)
+            val centerContent = HBox().apply {
+                children.addAll(leftSidebar, contentArea)
+                HBox.setHgrow(contentArea, Priority.ALWAYS)
             }
 
-            root.left = leftSidebar
-            root.center = mainContent
+            root.top = topBar
+            root.center = centerContent
             root.bottom = statusBar
 
-            BorderPane.setAlignment(mainContent, javafx.geometry.Pos.TOP_LEFT)
             setupStageDimensions(stage, root)
 
             return root
@@ -117,15 +117,15 @@ class MainApplication {
             val maxContentWidth = Double.MAX_VALUE
             val maxContentHeight = Double.MAX_VALUE
 
-            val borderWidth = 2.0
-            val titleBarHeight = 32.0
-            val statusBarHeight = 24.0
-            val leftSidebarWidth = 40.0
-
+            val borderWidth = UIConstants.WINDOW_BORDER_WIDTH
+            val topBarHeight = UIConstants.TOP_BAR_HEIGHT
+            val statusBarHeight = UIConstants.STATUS_BAR_HEIGHT
+            val leftSidebarWidth = UIConstants.LEFT_SIDEBAR_WIDTH
+            
             root.minWidth = minContentWidth + borderWidth
             root.maxWidth = maxContentWidth + borderWidth
-            root.minHeight = minContentHeight + titleBarHeight + statusBarHeight + borderWidth
-            root.maxHeight = maxContentHeight + titleBarHeight + statusBarHeight + borderWidth
+            root.minHeight = minContentHeight + topBarHeight + statusBarHeight + borderWidth
+            root.maxHeight = maxContentHeight + topBarHeight + statusBarHeight + borderWidth
 
             stage.minWidth = root.minWidth + 4.0
             stage.minHeight = root.minHeight + 4.0
@@ -137,7 +137,12 @@ class MainApplication {
 
         private fun setupWindowResizing(stage: Stage) {
             if (stage.style == StageStyle.UNDECORATED) {
-                ResizeHandler.install(stage, 32.0, 7.0, 0.0) // titlebarHeight=32, pullEdgeDepth=7, indentation=0
+                ResizeHandler.install(
+                    stage,
+                    UIConstants.TOP_BAR_HEIGHT,
+                    UIConstants.WINDOW_RESIZE_BORDER_DEPTH,
+                    UIConstants.WINDOW_SHADOW_INDENTATION
+                )
                 logger.debug("ResizeHandler installed for undecorated window")
             } else {
                 logger.debug("ResizeHandler not installed - stage is decorated")
@@ -168,8 +173,8 @@ class MainApplication {
             }
         }
 
-        private fun setupTitleBarCallbacks() {
-            titleBar?.let { bar ->
+        private fun setupTopBarCallbacks() {
+            topBar?.let { bar ->
                 menuActionHandler?.let { handler ->
                     // File menu
                     bar.onNewFile = { handler.createNewFile() }
@@ -236,8 +241,7 @@ class MainApplication {
                 val mainUI = createMainUI(stage)
                 val scene = Scene(mainUI, 1200.0, 800.0)
 
-                loadStylesheets(scene)
-
+                CSSManager.applyAllStyles(scene)
                 stage.scene = scene
                 stage.title = "DataPack IDE ${if (isStandaloneMode) "(Standalone)" else ""}"
                 stage.width = 1200.0
@@ -265,30 +269,6 @@ class MainApplication {
                 logger.info("Main IDE Window created with ResizeHandler (hidden)!")
             } catch (e: Exception) {
                 logger.error("Failed to create main window: ${e.message}", e)
-            }
-        }
-
-        private fun loadStylesheets(scene: Scene) {
-            val cssFiles = listOf(
-                "/assets/datapack-ide/themes/MenuBar.css",
-                "/assets/datapack-ide/themes/TitleBar.css",
-                "/assets/datapack-ide/themes/FileTree.css",
-                "/assets/datapack-ide/themes/Window.css"
-            )
-
-            try {
-                cssFiles.forEach { cssPath ->
-                    val cssUrl = MainApplication::class.java.getResource(cssPath)
-                    if (cssUrl != null) {
-                        scene.stylesheets.add(cssUrl.toExternalForm())
-                        logger.debug("Loaded CSS: $cssPath")
-                    } else {
-                        logger.warn("CSS file not found: $cssPath")
-                    }
-                }
-                logger.info("Custom themes loaded successfully")
-            } catch (e: Exception) {
-                logger.warn("Could not load custom themes: ${e.message}, using default styling")
             }
         }
 
