@@ -55,6 +55,8 @@ dependencies {
 		implementation(javafxDep("web", classifier))
 		implementation(javafxDep("media", classifier))
 
+		implementation("org.kordamp.ikonli:ikonli-fontawesome6-pack:12.4.0")
+
 		include(javafxDep("base", classifier))
 		include(javafxDep("graphics", classifier))
 		include(javafxDep("controls", classifier))

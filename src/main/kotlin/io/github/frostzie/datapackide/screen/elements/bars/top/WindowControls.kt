@@ -115,7 +115,7 @@ class WindowControls(
                 stage.height == screenBounds.height
     }
 
-    private fun toggleMaximize() {
+    fun toggleMaximize() {
         val screenBounds = Screen.getPrimary().visualBounds
         if (isStageMaximized()) {
             previousBounds?.let {

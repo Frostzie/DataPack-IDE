@@ -33,8 +33,19 @@
 .hide-tools-icon,
 .run-datapack-icon,
 .settings-icon {
-    -fx-fit-width: 16;
-    -fx-fit-height: 16;
+    -fx-icon-size: 16;
+    -fx-icon-color: -title-text;
+}
+
+.hide-tools-icon {
+    -fx-icon-code: "fas-bars";
+}
+
+.run-datapack-icon {
+    -fx-icon-code: "fas-play";
+}
+.settings-icon {
+    -fx-icon-code: "fas-gear"; /* Change to something that exists */
 }
 
 /* Menu Bar within Title Bar */

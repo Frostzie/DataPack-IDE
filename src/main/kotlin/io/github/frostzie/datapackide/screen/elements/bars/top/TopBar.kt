@@ -6,9 +6,8 @@ import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.scene.control.Button
 import javafx.scene.control.ContentDisplay
 import javafx.scene.control.Tooltip
-import javafx.scene.effect.ColorAdjust
-import javafx.scene.image.Image
-import javafx.scene.image.ImageView
+import javafx.scene.input.MouseButton
+import org.kordamp.ikonli.javafx.FontIcon
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
@@ -21,6 +20,7 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
     }
 
     private val toolControls: ToolControls
+    private val windowControls: WindowControls
     private var menuBarVisible = true
     private var hideMenuButton: Button
     private var runDataPackButton: Button
@@ -51,9 +51,17 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
         hideMenuButton = createHideMenuButton()
         runDataPackButton = createRunDataPackButton()
         settingsButton = createSettingsButton()
-        val windowControls = createWindowControls()
+        windowControls = createWindowControls()
 
         layoutComponents(hideMenuButton, runDataPackButton, toolControls, settingsButton, windowControls)
+
+        this.setOnMouseClicked { event ->
+            if (event.button == MouseButton.PRIMARY && event.clickCount == 2) {
+                if (event.target == this || (event.target as? Region)?.styleClass?.contains("title-spacer") == true) {
+                    windowControls.toggleMaximize()
+                }
+            }
+        }
         logger.info("Top bar initialized")
     }
 
@@ -69,18 +77,12 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
             styleClass.addAll("hide-tools-button", "title-bar-icon-button")
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
             tooltip = Tooltip("Toggle Menu Bar")
-            //TODO: remove hardcoded path
-            val iconPath = "/assets/datapack-ide/themes/icon/hide-tools.png"
-            val iconStream = javaClass.getResourceAsStream(iconPath)
-                ?: throw IllegalArgumentException("Icon not found: $iconPath")
 
-            val imageView = ImageView(Image(iconStream)).apply {
-                isPreserveRatio = true
+            val icon = FontIcon().apply {
                 styleClass.add("hide-tools-icon")
-                effect = ColorAdjust(0.0, 0.0, 1.0, 0.0)
             }
 
-            graphic = imageView
+            graphic = icon
             setOnAction { toggleMenuBar() }
         }
     }
@@ -90,18 +92,12 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
             styleClass.addAll("run-datapack-button", "title-bar-icon-button")
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
             tooltip = Tooltip("Reload Datapack")
-            //TODO: remove hardcoded path
-            val iconPath = "/assets/datapack-ide/themes/icon/play.png"
-            val iconStream = javaClass.getResourceAsStream(iconPath)
-                ?: throw IllegalArgumentException("Icon not found: $iconPath")
 
-            val imageView = ImageView(Image(iconStream)).apply {
-                isPreserveRatio = true
+            val icon = FontIcon().apply {
                 styleClass.add("run-datapack-icon")
-                effect = ColorAdjust(0.0, 0.0, 1.0, 0.0)
             }
 
-            graphic = imageView
+            graphic = icon
             setOnAction { executeCommandButton() }
         }
     }
@@ -111,18 +107,12 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
             styleClass.addAll("settings-button", "title-bar-icon-button")
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
             tooltip = Tooltip("Settings")
-            //TODO: remove hardcoded path
-            val iconPath = "/assets/datapack-ide/themes/icon/settings.png"
-            val iconStream = javaClass.getResourceAsStream(iconPath)
-                ?: throw IllegalArgumentException("Icon not found: $iconPath")
 
-            val imageView = ImageView(Image(iconStream)).apply {
-                isPreserveRatio = true
+            val icon = FontIcon().apply {
                 styleClass.add("settings-icon")
-                effect = ColorAdjust(0.0, 0.0, 1.0, 0.0)
             }
 
-            graphic = imageView
+            graphic = icon
             setOnAction { onPreferences?.invoke() }
         }
     }
