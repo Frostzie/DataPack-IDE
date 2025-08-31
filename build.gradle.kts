@@ -1,17 +1,5 @@
 import org.gradle.api.tasks.bundling.Jar
-
-val javafxVersion = "21.0.8"
-
-// http://insecure.repo1.maven.org/maven2/org/openjfx/javafx-base/21.0.8/
-val javafxClassifiers = listOf(
-	"win",
-	"mac",
-	"mac-aarch64",
-	"linux"
-)
-
-fun javafxDep(module: String, classifier: String) =
-	"org.openjfx:javafx-$module:$javafxVersion:$classifier"
+import kotlin.String
 
 plugins {
 	java
@@ -20,6 +8,17 @@ plugins {
 	alias(libs.plugins.fabric.loom)
 	alias(libs.plugins.javafx)
 }
+val javafx = libs.versions.javafxapp.get()
+
+// http://insecure.repo1.maven.org/maven2/org/openjfx/javafx-base/21.0.8/
+val javafxClassifiers = listOf(
+	"win",
+	"mac",
+	"mac-aarch64",
+	"linux"
+)
+fun javafxDep(module: String, classifier: String) =
+	"org.openjfx:javafx-$module:$javafx:$classifier"
 
 version = libs.versions.version.get()
 group = project.findProperty("maven_group") as String
@@ -47,6 +46,11 @@ dependencies {
 
 	implementation(libs.ikonli)
 	include(libs.ikonli)
+	implementation("org.kordamp.ikonli:ikonli-fontawesome6-pack:12.4.0")
+	implementation(libs.fxborderless)
+	//implementation("uk.co.bithatch:FX-BorderlessScene:5.0.12")
+	//implementation(libs.fx_borderless)
+	//include(libs.fx_borderless)
 
 	for (classifier in javafxClassifiers) {
 		implementation(javafxDep("base", classifier))
@@ -54,8 +58,6 @@ dependencies {
 		implementation(javafxDep("controls", classifier))
 		implementation(javafxDep("web", classifier))
 		implementation(javafxDep("media", classifier))
-
-		implementation("org.kordamp.ikonli:ikonli-fontawesome6-pack:12.4.0")
 
 		include(javafxDep("base", classifier))
 		include(javafxDep("graphics", classifier))

@@ -9,10 +9,10 @@ kotlin = "2.1.0"
 fabric_kotlin = "1.13.4+kotlin.2.2.0"
 modmenu = "15.0.0-beta.3"
 devauth = "1.2.1"
-javafx = "21.0.8"
+javafxapp = "21.0.8"
 javafx_plugin = "0.1.0"
+fx_borderless = "5.0.12"
 ikonli = "12.4.0"
-
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 yarn = { module = "net.fabricmc:yarn", version.ref = "yarn_mappings" }
@@ -22,12 +22,7 @@ fabric_kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = 
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 devauth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
 
-javafxcontrols = { module = "org.openjfx:javafx-controls", version.ref = "javafx"}
-javafxfxml = { module = "org.openjfx:javafx-fxml", version.ref = "javafx"}
-javafxbase = { module = "org.openjfx:javafx-base", version.ref = "javafx"}
-javafxweb = { module = "org.openjfx:javafx-web", version.ref = "javafx"}
-javafxmedia = { module = "org.openjfx:javafx-media", version.ref = "javafx"}
-
+fxborderless = { module = "uk.co.bithatch:FX-BorderlessScene", version.ref = "fx_borderless"}
 ikonli = { module = "org.kordamp.ikonli:ikonli-javafx", version.ref = "ikonli"}
 
 [plugins]
