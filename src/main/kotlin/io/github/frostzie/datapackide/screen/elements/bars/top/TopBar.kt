@@ -1,13 +1,11 @@
 package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand.executeCommandButton
+import io.github.frostzie.datapackide.utils.IconButton
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.UIConstants
-import javafx.scene.control.Button
-import javafx.scene.control.ContentDisplay
 import javafx.scene.control.Tooltip
 import javafx.scene.input.MouseButton
-import org.kordamp.ikonli.javafx.FontIcon
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
@@ -22,9 +20,9 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
     private val toolControls: ToolControls
     private val windowControls: WindowControls
     private var menuBarVisible = true
-    private var hideMenuButton: Button
-    private var runDataPackButton: Button
-    private var settingsButton: Button
+    private var hideMenuButton: IconButton
+    private var runDataPackButton: IconButton
+    private var settingsButton: IconButton
 
     var onNewFile: (() -> Unit)? = null
     var onOpenFile: (() -> Unit)? = null
@@ -72,47 +70,26 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
         maxHeight = UIConstants.TOP_BAR_HEIGHT
     }
 
-    private fun createHideMenuButton(): Button {
-        return Button().apply {
-            styleClass.addAll("hide-tools-button", "title-bar-icon-button")
-            contentDisplay = ContentDisplay.GRAPHIC_ONLY
+    private fun createHideMenuButton(): IconButton {
+        return IconButton {
+            styleClass.addAll("hide-tools-button", "title-bar-icon-button", "hide-tools-icon")
             tooltip = Tooltip("Toggle Menu Bar")
-
-            val icon = FontIcon().apply {
-                styleClass.add("hide-tools-icon")
-            }
-
-            graphic = icon
             setOnAction { toggleMenuBar() }
         }
     }
 
-    private fun createRunDataPackButton(): Button {
-        return Button().apply {
-            styleClass.addAll("run-datapack-button", "title-bar-icon-button")
-            contentDisplay = ContentDisplay.GRAPHIC_ONLY
+    private fun createRunDataPackButton(): IconButton {
+        return IconButton {
+            styleClass.addAll("run-datapack-button", "title-bar-icon-button", "run-datapack-icon")
             tooltip = Tooltip("Reload Datapack")
-
-            val icon = FontIcon().apply {
-                styleClass.add("run-datapack-icon")
-            }
-
-            graphic = icon
             setOnAction { executeCommandButton() }
         }
     }
 
-    private fun createSettingsButton(): Button {
-        return Button().apply {
-            styleClass.addAll("settings-button", "title-bar-icon-button")
-            contentDisplay = ContentDisplay.GRAPHIC_ONLY
+    private fun createSettingsButton(): IconButton {
+        return IconButton {
+            styleClass.addAll("settings-button", "title-bar-icon-button", "settings-icon")
             tooltip = Tooltip("Settings")
-
-            val icon = FontIcon().apply {
-                styleClass.add("settings-icon")
-            }
-
-            graphic = icon
             setOnAction { onPreferences?.invoke() }
         }
     }
@@ -148,10 +125,10 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
     }
 
     private fun layoutComponents(
-        hideMenuButton: Button,
-        runDataPackButton: Button,
+        hideMenuButton: IconButton,
+        runDataPackButton: IconButton,
         toolControls: ToolControls,
-        settingsButton: Button,
+        settingsButton: IconButton,
         windowControls: WindowControls
     ) {
         val spacer = Region().apply {

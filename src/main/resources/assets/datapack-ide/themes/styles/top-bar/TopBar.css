@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Datapack-IDE';
+    src: url('../../fonts/DataPack-IDE.ttf');
+}
+
 /* Title Bar */
 .title-bar {
     -title-bg: #181818;
@@ -30,22 +35,25 @@
 }
 
 /* Icon styles within the buttons */
-.hide-tools-icon,
-.run-datapack-icon,
-.settings-icon {
-    -fx-icon-size: 16;
-    -fx-icon-color: -title-text;
-}
-
 .hide-tools-icon {
-    -fx-icon-code: "fas-bars";
+    -fx-font-family: 'Datapack-IDE';
+    -fx-font-size: 16px;
+    -fx-text-fill: -title-text;
+    -fx-icon-character: "\E906";
 }
 
 .run-datapack-icon {
-    -fx-icon-code: "fas-play";
+    -fx-font-family: 'Datapack-IDE';
+    -fx-font-size: 16px;
+    -fx-text-fill: -title-text;
+    -fx-icon-character: "\E904";
 }
+
 .settings-icon {
-    -fx-icon-code: "fas-gear"; /* Change to something that exists */
+    -fx-font-family: 'Datapack-IDE';
+    -fx-font-size: 16px;
+    -fx-text-fill: -title-text;
+    -fx-icon-character: "\E905";
 }
 
 /* Menu Bar within Title Bar */
