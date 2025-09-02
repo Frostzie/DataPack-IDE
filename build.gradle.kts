@@ -44,9 +44,6 @@ dependencies {
 	modImplementation(libs.modmenu)
 	modRuntimeOnly(libs.devauth)
 
-	implementation(libs.ikonli)
-	include(libs.ikonli)
-	implementation("org.kordamp.ikonli:ikonli-fontawesome6-pack:12.4.0")
 	implementation(libs.fxborderless)
 	//implementation("uk.co.bithatch:FX-BorderlessScene:5.0.12")
 	//implementation(libs.fx_borderless)

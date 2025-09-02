@@ -12,7 +12,7 @@ devauth = "1.2.1"
 javafxapp = "21.0.8"
 javafx_plugin = "0.1.0"
 fx_borderless = "5.0.12"
-ikonli = "12.4.0"
+
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 yarn = { module = "net.fabricmc:yarn", version.ref = "yarn_mappings" }
@@ -23,7 +23,6 @@ modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 devauth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
 
 fxborderless = { module = "uk.co.bithatch:FX-BorderlessScene", version.ref = "fx_borderless"}
-ikonli = { module = "org.kordamp.ikonli:ikonli-javafx", version.ref = "ikonli"}
 
 [plugins]
 fabric_loom = { id = "fabric-loom", version.ref = "loom_version"}
