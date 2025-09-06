@@ -38,7 +38,6 @@ class ToolControls : MenuBar() {
 
     init {
         styleClass.add("main-menu-bar")
-        CSSManager.applyToComponent(stylesheets, "MenuBar")
         createMenus()
         logger.info("ToolControls initialized")
     }

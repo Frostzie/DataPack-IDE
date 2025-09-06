@@ -1,5 +1,6 @@
 package io.github.frostzie.datapackide.screen.elements.popup
 
+import io.github.frostzie.datapackide.config.AssetsConfig
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.scene.Scene
@@ -41,7 +42,7 @@ class Settings(private val parentStage: Stage?) {
         val scene = Scene(content, 600.0, 500.0)
 
         try {
-            CSSManager.applyPopupStyles(scene, "Settings")
+            CSSManager.applyPopupStyles(scene, "Settings.css")
         } catch (e: Exception) {
             logger.warn("Could not load Settings CSS: ${e.message}")
         }
@@ -95,6 +96,36 @@ class Settings(private val parentStage: Stage?) {
         }
     }
 
+    private fun handleReloadAssets() {
+        logger.info("Reloading assets and styles...")
+        try {
+            // Reload styles for all relevant scenes at once.
+            val scenesToReload = listOfNotNull(parentStage?.scene, stage?.scene)
+            if (scenesToReload.isNotEmpty()) {
+                CSSManager.reloadAllStyles(*scenesToReload.toTypedArray())
+            }
+
+            logger.info("Assets and styles reloaded successfully")
+        } catch (e: Exception) {
+            logger.error("Failed to reload assets and styles", e)
+        }
+    }
+
+    private fun handleResetToDefaults() {
+        logger.info("Reset to defaults requested. This will overwrite custom styles.")
+        try {
+            AssetsConfig.forceTransferAllAssets()
+
+            val scenesToReload = listOfNotNull(parentStage?.scene, stage?.scene)
+            if (scenesToReload.isNotEmpty()) {
+                CSSManager.reloadAllStyles(*scenesToReload.toTypedArray())
+            }
+            logger.info("Successfully reset all assets and styles to their default state.")
+        } catch (e: Exception) {
+            logger.error("An error occurred while resetting assets to default.", e)
+        }
+    }
+
     private fun createPlaceholderSection(): VBox {
         return VBox().apply {
             styleClass.add("settings-section")
@@ -117,7 +148,13 @@ class Settings(private val parentStage: Stage?) {
                 isWrapText = true
             }
 
-            children.addAll(sectionTitle, placeholder)
+            val reloadButton = Button("Reload Assets & Styles").apply {
+                setOnAction {
+                    handleReloadAssets()
+                }
+            }
+
+            children.addAll(sectionTitle, placeholder, reloadButton)
         }
     }
 
@@ -132,9 +169,8 @@ class Settings(private val parentStage: Stage?) {
 
             val resetButton = Button("Reset to Defaults").apply {
                 styleClass.add("reset-button")
-                isDisable = true
                 setOnAction {
-                    logger.info("Reset to defaults requested")
+                    handleResetToDefaults()
                 }
             }
 

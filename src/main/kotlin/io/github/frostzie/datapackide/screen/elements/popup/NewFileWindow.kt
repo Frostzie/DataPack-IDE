@@ -51,7 +51,7 @@ class NewFileWindow(private val parentStage: Stage?) {
         val scene = Scene(content)
 
         try {
-            CSSManager.applyPopupStyles(scene, "NewFileWindow")
+            CSSManager.applyPopupStyles(scene, "NewFileWindow.css")
         } catch (e: Exception) {
             logger.warn("Could not load NewFileWindow CSS: ${e.message}")
         }

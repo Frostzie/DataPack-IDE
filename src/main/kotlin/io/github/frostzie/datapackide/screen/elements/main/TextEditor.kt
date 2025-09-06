@@ -42,7 +42,6 @@ class TextEditor : VBox() {
 
     private fun setupWebViewEditor() {
         styleClass.add("text-editor-container")
-        CSSManager.applyToComponent(stylesheets, "TextEditor")
 
         webView = WebView().apply {
             styleClass.add("main-webview")

@@ -76,7 +76,7 @@ class MainApplication {
             val root = BorderPane()
             root.styleClass.add("window") // Add CSS class for drop shadow
 
-            topBar = TopBar(stage, isStandaloneMode)
+            topBar = TopBar(stage)
             leftSidebar = LeftSidebar()
             fileTreeView = FileTreeView()
             statusBar = StatusBar()

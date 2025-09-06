@@ -22,6 +22,7 @@ object ConfigManager {
             logger.info("Created config directory: $configDir")
         }
 
+        AssetsConfig.initialize()
         WebsiteConfig.initialize()
 
         logger.info("ConfigManager initialization complete")

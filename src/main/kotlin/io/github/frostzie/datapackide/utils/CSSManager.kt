@@ -2,7 +2,10 @@ package io.github.frostzie.datapackide.utils
 
 import javafx.scene.Scene
 import net.fabricmc.loader.api.FabricLoader
+import io.github.frostzie.datapackide.config.AssetsConfig
 import java.net.URL
+import java.nio.file.Files
+import java.util.Base64
 
 /**
  * Handles loading and applying stylesheets to scenes and components
@@ -10,14 +13,17 @@ import java.net.URL
 object CSSManager {
     private val logger = LoggerProvider.getLogger("CSSManager")
 
-    private const val CSS_BASE_PATH = "/assets/datapack-ide/themes/"
-    private val CUSTOM_CSS_PATH = FabricLoader.getInstance().configDir.toString() + "/datapack-ide/themes/"
+    private val CSS_CONFIG_PATH = FabricLoader.getInstance().configDir.resolve("datapack-ide/assets/styles/")
 
-    private val searchPaths = listOf(
+    private val resourceSearchPaths = listOf(
         "styles/top-bar/",
         "styles/",
         ""
     )
+
+    private val configSearchPaths = listOf(
+        "top-bar/",
+        "")
 
     private val cssFiles = listOf(
         "MenuBar.css",
@@ -36,99 +42,29 @@ object CSSManager {
      * Applies all known CSS files to a scene. This is the primary method for styling the main application window.
      */
     fun applyAllStyles(scene: Scene) {
-        cssFiles.forEach { cssFile ->
-            applySingleStyle(scene, cssFile)
-        }
-        logger.info("Applied all ${cssFiles.size} application CSS styles to the scene.")
+        logger.info("Applying all ${cssFiles.size} application CSS styles to the scene...")
+        scene.stylesheets.clear()
+        applyStyles(scene, *cssFiles.toTypedArray())
     }
 
 
     /**
-     * Apply specific CSS files to a scene
+     * Apply specific CSS files to a scene. This is now an internal helper.
      */
-    fun applyStyles(scene: Scene, vararg styleNames: String) {
+    private fun applyStyles(scene: Scene, vararg styleNames: String) {
         styleNames.forEach { styleName ->
             val cssFile = if (styleName.endsWith(".css")) styleName else "$styleName.css"
-            applySingleStyle(scene, cssFile)
-        }
-        logger.debug("Applied ${styleNames.size} CSS styles to scene: ${styleNames.joinToString()}")
-    }
-
-    /**
-     * Apply a single CSS file to a scene
-     */
-    private fun applySingleStyle(scene: Scene, cssFile: String) {
-        try {
-            val cssUrl = findCssResource(cssFile)
-            if (cssUrl != null) {
-                scene.stylesheets.add(cssUrl.toExternalForm())
-                logger.debug("Loaded CSS: $cssFile")
-            } else {
-                logger.warn("CSS file not found: $cssFile")
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to load CSS file: $cssFile", e)
-        }
-    }
-
-    /**
-     * Get the external form URL of a CSS file by searching in predefined paths.
-     */
-    fun getCSSUrl(cssFileName: String): String? {
-        return try {
-            val cssFile = if (cssFileName.endsWith(".css")) cssFileName else "$cssFileName.css"
-            val cssUrl = findCssResource(cssFile)
-
-            if (cssUrl != null) {
-                logger.debug("Retrieved CSS URL for: $cssFile")
-                cssUrl.toExternalForm()
-            } else {
-                logger.warn("CSS file not found: $cssFile")
-                null
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to get CSS URL for: $cssFileName", e)
-            null
-        }
-    }
-
-    /**
-     * Apply CSS to a component's stylesheet list
-     * Use this for individual component
-     */
-    fun applyToComponent(stylesheets: MutableList<String>, vararg styleNames: String) {
-        styleNames.forEach { styleName ->
-            getCSSUrl(styleName)?.let { url ->
-                stylesheets.add(url)
+            loadCssContent(cssFile)?.let { content ->
+                val dataUri = prepareCssForDataUri(content)
+                scene.stylesheets.add(dataUri)
             }
         }
-        logger.debug("Applied ${styleNames.size} CSS styles to component: ${styleNames.joinToString()}")
+        logger.debug("Applied ${styleNames.size} CSS styles to scene using data URI: ${styleNames.joinToString()}")
     }
 
     /**
-     * Check if all required CSS files are available
-     */
-    fun validateCSSFiles(): Boolean {
-        var allValid = true
-        cssFiles.forEach { cssFile ->
-            if (findCssResource(cssFile) == null) {
-                logger.error("Missing required CSS file: $cssFile")
-                allValid = false
-            }
-        }
-
-        if (allValid) {
-            logger.debug("All CSS files validated successfully")
-        } else {
-            logger.warn("Some CSS files are missing - styling may be incomplete")
-        }
-
-        return allValid
-    }
-
-    /**
-     * Apply specific popup window styles
-     * Use this for individual popup windows
+     * Apply specific popup window styles.
+     * Use this for individual popup windows to avoid loading all application styles.
      */
     fun applyPopupStyles(scene: Scene, vararg styleNames: String) {
         applyStyles(scene, *styleNames)
@@ -136,71 +72,102 @@ object CSSManager {
     }
 
     /**
-     * Searches for a CSS file in the predefined search paths.
-     * @param cssFile The simple name of the CSS file (e.g., "TopBar.css").
-     * @return The [URL] of the found resource, or null if not found.
+     * Reloads all CSS files for one or more scenes efficiently.
+     * It reads each CSS file only once and applies the result to all provided scenes.
      */
-    private fun findCssResource(cssFile: String): URL? {
-        for (path in searchPaths) {
-            val fullPath = "$CSS_BASE_PATH$path$cssFile"
-            val resource = CSSManager::class.java.getResource(fullPath)
-            if (resource != null) {
-                return resource
+    fun reloadAllStyles(vararg scenes: Scene) {
+        if (scenes.isEmpty()) return
+        logger.info("Reloading all CSS styles for ${scenes.size} scene(s)...")
+
+        val dataUris = cssFiles.mapNotNull { cssFile ->
+            loadCssContent(cssFile)?.let { content ->
+                prepareCssForDataUri(content)
             }
         }
-        return null
+
+        scenes.forEach { scene ->
+            scene.stylesheets.clear()
+            scene.stylesheets.addAll(dataUris)
+        }
+
+        logger.info("All styles reloaded successfully for ${scenes.size} scene(s).")
     }
 
-    /** //TODO: REMOVE
-     * Parses CSS custom properties from loaded stylesheets
-     * @param cssClass The CSS class to extract properties from
-     * @param propertyName The custom property name (e.g., "-icon-color")
-     * @return The property value or null if not found
+    /**
+     * Loads the raw string content of a CSS file from the highest-priority source.
+     * Priority: User Config > Classpath Resource.
      */
-    fun parseCSSCustomProperty(cssClass: String, propertyName: String): String? {
-        return try {
-            val cssUrl = findCssResource("WindowControls.css")
-            if (cssUrl == null) {
-                logger.warn("WindowControls.css not found for property parsing")
+    private fun loadCssContent(cssFile: String): String? {
+        try {
+            var cssBytes: ByteArray? = null
+            var sourceDescription: String? = null
+
+            val configFile = CSS_CONFIG_PATH.resolve(findCssInSubdirectory(cssFile))
+            if (Files.isRegularFile(configFile)) {
+                cssBytes = Files.readAllBytes(configFile)
+                sourceDescription = "user config ($configFile)"
+            }
+
+            if (cssBytes == null) {
+                findClasspathResource(cssFile)?.openStream()?.use { inputStream ->
+                    cssBytes = inputStream.readAllBytes()
+                    sourceDescription = "classpath resource"
+                }
+            }
+
+            if (cssBytes != null) {
+                logger.info("Loaded CSS content for: $cssFile from $sourceDescription")
+                return String(cssBytes, Charsets.UTF_8)
+            } else {
+                logger.warn("CSS file not found during load: $cssFile")
                 return null
             }
-
-            val cssContent = cssUrl.readText()
-
-            extractCustomPropertyFromCSS(cssContent, cssClass, propertyName)
         } catch (e: Exception) {
-            logger.error("Failed to parse CSS custom property: $propertyName", e)
-            null
+            logger.error("Failed to load CSS content for file: $cssFile", e)
+            return null
         }
     }
 
     /**
-     * Extracts custom property value from CSS content
+     * Takes raw CSS content, processes it, and returns a Base64-encoded data URI.
      */
-    private fun extractCustomPropertyFromCSS(cssContent: String, cssClass: String, propertyName: String): String? {
-
-        val classPattern = Regex("""\.${Regex.escape(cssClass)}\s*\{([^}]*)}""", RegexOption.MULTILINE)
-        val propertyPattern = Regex("""${Regex.escape(propertyName)}\s*:\s*([^;]+);?""")
-
-        val classMatch = classPattern.find(cssContent)
-        if (classMatch != null) {
-            val classContent = classMatch.groupValues[1]
-            val propertyMatch = propertyPattern.find(classContent)
-            if (propertyMatch != null) {
-                val value = propertyMatch.groupValues[1].trim()
-                logger.debug("Found CSS custom property $propertyName: $value")
-                return value
-            }
+    private fun prepareCssForDataUri(cssContent: String): String {
+        var processedContent = cssContent
+        val fontFile = AssetsConfig.getFontPath()
+        if (Files.isRegularFile(fontFile)) {
+            val fontUrl = fontFile.toUri().toString()
+            processedContent = processedContent.replace(Regex("url\\((['\"])?.*?/DataPack-IDE\\.ttf\\1?\\)"), "url('$fontUrl')")
         }
 
-        logger.debug("CSS custom property not found: $propertyName in class $cssClass")
+        val encodedCss = Base64.getEncoder().encodeToString(processedContent.toByteArray(Charsets.UTF_8))
+        return "data:text/css;base64,$encodedCss"
+    }
+
+    /**
+     * Find CSS file in subdirectories, checking all search paths
+     */
+    private fun findCssInSubdirectory(cssFile: String): String {
+        for (path in configSearchPaths) {
+            val fullPath = if (path.isEmpty()) cssFile else "$path$cssFile"
+            if (Files.isRegularFile(CSS_CONFIG_PATH.resolve(fullPath))) {
+                return fullPath
+            }
+        }
+        return cssFile
+    }
+
+    /**
+     * Searches for a CSS file only within the mod's classpath resources.
+     */
+    private fun findClasspathResource(cssFile: String): URL? {
+        for (path in resourceSearchPaths) {
+            val fullPath = "/assets/datapack-ide/themes/$path$cssFile"
+            val resource = CSSManager::class.java.getResource(fullPath)
+            if (resource != null) return resource
+        }
         return null
     }
 
-    /**
-     * Extension function to read text from URL
-     */
-    private fun URL.readText(): String {
-        return this.openStream().bufferedReader().use { it.readText() }
-    }
+    // TODO: Add CSS theme switching functionality for future use
+    // This will allow switching between different CSS themes/variants
 }

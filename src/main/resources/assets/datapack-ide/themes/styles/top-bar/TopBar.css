@@ -34,6 +34,12 @@
     -fx-background-color: #444444;
 }
 
+.tooltip {
+    -fx-font-family: system;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
 /* Icon styles within the buttons */
 .hide-tools-icon {
     -fx-font-family: 'Datapack-IDE';

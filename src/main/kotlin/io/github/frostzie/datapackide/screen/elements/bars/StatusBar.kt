@@ -36,7 +36,6 @@ class StatusBar : HBox() {
         prefHeight = UIConstants.STATUS_BAR_HEIGHT
         minHeight = UIConstants.STATUS_BAR_HEIGHT
         maxHeight = UIConstants.STATUS_BAR_HEIGHT
-        CSSManager.applyToComponent(stylesheets, "StatusBar")
         createStatusElements()
         bindProperties()
         LOGGER.info("Status bar initialized")

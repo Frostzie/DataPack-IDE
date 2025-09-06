@@ -1,57 +1,62 @@
-/* Window Controls Container */
-.window-controls {
-    -fx-background-color: transparent;
-    -fx-spacing: 0;
-    -fx-alignment: center-right;
+@font-face {
+    font-family: 'Datapack-IDE';
+    src: url('../../fonts/DataPack-IDE.ttf');
 }
 
-/* Window Control Buttons */
+.window-controls {
+    -fx-alignment: center;
+}
+
 .window-control-button {
     -fx-background-color: transparent;
     -fx-background-radius: 0;
     -fx-border-width: 0;
+    -fx-padding: 8;
     -fx-min-width: 46;
     -fx-max-width: 46;
     -fx-pref-width: 46;
-    -fx-min-height: 32;
-    -fx-max-height: 32;
-    -fx-pref-height: 32;
     -fx-cursor: hand;
 }
 
+.tooltip {
+    -fx-font-family: system;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
 .window-control-button:hover {
-    -fx-background-color: #404040;
+    -fx-background-color: #444444;
 }
 
-/* Style for the icons within the buttons */
-.window-control-button .image-view {
-    -fx-fit-height: 10px;
-    -fx-fit-width: 10px;
+.minimize-icon {
+    -fx-font-family: 'Datapack-IDE';
+    -fx-font-size: 16px;
+    -fx-text-fill: #dddddd;
+    -fx-icon-character: "\E903";
 }
 
-.minimize-button {
-    -icon-color: #e2e7ef;
+.maximize-icon {
+    -fx-font-family: 'Datapack-IDE';
+    -fx-font-size: 16px;
+    -fx-text-fill: #dddddd;
+    -fx-icon-character: "\E908";
 }
 
-.minimize-button:hover {
-    -icon-hover-color: #f8f8f8;
-    -fx-background-color: #404040;
+.restore-icon {
+    -fx-font-family: 'Datapack-IDE';
+    -fx-font-size: 16px;
+    -fx-text-fill: #dddddd;
+    -fx-icon-character: "\E909";
 }
 
-.maximize-button {
-    -icon-color: #e2e7ef;
+.close-icon {
+    -fx-font-family: 'Datapack-IDE';
+    -fx-font-size: 16px;
+    -fx-text-fill: #dddddd;
+    -fx-icon-character: "\E902";
 }
 
-.maximize-button:hover {
-    -icon-hover-color: #f8f8f8;
-    -fx-background-color: #404040;
-}
-
-.close-button {
-    -icon-color: #e2e7ef;
-}
-
-.close-button:hover {
-    -icon-hover-color: #f8f8f8;
+.close-icon:hover {
     -fx-background-color: #e81123;
+    -fx-text-fill: #ffffff;
 }

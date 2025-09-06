@@ -25,7 +25,6 @@ class LeftSidebar : VBox() {
 
     private fun setupSidebar() {
         styleClass.add("left-sidebar")
-        CSSManager.applyToComponent(stylesheets, "LeftBar")
         logger.info("Left sidebar initialized")
     }
 

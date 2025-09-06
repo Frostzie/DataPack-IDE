@@ -34,7 +34,6 @@ class FileTreeView : VBox() {
 
     private fun setupFileTree() {
         styleClass.add("file-tree-container")
-        CSSManager.applyToComponent(stylesheets, "FileTree")
 
         prefWidth = UIConstants.FILE_TREE_DEFAULT_WIDTH
         minWidth = UIConstants.FILE_TREE_MIN_WIDTH

@@ -11,7 +11,7 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.stage.Stage
 
-class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = false) : HBox() {
+class TopBar(private val stage: Stage) : HBox() {
 
     companion object {
         private val logger = LoggerProvider.getLogger("TopBar")
@@ -121,7 +121,7 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
     }
 
     private fun createWindowControls(): WindowControls {
-        return WindowControls(stage, isStandaloneMode)
+        return WindowControls(stage)
     }
 
     private fun layoutComponents(
@@ -145,6 +145,4 @@ class TopBar(private val stage: Stage, private val isStandaloneMode: Boolean = f
         toolControls.isManaged = menuBarVisible
         logger.info("Menu bar visibility toggled: $menuBarVisible")
     }
-
-    fun getApplicationMenuBar(): ToolControls = toolControls
 }
