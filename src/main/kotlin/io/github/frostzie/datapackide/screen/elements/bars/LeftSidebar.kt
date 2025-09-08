@@ -1,16 +1,15 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.DirectorySelectedEvent
+import io.github.frostzie.datapackide.events.UIActionEvent
+import io.github.frostzie.datapackide.events.UIAction
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.scene.control.Button
 import javafx.scene.control.ContentDisplay
 import javafx.scene.control.Tooltip
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
-import javafx.stage.DirectoryChooser
 
 class LeftSidebar : VBox() {
 
@@ -25,7 +24,7 @@ class LeftSidebar : VBox() {
 
     private fun setupSidebar() {
         styleClass.add("left-sidebar")
-        logger.info("Left sidebar initialized")
+        logger.info("Left sidebar initialized with event system")
     }
 
     private fun createButtons() {
@@ -36,39 +35,15 @@ class LeftSidebar : VBox() {
         children.addAll(buttons)
     }
 
+    //TODO: does nothing yet! (was used for testing event fires in log)
     private fun onSearch() {
         logger.info("Search button clicked")
+        EventBus.post(UIActionEvent(UIAction.TOGGLE_SEARCH))
     }
 
     private fun onFileExplorer() {
         logger.info("File Explorer button clicked")
-
-        val directoryChooser = DirectoryChooser().apply {
-            title = "Select Directory"
-            try { //TODO: Allow custom dir vie settings
-                val os = System.getProperty("os.name").lowercase()
-                val minecraftPath = when {
-                    os.contains("win") -> System.getenv("APPDATA")?.let { java.io.File(it, ".minecraft") }
-                    os.contains("mac") -> java.io.File(System.getProperty("user.home"), "Library/Application Support/minecraft")
-                    else -> java.io.File(System.getProperty("user.home"), ".minecraft")
-                }
-
-                if (minecraftPath != null && minecraftPath.exists()) {
-                    initialDirectory = minecraftPath
-                } else {
-                    initialDirectory = java.io.File(System.getProperty("user.home"))
-                    logger.warn(".minecraft directory not found, falling back to user home.")
-                }
-            } catch (e: Exception) {
-                logger.warn("Could not set initial directory", e)
-            }
-        }
-
-        val selectedDirectory = directoryChooser.showDialog(scene.window)
-        if (selectedDirectory != null) {
-            logger.info("Directory selected: ${selectedDirectory.absolutePath}")
-            EventBus.post(DirectorySelectedEvent(selectedDirectory.toPath()))
-        }
+        EventBus.post(UIActionEvent(UIAction.OPEN_DIRECTORY_CHOOSER))
     }
 
     private inner class SidebarButton(

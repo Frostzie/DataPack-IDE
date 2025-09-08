@@ -1,8 +1,10 @@
 package io.github.frostzie.datapackide.screen.elements.popup
 
-import io.github.frostzie.datapackide.config.AssetsConfig
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.CSSManager
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.UIActionEvent
+import io.github.frostzie.datapackide.events.UIAction
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
@@ -14,7 +16,7 @@ import javafx.stage.Stage
 import javafx.stage.StageStyle
 
 /**
- * Settings popup window for configuring DataPack IDE
+ * Settings popup window
  */
 class Settings(private val parentStage: Stage?) {
 
@@ -30,11 +32,11 @@ class Settings(private val parentStage: Stage?) {
 
     private fun createAndShowWindow() {
         stage = Stage().apply {
-            initStyle(StageStyle.UNDECORATED) // custom undecorated window
+            initStyle(StageStyle.UNDECORATED)
             initModality(Modality.APPLICATION_MODAL)
             parentStage?.let { initOwner(it) }
             isResizable = true
-            minWidth = 500.0   // Stage sizing must stay in Kotlin
+            minWidth = 500.0
             minHeight = 400.0
         }
 
@@ -96,33 +98,24 @@ class Settings(private val parentStage: Stage?) {
         }
     }
 
+    //TODO: both handleReloadAssets and handleResetToDefaults should be moved to Advanced Settings section when settings reworked!
     private fun handleReloadAssets() {
         logger.info("Reloading assets and styles...")
         try {
-            // Reload styles for all relevant scenes at once.
-            val scenesToReload = listOfNotNull(parentStage?.scene, stage?.scene)
-            if (scenesToReload.isNotEmpty()) {
-                CSSManager.reloadAllStyles(*scenesToReload.toTypedArray())
-            }
-
-            logger.info("Assets and styles reloaded successfully")
+            EventBus.post(UIActionEvent(UIAction.RELOAD_STYLES))
+            logger.info("Assets and styles reload event posted")
         } catch (e: Exception) {
-            logger.error("Failed to reload assets and styles", e)
+            logger.error("Failed to post reload assets event", e)
         }
     }
 
     private fun handleResetToDefaults() {
         logger.info("Reset to defaults requested. This will overwrite custom styles.")
         try {
-            AssetsConfig.forceTransferAllAssets()
-
-            val scenesToReload = listOfNotNull(parentStage?.scene, stage?.scene)
-            if (scenesToReload.isNotEmpty()) {
-                CSSManager.reloadAllStyles(*scenesToReload.toTypedArray())
-            }
-            logger.info("Successfully reset all assets and styles to their default state.")
+            EventBus.post(UIActionEvent(UIAction.RESET_STYLES_TO_DEFAULT))
+            logger.info("Reset to defaults event posted")
         } catch (e: Exception) {
-            logger.error("An error occurred while resetting assets to default.", e)
+            logger.error("Failed to post reset to defaults event", e)
         }
     }
 

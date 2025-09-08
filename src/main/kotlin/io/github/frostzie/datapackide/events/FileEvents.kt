@@ -1,0 +1,56 @@
+package io.github.frostzie.datapackide.events
+
+import java.nio.file.Path
+
+/**
+ * File-related events
+ */
+
+enum class FileAction {
+    NEW_FILE,
+    OPEN_FILE,
+    SAVE_FILE,
+    SAVE_AS_FILE,
+    CLOSE_FILE,
+    DELETE_FILE,
+    RELOAD_FILE
+}
+
+/**
+ * Event fired when a file action is requested
+ */
+data class FileActionEvent(
+    val action: FileAction,
+    val filePath: Path? = null,
+    val content: String? = null,
+    val metadata: Map<String, Any> = emptyMap()
+)
+
+/**
+ * Event fired when a file should be opened (existing functionality)
+ */
+data class FileOpenEvent(val filePath: Path)
+
+/**
+ * Event fired when a directory is selected for file tree (existing functionality)
+ */
+data class DirectorySelectedEvent(val directoryPath: Path)
+
+/**
+ * Event fired when a file is saved (existing functionality)
+ */
+data class FileSavedEvent(
+    val filePath: Path,
+    val content: String
+)
+
+/**
+ * Event fired when file operations complete
+ */
+data class FileOperationCompleteEvent(
+    val action: FileAction,
+    val success: Boolean,
+    val filePath: Path? = null,
+    val message: String? = null,
+    val error: Throwable? = null
+)

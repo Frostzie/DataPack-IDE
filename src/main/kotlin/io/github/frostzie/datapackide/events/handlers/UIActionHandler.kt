@@ -1,0 +1,130 @@
+package io.github.frostzie.datapackide.events.handlers
+
+import io.github.frostzie.datapackide.config.AssetsConfig
+import io.github.frostzie.datapackide.events.DirectorySelectedEvent
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.UIAction
+import io.github.frostzie.datapackide.events.UIActionEvent
+import io.github.frostzie.datapackide.screen.elements.popup.Settings
+import io.github.frostzie.datapackide.utils.CSSManager
+import io.github.frostzie.datapackide.utils.LoggerProvider
+import javafx.application.Platform
+import javafx.stage.DirectoryChooser
+import javafx.stage.Stage
+import java.io.File
+import kotlin.system.exitProcess
+
+/**
+ * Handles UI-related actions such as window controls, opening dialogs, and toggling UI elements.
+ */
+class UIActionHandler(private val parentStage: Stage?) {
+    companion object {
+        private val logger = LoggerProvider.getLogger("UIActionHandler")
+    }
+
+    fun initialize() {
+        EventBus.register<UIActionEvent> { event ->
+            logger.debug("Handling UI action: ${event.action}")
+            handleUIAction(event)
+        }
+        logger.info("UIActionHandler initialized")
+    }
+
+    private fun handleUIAction(event: UIActionEvent) {
+        when (event.action) {
+            UIAction.MINIMIZE_WINDOW -> parentStage?.isIconified = true
+            UIAction.MAXIMIZE_WINDOW -> maximizeWindow()
+            UIAction.RESTORE_WINDOW -> restoreWindow()
+            UIAction.CLOSE_WINDOW -> closeWindow()
+            UIAction.TOGGLE_WINDOW -> toggleWindow()
+            UIAction.OPEN_DIRECTORY_CHOOSER -> openDirectoryChooser()
+            UIAction.TOGGLE_SEARCH -> toggleSearch()
+            UIAction.SHOW_SETTINGS -> showPreferences()
+            UIAction.SHOW_ABOUT -> showAbout()
+            UIAction.RELOAD_STYLES -> reloadStyles()
+            UIAction.RESET_STYLES_TO_DEFAULT -> resetStylesToDefault()
+            else -> logger.warn("Unhandled UI action: ${event.action}")
+        }
+    }
+
+    private fun maximizeWindow() {
+        // Implementation will be handled by WindowControls
+        logger.debug("Window maximize requested")
+    }
+
+    private fun restoreWindow() {
+        // Implementation will be handled by WindowControls
+        logger.debug("Window restore requested")
+    }
+
+    private fun closeWindow() {
+        logger.info("Close window requested, hiding app.")
+        parentStage?.hide()
+        Platform.exit()
+        exitProcess(0)
+    }
+
+    private fun toggleWindow() {
+        parentStage?.let { stage ->
+            if (stage.isShowing) {
+                stage.hide()
+            } else {
+                stage.show()
+                stage.toFront()
+            }
+        }
+    }
+
+    private fun openDirectoryChooser() {
+        val directoryChooser = DirectoryChooser().apply {
+            title = "Select Directory"
+            try {
+                val os = System.getProperty("os.name").lowercase()
+                val minecraftPath = when {
+                    os.contains("win") -> System.getenv("APPDATA")?.let { File(it, ".minecraft") }
+                    os.contains("mac") -> File(System.getProperty("user.home"), "Library/Application Support/minecraft")
+                    else -> File(System.getProperty("user.home"), ".minecraft")
+                }
+
+                if (minecraftPath != null && minecraftPath.exists()) {
+                    initialDirectory = minecraftPath
+                } else {
+                    initialDirectory = File(System.getProperty("user.home"))
+                }
+            } catch (e: Exception) {
+                logger.warn("Could not set initial directory", e)
+            }
+        }
+
+        val selectedDirectory = directoryChooser.showDialog(parentStage)
+        if (selectedDirectory != null) {
+            EventBus.post(DirectorySelectedEvent(selectedDirectory.toPath()))
+        }
+    }
+
+    private fun toggleSearch() {
+        logger.info("Search toggle requested")
+        // TODO: Implement search functionality
+    }
+
+    private fun showPreferences() {
+        val settingsWindow = Settings(parentStage)
+        settingsWindow.show()
+    }
+
+    private fun showAbout() {
+        logger.info("About dialog requested")
+        // TODO: Implement about dialog
+    }
+
+    private fun reloadStyles() {
+        val scenesToReload = listOfNotNull(parentStage?.scene)
+        CSSManager.reloadAllStyles(*scenesToReload.toTypedArray())
+    }
+
+    private fun resetStylesToDefault() {
+        AssetsConfig.forceTransferAllAssets()
+        val scenesToReload = listOfNotNull(parentStage?.scene)
+        CSSManager.reloadAllStyles(*scenesToReload.toTypedArray())
+    }
+}

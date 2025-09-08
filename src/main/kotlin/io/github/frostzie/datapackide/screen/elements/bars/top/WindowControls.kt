@@ -2,6 +2,10 @@ package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import io.github.frostzie.datapackide.utils.IconButton
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.UIActionEvent
+import io.github.frostzie.datapackide.events.UIAction
+import io.github.frostzie.datapackide.events.WindowStateEvent
 import javafx.geometry.Rectangle2D
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
@@ -27,7 +31,7 @@ class WindowControls(
         val closeButton = createCloseButton()
 
         children.addAll(minimizeButton, maximizeButton, closeButton)
-        logger.info("Window controls initialized")
+        logger.info("Window controls initialized with event system")
     }
 
     private fun setupWindowControls() {
@@ -40,6 +44,8 @@ class WindowControls(
             tooltip = Tooltip("Minimize")
             setOnAction {
                 stage.isIconified = true
+                EventBus.post(UIActionEvent(UIAction.MINIMIZE_WINDOW))
+                EventBus.post(WindowStateEvent(isVisible = true, isMinimized = true))
             }
         }
     }
@@ -51,6 +57,13 @@ class WindowControls(
             setOnAction {
                 toggleMaximize()
                 updateMaximizeButtonStyle()
+
+                val newAction = if (isStageMaximized()) UIAction.MAXIMIZE_WINDOW else UIAction.RESTORE_WINDOW
+                EventBus.post(UIActionEvent(newAction))
+                EventBus.post(WindowStateEvent(
+                    isVisible = true,
+                    isMaximized = isStageMaximized()
+                ))
             }
         }
     }
@@ -65,6 +78,7 @@ class WindowControls(
             styleClass.addAll("window-control-button", "close-icon")
             tooltip = Tooltip("Close")
             setOnAction {
+                EventBus.post(WindowStateEvent(isVisible = false))
                 stage.hide()
                 logger.info("Window hidden via window controls close button")
             }

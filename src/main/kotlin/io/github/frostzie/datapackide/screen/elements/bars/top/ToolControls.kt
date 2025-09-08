@@ -1,7 +1,10 @@
 package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import io.github.frostzie.datapackide.utils.CSSManager
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.MenuActionEvent
+import io.github.frostzie.datapackide.events.MenuCategory
+import io.github.frostzie.datapackide.events.MenuAction
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
@@ -13,33 +16,10 @@ class ToolControls : MenuBar() {
         private val logger = LoggerProvider.getLogger("ToolControls")
     }
 
-    // Callbacks for menu actions
-    var onNewFile: (() -> Unit)? = null
-    var onOpenFile: (() -> Unit)? = null
-    var onSaveFile: (() -> Unit)? = null
-    var onSaveAsFile: (() -> Unit)? = null
-    var onCloseFile: (() -> Unit)? = null
-    var onExit: (() -> Unit)? = null
-
-    var onUndo: (() -> Unit)? = null
-    var onRedo: (() -> Unit)? = null
-    var onCut: (() -> Unit)? = null
-    var onCopy: (() -> Unit)? = null
-    var onPaste: (() -> Unit)? = null
-    var onFind: (() -> Unit)? = null
-    var onReplace: (() -> Unit)? = null
-
-    var onRunDatapack: (() -> Unit)? = null
-    var onValidateDatapack: (() -> Unit)? = null
-    var onPackageDatapack: (() -> Unit)? = null
-
-    var onPreferences: (() -> Unit)? = null
-    var onAbout: (() -> Unit)? = null
-
     init {
         styleClass.add("main-menu-bar")
         createMenus()
-        logger.info("ToolControls initialized")
+        logger.info("ToolControls initialized with event system")
     }
 
     private fun createMenus() {
@@ -72,25 +52,25 @@ class ToolControls : MenuBar() {
             styleClass.add("menu-file")
             items.addAll(
                 createMenuItem("New File", "menu-item-new", KeyCode.N, KeyCombination.CONTROL_DOWN) {
-                    onNewFile?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.NEW_FILE))
                 },
                 createMenuItem("Open File...", "menu-item-open", KeyCode.O, KeyCombination.CONTROL_DOWN) {
-                    onOpenFile?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.OPEN_FILE))
                 },
                 SeparatorMenuItem(),
                 createMenuItem("Save", "menu-item-save", KeyCode.S, KeyCombination.CONTROL_DOWN) {
-                    onSaveFile?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.SAVE_FILE))
                 },
                 createMenuItem("Save As...", "menu-item-saveas", KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN) {
-                    onSaveAsFile?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.SAVE_AS_FILE))
                 },
                 SeparatorMenuItem(),
                 createMenuItem("Close File", "menu-item-close", KeyCode.W, KeyCombination.CONTROL_DOWN) {
-                    onCloseFile?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.CLOSE_FILE))
                 },
                 SeparatorMenuItem(),
                 createMenuItem("Exit", "menu-item-exit", KeyCode.Q, KeyCombination.CONTROL_DOWN) {
-                    onExit?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.EXIT))
                 }
             )
         }
@@ -101,27 +81,27 @@ class ToolControls : MenuBar() {
             styleClass.add("menu-edit")
             items.addAll(
                 createMenuItem("Undo", "menu-item-undo", KeyCode.Z, KeyCombination.CONTROL_DOWN) {
-                    onUndo?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.UNDO))
                 },
                 createMenuItem("Redo", "menu-item-redo", KeyCode.Y, KeyCombination.CONTROL_DOWN) {
-                    onRedo?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.REDO))
                 },
                 SeparatorMenuItem(),
                 createMenuItem("Cut", "menu-item-cut", KeyCode.X, KeyCombination.CONTROL_DOWN) {
-                    onCut?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.CUT))
                 },
                 createMenuItem("Copy", "menu-item-copy", KeyCode.C, KeyCombination.CONTROL_DOWN) {
-                    onCopy?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.COPY))
                 },
                 createMenuItem("Paste", "menu-item-paste", KeyCode.V, KeyCombination.CONTROL_DOWN) {
-                    onPaste?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.PASTE))
                 },
                 SeparatorMenuItem(),
                 createMenuItem("Find", "menu-item-find", KeyCode.F, KeyCombination.CONTROL_DOWN) {
-                    onFind?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.FIND))
                 },
                 createMenuItem("Replace", "menu-item-replace", KeyCode.R, KeyCombination.CONTROL_DOWN) {
-                    onReplace?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.REPLACE))
                 }
             )
         }
@@ -132,13 +112,13 @@ class ToolControls : MenuBar() {
             styleClass.add("menu-datapack")
             items.addAll(
                 createMenuItem("Run Datapack", "menu-item-run", KeyCode.F5) {
-                    onRunDatapack?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.DATAPACK, MenuAction.RELOAD_DATAPACKS))
                 },
                 createMenuItem("Validate Datapack", "menu-item-validate", KeyCode.F7) {
-                    onValidateDatapack?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.DATAPACK, MenuAction.VALIDATE_DATAPACK))
                 },
                 createMenuItem("Package Datapack", "menu-item-package", KeyCode.F9) {
-                    onPackageDatapack?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.DATAPACK, MenuAction.PACKAGE_DATAPACK))
                 }
             )
         }
@@ -149,11 +129,11 @@ class ToolControls : MenuBar() {
             styleClass.add("menu-help")
             items.addAll(
                 createMenuItem("Preferences", "menu-item-preferences") {
-                    onPreferences?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.HELP, MenuAction.PREFERENCES))
                 },
                 SeparatorMenuItem(),
                 createMenuItem("About DataPack IDE", "menu-item-about") {
-                    onAbout?.invoke()
+                    EventBus.post(MenuActionEvent(MenuCategory.HELP, MenuAction.ABOUT))
                 }
             )
         }

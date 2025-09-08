@@ -1,9 +1,13 @@
 package io.github.frostzie.datapackide.screen.elements.bars.top
 
-import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand.executeCommandButton
 import io.github.frostzie.datapackide.utils.IconButton
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.UIConstants
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.MenuActionEvent
+import io.github.frostzie.datapackide.events.MenuCategory
+import io.github.frostzie.datapackide.events.MenuAction
+import io.github.frostzie.datapackide.events.MenuVisibilityEvent
 import javafx.scene.control.Tooltip
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.HBox
@@ -24,25 +28,6 @@ class TopBar(private val stage: Stage) : HBox() {
     private var runDataPackButton: IconButton
     private var settingsButton: IconButton
 
-    var onNewFile: (() -> Unit)? = null
-    var onOpenFile: (() -> Unit)? = null
-    var onSaveFile: (() -> Unit)? = null
-    var onSaveAsFile: (() -> Unit)? = null
-    var onCloseFile: (() -> Unit)? = null
-    var onExit: (() -> Unit)? = null
-    var onUndo: (() -> Unit)? = null
-    var onRedo: (() -> Unit)? = null
-    var onCut: (() -> Unit)? = null
-    var onCopy: (() -> Unit)? = null
-    var onPaste: (() -> Unit)? = null
-    var onFind: (() -> Unit)? = null
-    var onReplace: (() -> Unit)? = null
-    var onRunDatapack: (() -> Unit)? = null
-    var onValidateDatapack: (() -> Unit)? = null
-    var onPackageDatapack: (() -> Unit)? = null
-    var onPreferences: (() -> Unit)? = null
-    var onAbout: (() -> Unit)? = null
-
     init {
         setupTopBar()
         toolControls = createApplicationMenuBar()
@@ -60,7 +45,7 @@ class TopBar(private val stage: Stage) : HBox() {
                 }
             }
         }
-        logger.info("Top bar initialized")
+        logger.info("Top bar initialized with event system")
     }
 
     private fun setupTopBar() {
@@ -82,7 +67,9 @@ class TopBar(private val stage: Stage) : HBox() {
         return IconButton {
             styleClass.addAll("run-datapack-button", "title-bar-icon-button", "run-datapack-icon")
             tooltip = Tooltip("Reload Datapack")
-            setOnAction { executeCommandButton() }
+            setOnAction {
+                EventBus.post(MenuActionEvent(MenuCategory.DATAPACK, MenuAction.RELOAD_DATAPACKS))
+            }
         }
     }
 
@@ -90,33 +77,15 @@ class TopBar(private val stage: Stage) : HBox() {
         return IconButton {
             styleClass.addAll("settings-button", "title-bar-icon-button", "settings-icon")
             tooltip = Tooltip("Settings")
-            setOnAction { onPreferences?.invoke() }
+            setOnAction {
+                EventBus.post(MenuActionEvent(MenuCategory.HELP, MenuAction.PREFERENCES))
+            }
         }
     }
 
     private fun createApplicationMenuBar(): ToolControls {
         return ToolControls().apply {
             styleClass.add("title-menu-bar")
-
-            // Set up all the menu callbacks
-            onNewFile = { this@TopBar.onNewFile?.invoke() }
-            onOpenFile = { this@TopBar.onOpenFile?.invoke() }
-            onSaveFile = { this@TopBar.onSaveFile?.invoke() }
-            onSaveAsFile = { this@TopBar.onSaveAsFile?.invoke() }
-            onCloseFile = { this@TopBar.onCloseFile?.invoke() }
-            onExit = { this@TopBar.onExit?.invoke() }
-            onUndo = { this@TopBar.onUndo?.invoke() }
-            onRedo = { this@TopBar.onRedo?.invoke() }
-            onCut = { this@TopBar.onCut?.invoke() }
-            onCopy = { this@TopBar.onCopy?.invoke() }
-            onPaste = { this@TopBar.onPaste?.invoke() }
-            onFind = { this@TopBar.onFind?.invoke() }
-            onReplace = { this@TopBar.onReplace?.invoke() }
-            onRunDatapack = { this@TopBar.onRunDatapack?.invoke() }
-            onValidateDatapack = { this@TopBar.onValidateDatapack?.invoke() }
-            onPackageDatapack = { this@TopBar.onPackageDatapack?.invoke() }
-            onPreferences = { this@TopBar.onPreferences?.invoke() }
-            onAbout = { this@TopBar.onAbout?.invoke() }
         }
     }
 
@@ -143,6 +112,7 @@ class TopBar(private val stage: Stage) : HBox() {
         menuBarVisible = !menuBarVisible
         toolControls.isVisible = menuBarVisible
         toolControls.isManaged = menuBarVisible
+        EventBus.post(MenuVisibilityEvent(visible = menuBarVisible))
         logger.info("Menu bar visibility toggled: $menuBarVisible")
     }
 }

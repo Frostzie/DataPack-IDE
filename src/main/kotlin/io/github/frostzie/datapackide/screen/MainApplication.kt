@@ -1,10 +1,10 @@
 package io.github.frostzie.datapackide.screen
 
+import io.github.frostzie.datapackide.events.EventHandlerSystem
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftSidebar
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
-import io.github.frostzie.datapackide.screen.handlers.MenuActionHandler
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.screen.elements.bars.top.TopBar
@@ -38,7 +38,7 @@ class MainApplication {
         private var contentArea: HBox? = null
 
         // Action handler
-        private var menuActionHandler: MenuActionHandler? = null
+        private var eventHandlerSystem: EventHandlerSystem? = null
 
         fun initializeJavaFX() {
             if (!fxInitialized) {
@@ -82,11 +82,10 @@ class MainApplication {
             statusBar = StatusBar()
             textEditor = TextEditor()
 
-            menuActionHandler = MenuActionHandler(textEditor, statusBar, stage)
+            eventHandlerSystem = EventHandlerSystem(textEditor, statusBar, stage)
 
-            setupTopBarCallbacks()
-            setupTextEditorBindings()
             setupEventHandlers()
+            setupTextEditorBindings()
 
             contentArea = HBox().apply {
                 children.addAll(fileTreeView, textEditor)
@@ -150,16 +149,8 @@ class MainApplication {
         }
 
         private fun setupEventHandlers() {
-            io.github.frostzie.datapackide.events.EventBus.register<io.github.frostzie.datapackide.events.FileOpenEvent> { event ->
-                logger.info("FileOpenEvent received: ${event.filePath}")
-                try {
-                    val content = event.filePath.toFile().readText()
-                    textEditor?.setText(content, event.filePath.toString())
-                    logger.info("File opened successfully: ${event.filePath.fileName}")
-                } catch (e: Exception) {
-                    logger.error("Failed to open file: ${event.filePath}", e)
-                }
-            }
+            eventHandlerSystem?.initialize()
+            logger.debug("Event handlers initialized")
         }
 
         private fun setupTextEditorBindings() {
@@ -169,38 +160,6 @@ class MainApplication {
                         status.updateCursorPosition(line, column)
                     }
                     logger.debug("Text editor bindings set up with status bar")
-                }
-            }
-        }
-
-        private fun setupTopBarCallbacks() {
-            topBar?.let { bar ->
-                menuActionHandler?.let { handler ->
-                    // File menu
-                    bar.onNewFile = { handler.createNewFile() }
-                    bar.onOpenFile = { handler.openFile() }
-                    bar.onSaveFile = { handler.saveCurrentFile() }
-                    bar.onSaveAsFile = { handler.saveAsFile() }
-                    bar.onCloseFile = { handler.closeCurrentFile() }
-                    bar.onExit = { exitApplication() }
-
-                    // Edit menu
-                    bar.onUndo = { handler.performUndo() }
-                    bar.onRedo = { handler.performRedo() }
-                    bar.onCut = { handler.performCut() }
-                    bar.onCopy = { handler.performCopy() }
-                    bar.onPaste = { handler.performPaste() }
-                    bar.onFind = { handler.showFindDialog() }
-                    bar.onReplace = { handler.showReplaceDialog() }
-
-                    // Datapack menu
-                    bar.onRunDatapack = { handler.runDatapack() }
-                    bar.onValidateDatapack = { handler.validateDatapack() }
-                    bar.onPackageDatapack = { handler.packageDatapack() }
-
-                    // Help menu
-                    bar.onPreferences = { handler.showPreferences() }
-                    bar.onAbout = { handler.showAbout() }
                 }
             }
         }

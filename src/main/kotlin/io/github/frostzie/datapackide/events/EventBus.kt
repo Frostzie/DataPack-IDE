@@ -1,12 +1,10 @@
 package io.github.frostzie.datapackide.events
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import java.nio.file.Path
-
-//TODO: separate events into their own files
 
 /**
  * Simple central event bus for DataPack IDE
+ * Handles registration and posting of all application events
  */
 object EventBus {
     val logger = LoggerProvider.getLogger("EventBus")
@@ -44,47 +42,20 @@ object EventBus {
         listeners.clear()
         logger.debug("Cleared all event listeners")
     }
+
+    /**
+     * Get count of listeners for a specific event type
+     */
+    inline fun <reified T : Any> getListenerCount(): Int {
+        return listeners[T::class.java]?.size ?: 0
+    }
+
+    /**
+     * Remove all listeners for a specific event type
+     */
+    inline fun <reified T : Any> clearListeners() {
+        val eventClass = T::class.java
+        listeners.remove(eventClass)
+        logger.debug("Cleared listeners for ${eventClass.simpleName}")
+    }
 }
-
-/**
- * Event fired when a file should be opened
- */
-data class FileOpenEvent(val filePath: Path)
-
-/**
- * Event fired when a directory is selected for file tree
- */
-data class DirectorySelectedEvent(val directoryPath: Path)
-
-/**
- * Event fired when editor content changes
- */
-data class EditorContentChangedEvent(
-    val content: String,
-    val filePath: String?
-)
-
-/**
- * Event fired when editor cursor position changes
- */
-data class EditorCursorChangedEvent(
-    val line: Int,
-    val column: Int,
-    val filePath: String?
-)
-
-/**
- * Event fired when a file is saved
- */
-data class FileSavedEvent(
-    val filePath: Path,
-    val content: String
-)
-
-/**
- * Event fired when editor gains/loses focus
- */
-data class EditorFocusEvent(
-    val hasFocus: Boolean,
-    val filePath: String?
-)
