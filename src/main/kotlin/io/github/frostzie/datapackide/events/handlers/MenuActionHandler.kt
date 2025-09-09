@@ -38,7 +38,7 @@ class MenuActionHandler(private val textEditor: TextEditor?) {
             MenuAction.SAVE_FILE -> EventBus.post(FileActionEvent(FileAction.SAVE_FILE))
             MenuAction.SAVE_AS_FILE -> EventBus.post(FileActionEvent(FileAction.SAVE_AS_FILE))
             MenuAction.CLOSE_FILE -> EventBus.post(FileActionEvent(FileAction.CLOSE_FILE))
-            MenuAction.EXIT -> EventBus.post(UIActionEvent(UIAction.CLOSE_WINDOW))
+            MenuAction.EXIT -> EventBus.post(UIActionEvent(UIAction.REQUEST_WINDOW_CLOSE))
             else -> logger.warn("Unhandled file menu action: $action")
         }
     }

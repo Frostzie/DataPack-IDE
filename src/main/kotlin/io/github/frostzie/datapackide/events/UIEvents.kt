@@ -9,7 +9,8 @@ enum class UIAction {
     MINIMIZE_WINDOW,
     MAXIMIZE_WINDOW,
     RESTORE_WINDOW,
-    CLOSE_WINDOW,
+    TOGGLE_WINDOW_MODES, // This is when double-clicking to maximize or restore the window
+    REQUEST_WINDOW_CLOSE,
     TOGGLE_WINDOW,
 
     // Sidebar Actions

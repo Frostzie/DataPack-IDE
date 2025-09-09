@@ -7,15 +7,16 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MenuActionEvent
 import io.github.frostzie.datapackide.events.MenuCategory
 import io.github.frostzie.datapackide.events.MenuAction
+import io.github.frostzie.datapackide.events.UIAction
+import io.github.frostzie.datapackide.events.UIActionEvent
 import io.github.frostzie.datapackide.events.MenuVisibilityEvent
 import javafx.scene.control.Tooltip
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
-import javafx.stage.Stage
 
-class TopBar(private val stage: Stage) : HBox() {
+class TopBar : HBox() {
 
     companion object {
         private val logger = LoggerProvider.getLogger("TopBar")
@@ -41,7 +42,7 @@ class TopBar(private val stage: Stage) : HBox() {
         this.setOnMouseClicked { event ->
             if (event.button == MouseButton.PRIMARY && event.clickCount == 2) {
                 if (event.target == this || (event.target as? Region)?.styleClass?.contains("title-spacer") == true) {
-                    windowControls.toggleMaximize()
+                    EventBus.post(UIActionEvent(UIAction.TOGGLE_WINDOW_MODES))
                 }
             }
         }
@@ -90,7 +91,7 @@ class TopBar(private val stage: Stage) : HBox() {
     }
 
     private fun createWindowControls(): WindowControls {
-        return WindowControls(stage)
+        return WindowControls()
     }
 
     private fun layoutComponents(

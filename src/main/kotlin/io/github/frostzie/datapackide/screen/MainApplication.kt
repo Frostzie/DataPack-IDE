@@ -19,7 +19,6 @@ import javafx.scene.Scene
 import javafx.scene.layout.Region
 import javafx.stage.Stage
 import javafx.stage.StageStyle
-import kotlin.system.exitProcess
 
 class MainApplication {
 
@@ -27,7 +26,6 @@ class MainApplication {
         private val logger = LoggerProvider.getLogger("MainApplication")
         private var primaryStage: Stage? = null
         private var fxInitialized = false
-        private var isStandaloneMode = false
 
         // UI Components
         private var topBar: TopBar? = null
@@ -46,23 +44,16 @@ class MainApplication {
                 System.setProperty("prism.allowhidpi", "false")
 
                 try {
-                    if (isStandaloneMode) {
+                    JavaFXInitializer.startup {
                         JavaFXInitializer.setImplicitExit(false)
                         fxInitialized = true
                         createMainWindow()
-                        logger.info("JavaFX initialized in standalone mode!")
-                    } else {
-                        JavaFXInitializer.startup {
-                            JavaFXInitializer.setImplicitExit(false)
-                            fxInitialized = true
-                            createMainWindow()
-                            logger.info("JavaFX Platform initialized and main window pre-created!")
-                        }
+                        logger.info("JavaFX Platform initialized and main window pre-created!")
                     }
                 } catch (e: IllegalStateException) {
                     fxInitialized = true
                     JavaFXInitializer.runLater {
-                        JavaFXInitializer.setImplicitExit(!isStandaloneMode)
+                        JavaFXInitializer.setImplicitExit(false)
                         createMainWindow()
                         logger.info("JavaFX Platform was already initialized, main window pre-created!")
                     }
@@ -76,7 +67,7 @@ class MainApplication {
             val root = BorderPane()
             root.styleClass.add("window") // Add CSS class for drop shadow
 
-            topBar = TopBar(stage)
+        topBar = TopBar()
             leftSidebar = LeftSidebar()
             fileTreeView = FileTreeView()
             statusBar = StatusBar()
@@ -164,16 +155,6 @@ class MainApplication {
             }
         }
 
-        private fun exitApplication() {
-            if (isStandaloneMode) {
-                Platform.exit()
-                exitProcess(0)
-            } else {
-                hideMainWindow()
-                logger.info("Application exit requested")
-            }
-        }
-
         fun showMainWindow() {
             if (!fxInitialized) {
                 initializeJavaFX()
@@ -200,28 +181,19 @@ class MainApplication {
                 val mainUI = createMainUI(stage)
                 val scene = Scene(mainUI, 1200.0, 800.0)
 
-                CSSManager.applyAllStyles(scene)
                 stage.scene = scene
-                stage.title = "DataPack IDE ${if (isStandaloneMode) "(Standalone)" else ""}"
+                stage.title = "DataPack IDE"
                 stage.width = 1200.0
                 stage.height = 800.0
                 stage.isResizable = true
                 stage.centerOnScreen()
 
+                CSSManager.applyAllStyles(scene)
                 setupWindowResizing(stage)
 
                 stage.setOnCloseRequest { e ->
-                    if (isStandaloneMode) {
-                        Platform.exit()
-                        exitProcess(0)
-                    } else {
-                        e.consume()
-                        logger.info("Close button pressed, hiding window...")
-                        JavaFXInitializer.runLater {
-                            stage.hide()
-                            logger.info("Window hidden via close button!")
-                        }
-                    }
+                    e.consume()
+                    hideMainWindow()
                 }
 
                 primaryStage = stage
@@ -238,10 +210,6 @@ class MainApplication {
                     logger.info("Main IDE Window hidden via hideMainWindow()!")
                 }
             }
-        }
-
-        fun isWindowVisible(): Boolean {
-            return primaryStage?.isShowing == true
         }
 
         fun toggleMainWindow() {

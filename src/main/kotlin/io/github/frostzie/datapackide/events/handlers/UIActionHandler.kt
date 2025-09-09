@@ -3,16 +3,18 @@ package io.github.frostzie.datapackide.events.handlers
 import io.github.frostzie.datapackide.config.AssetsConfig
 import io.github.frostzie.datapackide.events.DirectorySelectedEvent
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.WindowStateEvent
 import io.github.frostzie.datapackide.events.UIAction
 import io.github.frostzie.datapackide.events.UIActionEvent
 import io.github.frostzie.datapackide.screen.elements.popup.Settings
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import javafx.application.Platform
+import javafx.geometry.Rectangle2D
 import javafx.stage.DirectoryChooser
+import javafx.stage.Screen
 import javafx.stage.Stage
+import javafx.stage.WindowEvent
 import java.io.File
-import kotlin.system.exitProcess
 
 /**
  * Handles UI-related actions such as window controls, opening dialogs, and toggling UI elements.
@@ -21,6 +23,8 @@ class UIActionHandler(private val parentStage: Stage?) {
     companion object {
         private val logger = LoggerProvider.getLogger("UIActionHandler")
     }
+
+    private var previousBounds: Rectangle2D? = null
 
     fun initialize() {
         EventBus.register<UIActionEvent> { event ->
@@ -35,7 +39,8 @@ class UIActionHandler(private val parentStage: Stage?) {
             UIAction.MINIMIZE_WINDOW -> parentStage?.isIconified = true
             UIAction.MAXIMIZE_WINDOW -> maximizeWindow()
             UIAction.RESTORE_WINDOW -> restoreWindow()
-            UIAction.CLOSE_WINDOW -> closeWindow()
+            UIAction.TOGGLE_WINDOW_MODES -> toggleMaximize()
+            UIAction.REQUEST_WINDOW_CLOSE -> fireWindowCloseRequest()
             UIAction.TOGGLE_WINDOW -> toggleWindow()
             UIAction.OPEN_DIRECTORY_CHOOSER -> openDirectoryChooser()
             UIAction.TOGGLE_SEARCH -> toggleSearch()
@@ -43,25 +48,63 @@ class UIActionHandler(private val parentStage: Stage?) {
             UIAction.SHOW_ABOUT -> showAbout()
             UIAction.RELOAD_STYLES -> reloadStyles()
             UIAction.RESET_STYLES_TO_DEFAULT -> resetStylesToDefault()
-            else -> logger.warn("Unhandled UI action: ${event.action}")
+        }
+    }
+
+    private fun isStageMaximized(): Boolean {
+        if (parentStage == null) return false
+        val screenBounds = Screen.getPrimary().visualBounds
+        return parentStage.x == screenBounds.minX &&
+                parentStage.y == screenBounds.minY &&
+                parentStage.width == screenBounds.width &&
+                parentStage.height == screenBounds.height
+    }
+
+    private fun toggleMaximize() {
+        if (isStageMaximized()) {
+            restoreWindow()
+        } else {
+            maximizeWindow()
         }
     }
 
     private fun maximizeWindow() {
-        // Implementation will be handled by WindowControls
-        logger.debug("Window maximize requested")
+        parentStage?.let { stage ->
+            val screenBounds = Screen.getPrimary().visualBounds
+            previousBounds = Rectangle2D(stage.x, stage.y, stage.width, stage.height)
+            stage.x = screenBounds.minX
+            stage.y = screenBounds.minY
+            stage.width = screenBounds.width
+            stage.height = screenBounds.height
+            logger.debug("Window maximized")
+            EventBus.post(WindowStateEvent(isVisible = true, isMaximized = true))
+        }
     }
 
     private fun restoreWindow() {
-        // Implementation will be handled by WindowControls
-        logger.debug("Window restore requested")
+        parentStage?.let { stage ->
+            previousBounds?.let {
+                stage.x = it.minX
+                stage.y = it.minY
+                stage.width = it.width
+                stage.height = it.height
+            }
+            logger.debug("Window restored from maximized state")
+            EventBus.post(WindowStateEvent(isVisible = true, isMaximized = false))
+        }
     }
 
-    private fun closeWindow() {
-        logger.info("Close window requested, hiding app.")
-        parentStage?.hide()
-        Platform.exit()
-        exitProcess(0)
+    private fun fireWindowCloseRequest() {
+        parentStage?.let {
+            logger.info("Window close requested.")
+            EventBus.post(WindowStateEvent(isVisible = false))
+            it.fireEvent(
+                WindowEvent(
+                    it,
+                    WindowEvent.WINDOW_CLOSE_REQUEST
+                )
+            )
+        }
     }
 
     private fun toggleWindow() {
