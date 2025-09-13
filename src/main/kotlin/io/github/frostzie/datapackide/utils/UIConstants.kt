@@ -21,4 +21,8 @@ object UIConstants {
     const val WINDOW_RESIZE_BORDER_DEPTH = 7.0
     const val WINDOW_SHADOW_INDENTATION = 0.0
     const val WINDOW_BORDER_WIDTH = 2.0
+
+    // Settings Window
+    const val SETTINGS_SIDE_PANEL_MIN_WIDTH = 180.0
+    const val SETTINGS_SIDE_PANEL_MAX_WIDTH = 400.0
 }

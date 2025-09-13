@@ -6,7 +6,7 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.WindowStateEvent
 import io.github.frostzie.datapackide.events.UIAction
 import io.github.frostzie.datapackide.events.UIActionEvent
-import io.github.frostzie.datapackide.screen.elements.popup.Settings
+import io.github.frostzie.datapackide.settings.SettingsController
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.geometry.Rectangle2D
@@ -48,6 +48,7 @@ class UIActionHandler(private val parentStage: Stage?) {
             UIAction.SHOW_ABOUT -> showAbout()
             UIAction.RELOAD_STYLES -> reloadStyles()
             UIAction.RESET_STYLES_TO_DEFAULT -> resetStylesToDefault()
+            UIAction.SAVE_SETTINGS -> {} // This action is handled by SettingsManager
         }
     }
 
@@ -151,8 +152,8 @@ class UIActionHandler(private val parentStage: Stage?) {
     }
 
     private fun showPreferences() {
-        val settingsWindow = Settings(parentStage)
-        settingsWindow.show()
+        val settingsController = SettingsController(parentStage)
+        settingsController.show()
     }
 
     private fun showAbout() {

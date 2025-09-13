@@ -29,6 +29,9 @@ enum class UIAction {
     RELOAD_STYLES,
     RESET_STYLES_TO_DEFAULT,
 
+    // Settings
+    SAVE_SETTINGS,
+
     // App & Popup State
     SHOW_SETTINGS,
     SHOW_ABOUT,
