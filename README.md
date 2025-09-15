@@ -32,6 +32,7 @@ The goal of this mod aside from basic coding functionality expected from vscode 
 
 ## What's implemented?
 
+* saving and editing
 * A working GUI menu and basic (barebones) code editor
 * themes (not usable for user application)
 * file tree
