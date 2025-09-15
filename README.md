@@ -23,15 +23,13 @@
 
 Datapack-IDE is a minecraft mod that allows in game data pack editing with a built in text editor.
 
-
-The goal of this mod aside from basic coding functionality expected from vscode is:
-* 1: to provide tools ingame for debugging or fast implementation to speed up datapack development
-* 2: to provide a collaborative datapack programming environment.
-
 | GUI | Menu
 |:-:|:-:|
 |![preview_1](https://github.com/user-attachments/assets/34fb01f6-20d0-4813-8b87-81d70ad0a3dd)|![preview_2](https://github.com/user-attachments/assets/421dee13-82b1-4578-953c-1219a8e3b215)|
 
+The goal of this mod aside from basic coding functionality expected from vscode is:
+* 1: to provide tools ingame for debugging or fast implementation to speed up datapack development
+* 2: to provide a collaborative datapack programming environment.
 
 ## What's implemented?
 
