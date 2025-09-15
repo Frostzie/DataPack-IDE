@@ -29,9 +29,9 @@ Datapack-IDE is a minecraft Mod that allows in game data pack editing with a bui
 * file tree
 
 ## Future plans
-* support for spyglassMC (https://github.com/SpyglassMC/Spyglass)
+* support for [spyglassMC](https://github.com/SpyglassMC/Spyglass)
 * multiplayer support
-* support for beet (https://github.com/mcbeet/beet)
+* support for [beet](https://github.com/mcbeet/beet)
 
 ## Libraries Used
 
