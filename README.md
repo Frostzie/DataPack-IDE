@@ -12,11 +12,10 @@
   [![Fabric](https://img.shields.io/badge/Made%20For-Fabric-blue.svg?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBmaWxsPSIjMzgzNDJhIiBkPSJNOSAxaDF2MWgxdjFoMXYxaDF2MWgxdjFoMXYyaC0xdjFoLTJ2MWgtMXYxaC0xdjFIOXYySDh2MUg2di0xSDV2LTFINHYtMUgzdi0xSDJWOWgxVjhoMVY3aDFWNmgxVjVoMVY0aDFWMmgxeiIvPjxwYXRoIGZpbGw9IiNkYmQwYjQiIGQ9Ik00IDlWOGgxVjdoMVY2aDFsMS0xVjRoMVYyaDF2MWgxdjFoMXYxaDF2MWwtMSAxLTIgMy0zIDMtMy0zeiIvPjxwYXRoIGZpbGw9IiNiY2IyOWMiIGQ9Ik05IDNoMXYxaDF2MWgxdjFoMXYxaC0xTDkgNHpNMTAgMTBoMVY5aDFWN2gtMXYxaC0xekg4djJoMXYtMWgxek04IDEySDd2MWgxeiIvPjxwYXRoIGZpbGw9IiNjNmJjYTUiIGQ9Ik03IDVoMXYyaDN2MUg5VjZIN3pNNiA4aDF2MmgyVjlINnoiLz48cGF0aCBmaWxsPSIjYWVhNjk0IiBkPSJNMyA5djFsMyAzaDF2LTFINnYtMUg1di0xSDRWOXoiLz48cGF0aCBmaWxsPSIjOWE5MjdlIiBkPSJNMyAxMHYxaDJ2MmgydjFINnYtMkg0di0yeiIvPjxwYXRoIGZpbGw9IiM4MDdhNmQiIGQ9Ik0xMyA3aDF2MWgtMXoiLz48cGF0aCBmaWxsPSIjMzgzNDJhIiBkPSJNOSA0djFoMnYyaDFWNmgtMlY0eiIvPjwvc3ZnPgo=)](https://fabricmc.net/)
   [![Made with Kotlin](https://img.shields.io/badge/Made%20With-Kotlin-orange?style=for-the-badge&logo=kotlin&logocolor=white)](https://kotlinlang.org/)
   [![Downloads](https://img.shields.io/github/downloads/Frostzie/DataPack-IDE/total?label=downloads&color=208a19&logo=github&style=for-the-badge)](https://github.com/Frostzie/DataPack-IDE/releases)
-  
+
+  ${{\color{red}{\textsf{ This\ mod\ is\ currently\ in\ pre-alpha\ and\ is\ in\ active\ development,\ many\ features\ of\ this\ mod\ have\ not\ been\ fully\ implemented \}}}}\$
 </div>
 
-$${\color{red}This\space mod\space is\space currently\space in\space pre-alpha\space and\space is\space in\space active\space development,\space many\space features\space of\space this\space mod}$$
-$${\color{red}have\space not\space been\space fully\space implemented}$$
 ## Overview
 
 Datapack-IDE is a minecraft mod that allows in game data pack editing with a built in text editor.
