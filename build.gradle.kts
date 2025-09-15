@@ -17,6 +17,7 @@ val javafxClassifiers = listOf(
 	"mac-aarch64",
 	"linux"
 )
+
 fun javafxDep(module: String, classifier: String) =
 	"org.openjfx:javafx-$module:$javafx:$classifier"
 
@@ -52,13 +53,11 @@ dependencies {
 	for (classifier in javafxClassifiers) {
 		implementation(javafxDep("base", classifier))
 		implementation(javafxDep("graphics", classifier))
-		implementation(javafxDep("controls", classifier))
 		implementation(javafxDep("web", classifier))
 		implementation(javafxDep("media", classifier))
 
 		include(javafxDep("base", classifier))
 		include(javafxDep("graphics", classifier))
-		include(javafxDep("controls", classifier))
 		include(javafxDep("web", classifier))
 		include(javafxDep("media", classifier))
 	}
