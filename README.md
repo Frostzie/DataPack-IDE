@@ -1,9 +1,12 @@
-<div align="center">
-  <br><br>
-  <img width="100" height="100" alt="datapack_color" src="https://github.com/user-attachments/assets/3e91b714-e6f9-4cc2-a25f-c22404b78e52" />
-  <h1 align="center">
+
+<h1 align="center">
+  <br>
+  <img width="100" alt="datapack_color" src="https://github.com/user-attachments/assets/3e91b714-e6f9-4cc2-a25f-c22404b78e52" />
+  <br>
   DataPack-IDE
-  </h1>
+</h1>
+<h4 align="center">A work in progress minecraft ingame IDE mod for datapack development.</h4>
+<div align="center">  
 
   [![Discord](https://img.shields.io/discord/1163847082080211025?label=discord&color=9089DA&logo=discord&style=for-the-badge)](https://discord.com/invite/qZ885qTvkx)
   [![Fabric](https://img.shields.io/badge/Made%20For-Fabric-blue.svg?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBmaWxsPSIjMzgzNDJhIiBkPSJNOSAxaDF2MWgxdjFoMXYxaDF2MWgxdjFoMXYyaC0xdjFoLTJ2MWgtMXYxaC0xdjFIOXYySDh2MUg2di0xSDV2LTFINHYtMUgzdi0xSDJWOWgxVjhoMVY3aDFWNmgxVjVoMVY0aDFWMmgxeiIvPjxwYXRoIGZpbGw9IiNkYmQwYjQiIGQ9Ik00IDlWOGgxVjdoMVY2aDFsMS0xVjRoMVYyaDF2MWgxdjFoMXYxaDF2MWwtMSAxLTIgMy0zIDMtMy0zeiIvPjxwYXRoIGZpbGw9IiNiY2IyOWMiIGQ9Ik05IDNoMXYxaDF2MWgxdjFoMXYxaC0xTDkgNHpNMTAgMTBoMVY5aDFWN2gtMXYxaC0xekg4djJoMXYtMWgxek04IDEySDd2MWgxeiIvPjxwYXRoIGZpbGw9IiNjNmJjYTUiIGQ9Ik03IDVoMXYyaDN2MUg5VjZIN3pNNiA4aDF2MmgyVjlINnoiLz48cGF0aCBmaWxsPSIjYWVhNjk0IiBkPSJNMyA5djFsMyAzaDF2LTFINnYtMUg1di0xSDRWOXoiLz48cGF0aCBmaWxsPSIjOWE5MjdlIiBkPSJNMyAxMHYxaDJ2MmgydjFINnYtMkg0di0yeiIvPjxwYXRoIGZpbGw9IiM4MDdhNmQiIGQ9Ik0xMyA3aDF2MWgtMXoiLz48cGF0aCBmaWxsPSIjMzgzNDJhIiBkPSJNOSA0djFoMnYyaDFWNmgtMlY0eiIvPjwvc3ZnPgo=)](https://fabricmc.net/)
@@ -11,12 +14,17 @@
   [![Downloads](https://img.shields.io/github/downloads/Frostzie/DataPack-IDE/total?label=downloads&color=208a19&logo=github&style=for-the-badge)](https://github.com/Frostzie/DataPack-IDE/releases)
   
 </div>
-  
+
+$${\color{red}This\space mod\space is\space currently\space in\space pre-alpha\space and\space is\space in\space active\space development,\space many\space features\space of\space this\space mod}$$
+$${\color{red}have\space not\space been\space fully\space implemented}$$
 ## Overview
 
-Datapack-IDE is a minecraft Mod that allows in game data pack editing with a built in text editor screen
+Datapack-IDE is a minecraft mod that allows in game data pack editing with a built in text editor.
 
-* **This mod is currently in pre-alpha and is in active development** - many features of this mods have not been fully implemented or are working
+
+The goal of this mod aside from basic coding functionality expected from vscode is:
+* 1: to provide tools ingame for debugging or fast implementation to speed up datapack development
+* 2: to provide a collaborative datapack programming environment.
 
 | GUI | Menu
 |:-:|:-:|
