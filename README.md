@@ -1,4 +1,3 @@
-<img width="667" height="343" alt="image" src="https://github.com/user-attachments/assets/d1ca6974-c019-4b22-8b62-c70265efb982" />
 <h1 align="center">
   <br>
   <img width="100" alt="datapack_color" src="https://github.com/user-attachments/assets/3e91b714-e6f9-4cc2-a25f-c22404b78e52" />
