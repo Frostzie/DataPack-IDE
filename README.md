@@ -13,7 +13,8 @@
   [![Made with Kotlin](https://img.shields.io/badge/Made%20With-Kotlin-orange?style=for-the-badge&logo=kotlin&logocolor=white)](https://kotlinlang.org/)
   [![Downloads](https://img.shields.io/github/downloads/Frostzie/DataPack-IDE/total?label=downloads&color=208a19&logo=github&style=for-the-badge)](https://github.com/Frostzie/DataPack-IDE/releases)
 
-  ${{\color{red}{\textsf{ This\ mod\ is\ currently\ in\ pre-alpha\ and\ is\ in\ active\ development,\ many\ features\ of\ this\ mod\ have\ not\ been\ fully\ implemented \}}}}\$
+  ${{\color{red}{\textsf{ This\ mod\ is\ currently\ in\ pre-alpha\ and\ is\ in\ active\ development\ -}}}}\$
+  ${{\color{red}{\textsf{many\ features\ of\ this\ mod\ have\ not\ been\ fully\ implemented \}}}}\$
 </div>
 
 ## Overview
