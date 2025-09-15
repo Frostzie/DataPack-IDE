@@ -1,4 +1,4 @@
-
+<img width="667" height="343" alt="image" src="https://github.com/user-attachments/assets/d1ca6974-c019-4b22-8b62-c70265efb982" />
 <h1 align="center">
   <br>
   <img width="100" alt="datapack_color" src="https://github.com/user-attachments/assets/3e91b714-e6f9-4cc2-a25f-c22404b78e52" />
@@ -54,3 +54,10 @@ Datapack IDE relies on the following software:
 | [Fabric Loom](https://github.com/FabricMC/fabric-loom)                        | [MIT](https://github.com/FabricMC/fabric-loom/blob/dev/1.10/LICENSE)                              |
 | [DevAuth](https://github.com/DJtheRedstoner/DevAuth)                          | [MIT](https://github.com/DJtheRedstoner/DevAuth/blob/master/LICENSE)                              |
 | [JavaFX](https://openjfx.io/)                                                 | [GPL v2](https://openjdk.org/legal/gplv2+ce.html)                                                 |
+
+## Want to test out the mod?
+go to Actions -> go to the lastest workflow shown on top
+<img width="667" height="343" alt="image" src="https://github.com/user-attachments/assets/cec35fa7-c6ec-46b4-8ac1-407a5b29733e" />
+
+Then download Artifacts.
+Unzip Artifact folder upon download and drag the jar file into your mod folder for minecraft 1.21.8, make sure to install the appropriate dependencies, such as kotlin API and fabric API. Then you should be good to go
