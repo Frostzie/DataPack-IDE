@@ -56,7 +56,7 @@ Datapack IDE relies on the following software:
 | [JavaFX](https://openjfx.io/)                                                 | [GPL v2](https://openjdk.org/legal/gplv2+ce.html)                                                 |
 
 ## Want to test out the mod?
-go to Actions -> go to the lastest workflow shown on top
+go to Actions -> go to the latest workflow shown on top
 <img width="667" height="343" alt="image" src="https://github.com/user-attachments/assets/cec35fa7-c6ec-46b4-8ac1-407a5b29733e" />
 
 Then download Artifacts.
