@@ -69,11 +69,11 @@ class MainApplication {
 
         topBar = TopBar()
             leftSidebar = LeftSidebar()
+            textEditor = TextEditor()
             fileTreeView = FileTreeView()
             statusBar = StatusBar()
-            textEditor = TextEditor()
 
-            eventHandlerSystem = EventHandlerSystem(textEditor, statusBar, stage)
+            eventHandlerSystem = EventHandlerSystem(textEditor, fileTreeView, statusBar, stage)
 
             setupEventHandlers()
             setupTextEditorBindings()

@@ -8,6 +8,7 @@ import io.github.frostzie.datapackide.settings.annotations.Expose
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.UIAction
 import io.github.frostzie.datapackide.events.UIActionEvent
+import io.github.frostzie.datapackide.settings.annotations.ConfigEditorBoolean
 
 object AdvancedConfig {
 
@@ -22,4 +23,16 @@ object AdvancedConfig {
     @ConfigOption(name = "Reset All Styles", desc = "Resets all styles to their default state")
     @ConfigEditorButton(text = "Reset Styles")
     val resetStylesToDefault: () -> Unit = { EventBus.post(UIActionEvent(UIAction.RESET_STYLES_TO_DEFAULT)) }
+
+    @Expose
+    @ConfigCategory(name = "Debug")
+    @ConfigOption(name = "Enable Debug Mode", desc = "Enables all debugging features")
+    @ConfigEditorBoolean
+    var enableDebugMode: Boolean = false
+
+    @Expose
+    @ConfigCategory(name = "Debug")
+    @ConfigOption(name = "Show TreeView Hitboxes", desc = "Shows visual borders around File Tree components for debugging layout")
+    @ConfigEditorBoolean
+    var debugTreeViewHitbox: Boolean = false
 }

@@ -6,7 +6,6 @@ import io.github.frostzie.datapackide.events.FileOpenEvent
 import io.github.frostzie.datapackide.events.EditorContentChangedEvent
 import io.github.frostzie.datapackide.events.EditorCursorChangedEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.beans.property.SimpleStringProperty
 import javafx.application.Platform
 import javafx.concurrent.Worker
@@ -60,6 +59,10 @@ class TextEditor : VBox() {
                     setupJavaScriptBridge()
                     logger.debug("WebView loaded successfully")
                 }
+            }
+
+            setOnMouseClicked {
+                this.requestFocus()
             }
         }
 

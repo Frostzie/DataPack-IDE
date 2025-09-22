@@ -1,5 +1,6 @@
 package io.github.frostzie.datapackide.events
 
+import io.github.frostzie.datapackide.screen.elements.main.FileTreeNode
 import java.nio.file.Path
 
 /**
@@ -13,7 +14,8 @@ enum class FileAction {
     SAVE_AS_FILE,
     CLOSE_FILE,
     DELETE_FILE,
-    RELOAD_FILE
+    RELOAD_FILE,
+    MOVE
 }
 
 /**
@@ -54,3 +56,18 @@ data class FileOperationCompleteEvent(
     val message: String? = null,
     val error: Throwable? = null
 )
+
+/**
+ * Event fired when a node in the FileTreeView requests to be selected
+ */
+data class NodeSelectionRequestEvent(val node: FileTreeNode)
+
+/**
+ * Event fired when a drag operation starts in the file tree.
+ */
+data class FileTreeDragStartEvent(val sourceNode: FileTreeNode)
+
+/**
+ * Event fired when a drag operation ends in the file tree.
+ */
+class FileTreeDragEndEvent

@@ -1,19 +1,23 @@
 package io.github.frostzie.datapackide.events.handlers
 
 import io.github.frostzie.datapackide.events.*
+import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.screen.elements.popup.NewFileWindow
 import io.github.frostzie.datapackide.utils.FileUtils
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.stage.Stage
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.exists
 
 /**
  * Handles file-related actions such as creating, opening, saving, and deleting files.
  */
 class FileActionHandler(
     private val textEditor: TextEditor?,
+    private val fileTreeView: FileTreeView?,
     private val parentStage: Stage?
 ) {
     companion object {
@@ -22,7 +26,7 @@ class FileActionHandler(
 
     fun initialize() {
         EventBus.register<FileActionEvent> { event ->
-            logger.debug("Handling file action: ${event.action}")
+            logger.debug("Handling file action: {}", event.action)
             handleFileAction(event)
         }
 
@@ -32,8 +36,7 @@ class FileActionHandler(
         }
 
         EventBus.register<DirectorySelectedEvent> { event ->
-            logger.info("Directory selected: ${event.directoryPath}")
-            // FileTreeView will handle this event
+            logger.info("Directory selected event fired: ${event.directoryPath}")
         }
         logger.info("FileActionHandler initialized")
     }
@@ -47,6 +50,7 @@ class FileActionHandler(
             FileAction.CLOSE_FILE -> closeCurrentFile()
             FileAction.DELETE_FILE -> event.filePath?.let { deleteFile(it) }
             FileAction.RELOAD_FILE -> event.filePath?.let { openFile(it) }
+            FileAction.MOVE -> handleFileMove(event)
         }
     }
 
@@ -129,6 +133,31 @@ class FileActionHandler(
             EventBus.post(FileOperationCompleteEvent(
                 FileAction.DELETE_FILE, true, filePath, "File deleted successfully"
             ))
+        }
+    }
+
+    private fun handleFileMove(event: FileActionEvent) {
+        val sourcePath = event.metadata["sourcePath"] as? Path
+        val targetPath = event.metadata["targetPath"] as? Path
+
+        if (sourcePath == null || targetPath == null) {
+            logger.error("File move action received with missing source or target path in metadata.")
+            return
+        }
+
+        try {
+            if (sourcePath.exists()) {
+                Files.move(sourcePath, targetPath)
+
+                logger.info("File moved: ${sourcePath.fileName} -> ${targetPath.parent.fileName}/")
+
+                fileTreeView?.refreshDirectory()
+
+                EventBus.post(FileOperationCompleteEvent(FileAction.MOVE, true, targetPath, "File moved successfully: ${sourcePath.fileName} -> ${targetPath.parent.fileName}/"))
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to move file: ${sourcePath.fileName}", e)
+            EventBus.post(FileOperationCompleteEvent(FileAction.MOVE, false, sourcePath, "Failed to move file: ${sourcePath.fileName}", e))
         }
     }
 }

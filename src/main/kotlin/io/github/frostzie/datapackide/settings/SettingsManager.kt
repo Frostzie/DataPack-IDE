@@ -23,7 +23,7 @@ import kotlin.reflect.jvm.isAccessible
 object SettingsManager {
     private val logger = LoggerProvider.getLogger("SettingsManager")
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-    private val settingsFile = ConfigManager.configDir.resolve("Settings.json").toFile()
+    private val settingsFile = ConfigManager.configDir.resolve("settings.json").toFile()
     private val defaultValues = mutableMapOf<KProperty1<*, *>, Any?>()
 
     private val configClasses = listOf(

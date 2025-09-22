@@ -1,38 +1,53 @@
 package io.github.frostzie.datapackide.screen.elements.main
 
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.FileOpenEvent
 import io.github.frostzie.datapackide.events.DirectorySelectedEvent
+import io.github.frostzie.datapackide.events.NodeSelectionRequestEvent
+import io.github.frostzie.datapackide.events.FileTreeDragStartEvent
+import io.github.frostzie.datapackide.events.FileTreeDragEndEvent
+import io.github.frostzie.datapackide.events.FileOpenEvent
+import io.github.frostzie.datapackide.utils.ComponentResizer
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.UIConstants
-import io.github.frostzie.datapackide.utils.ComponentResizer
-import io.github.frostzie.datapackide.utils.CSSManager
+import javafx.geometry.Insets
 import javafx.scene.control.*
-import javafx.scene.layout.VBox
+import javafx.scene.layout.*
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.*
 
 /**
- * Simple file tree view that displays files and folders
+ * Node-based file tree view
+ * similar to popular IDEs like IntelliJ IDEA and VSCode
  */
 class FileTreeView : VBox() {
 
     companion object {
         private val logger = LoggerProvider.getLogger("FileTreeView")
+        private var currentlySelectedNode: FileTreeNode? = null
     }
 
-    private lateinit var treeView: TreeView<File>
+    private val contentContainer = VBox()
+    private val placeholderLabel = Label("No directory selected.\nClick the folder icon to select a directory.")
     private var currentDirectory: Path? = null
+    private val expandedDirectories = mutableSetOf<Path>()
 
     init {
-        setupFileTree()
+        setupLayout()
         setupEventListeners()
-        ComponentResizer.install(this, UIConstants.FILE_TREE_RESIZER_WIDTH, UIConstants.FILE_TREE_MIN_WIDTH, UIConstants.FILE_TREE_MAX_WIDTH)
-        logger.info("File tree view initialized")
+        ComponentResizer.install(this,
+            UIConstants.FILE_TREE_RESIZER_WIDTH,
+            UIConstants.FILE_TREE_MIN_WIDTH,
+            UIConstants.FILE_TREE_MAX_WIDTH)
+        logger.info("Node-based file tree view initialized")
+
+        isFocusTraversable = true
+        focusedProperty().addListener { _, _, isFocused ->
+            currentlySelectedNode?.setTreeFocused(isFocused)
+        }
     }
 
-    private fun setupFileTree() {
+    private fun setupLayout() {
         styleClass.add("file-tree-container")
 
         prefWidth = UIConstants.FILE_TREE_DEFAULT_WIDTH
@@ -43,67 +58,69 @@ class FileTreeView : VBox() {
         maxHeight = Double.MAX_VALUE
         minHeight = 0.0
 
-        treeView = TreeView<File>().apply {
-            styleClass.add("file-tree")
-            isShowRoot = false
-
-            prefHeight = USE_COMPUTED_SIZE
-            maxHeight = Double.MAX_VALUE
-            minHeight = 0.0
-
-            setCellFactory {
-                object : TreeCell<File>() {
-                    override fun updateItem(item: File?, empty: Boolean) {
-                        super.updateItem(item, empty)
-                        text = if (empty || item == null) null else item.name
-
-                        graphic = null
-                        if (!empty && item != null) {
-                            styleClass.removeAll("file-item", "folder-item")
-                            styleClass.add(if (item.isDirectory) "folder-item" else "file-item")
-                        }
-                    }
-                }
-            }
-
-            setOnMouseClicked { event ->
-                if (event.clickCount == 2) {
-                    val selectedItem = selectionModel.selectedItem
-                    if (selectedItem != null && !selectedItem.value.isDirectory) {
-                        val file = selectedItem.value
-                        logger.info("File double-clicked: ${file.name}")
-                        EventBus.post(FileOpenEvent(file.toPath()))
-                    }
-                }
-            }
-        }
-
-        val placeholderLabel = Label("No directory selected.\nClick the folder icon to select a directory.").apply {
+        placeholderLabel.apply {
             styleClass.add("file-tree-placeholder")
             isWrapText = true
             prefHeight = USE_COMPUTED_SIZE
             maxHeight = Double.MAX_VALUE
+            padding = Insets(20.0)
         }
 
-        treeView.cursorProperty().bind(this.cursorProperty())
-        placeholderLabel.cursorProperty().bind(this.cursorProperty())
+        contentContainer.apply {
+            styleClass.add("file-tree-content")
+            prefHeight = USE_COMPUTED_SIZE
+            maxHeight = Double.MAX_VALUE
+            spacing = 1.0
+            prefWidth = UIConstants.FILE_TREE_MAX_WIDTH
+        }
 
-        children.addAll(placeholderLabel, treeView)
+        val scrollPane = ScrollPane(contentContainer).apply {
+            styleClass.add("file-tree-scroll")
+            isFitToWidth = false
+            isFitToHeight = false
+            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+            prefViewportHeight = USE_COMPUTED_SIZE
+            maxHeight = Double.MAX_VALUE
+        }
 
-        setVgrow(treeView, javafx.scene.layout.Priority.ALWAYS)
-        setVgrow(placeholderLabel, javafx.scene.layout.Priority.ALWAYS)
+        children.addAll(placeholderLabel, scrollPane)
+        setVgrow(scrollPane, Priority.ALWAYS)
+        setVgrow(placeholderLabel, Priority.ALWAYS)
 
-        treeView.isVisible = false
-        treeView.isManaged = false
+        showPlaceholder()
     }
 
     private fun setupEventListeners() {
         EventBus.register<DirectorySelectedEvent> { event ->
-            loadDirectory(event.directoryPath)
+            loadDirectory(event.directoryPath, preserveState = false)
+        }
+        EventBus.register<NodeSelectionRequestEvent> { event ->
+            handleNodeSelection(event.node)
+        }
+        EventBus.register<FileTreeDragStartEvent> { event ->
+            updateAllNodesDragStatus(event.sourceNode)
+        }
+        EventBus.register<FileTreeDragEndEvent> {
+            clearAllNodesDragStatus()
         }
     }
 
-    private fun loadDirectory(directoryPath: Path) {
+    private fun showPlaceholder() {
+        placeholderLabel.isVisible = true
+        placeholderLabel.isManaged = true
+        children[1].isVisible = false
+        children[1].isManaged = false
+    }
+
+    private fun showContent() {
+        placeholderLabel.isVisible = false
+        placeholderLabel.isManaged = false
+        children[1].isVisible = true
+        children[1].isManaged = true
+    }
+
+    private fun loadDirectory(directoryPath: Path, preserveState: Boolean = false) {
         try {
             if (!directoryPath.exists() || !directoryPath.isDirectory()) {
                 logger.warn("Invalid directory path: $directoryPath")
@@ -111,57 +128,176 @@ class FileTreeView : VBox() {
             }
 
             currentDirectory = directoryPath
+            if (!preserveState) {
+                expandedDirectories.clear()
+            }
             logger.info("Loading directory: $directoryPath")
 
-            val rootFile = directoryPath.toFile()
-            val rootItem = TreeItem(rootFile)
+            contentContainer.children.clear()
 
-            loadDirectoryContents(rootItem, rootFile)
+            val rootNode = createDirectoryNode(directoryPath.toFile(), directoryPath.toFile(), 0)
+            contentContainer.children.add(rootNode)
 
-            treeView.root = rootItem
+            if (rootNode.isExpanded()) {
+                expandDirectory(rootNode, directoryPath.toFile(), 0)
+            }
 
-            children[0].isVisible = false
-            children[0].isManaged = false
-            treeView.isVisible = true
-            treeView.isManaged = true
-
-            rootItem.isExpanded = true
-
-            logger.info("Directory loaded successfully: ${rootFile.name}")
+            showContent()
+            logger.info("Directory loaded successfully: ${directoryPath.fileName}")
 
         } catch (e: Exception) {
             logger.error("Failed to load directory: $directoryPath", e)
         }
     }
 
-    private fun loadDirectoryContents(parentItem: TreeItem<File>, directory: File) {
+    private fun createDirectoryNode(
+        directory: File,
+        originalFile: File,
+        depth: Int,
+        displayName: String? = null
+    ): FileTreeNode {
+        val isExpanded = expandedDirectories.contains(originalFile.toPath())
+        val node = FileTreeNode(directory, depth, true, isExpanded, displayName, originalFile)
+
+        node.setOnExpandToggle { expanded ->
+            if (expanded) {
+                expandDirectory(node, directory, depth)
+                expandedDirectories.add(directory.toPath())
+            } else {
+                collapseDirectory(node)
+                expandedDirectories.remove(directory.toPath())
+            }
+        }
+
+        node.setOnDoubleClick {
+            node.toggleExpansion()
+        }
+
+        return node
+    }
+
+    private fun createFileNode(file: File, depth: Int): FileTreeNode {
+        val node = FileTreeNode(file, depth, false, false, null, file)
+
+        node.setOnDoubleClick {
+            logger.info("File double-clicked: ${file.name}")
+            EventBus.post(FileOpenEvent(file.toPath()))
+        }
+
+        return node
+    }
+
+    private fun getCompactableChild(directory: File): File? {
+        val children = directory.listFiles()?.filter { !it.name.startsWith(".") }
+        if (children != null && children.size == 1) {
+            val singleChild = children.first()
+            if (singleChild.isDirectory) {
+                return singleChild
+            }
+        }
+        return null
+    }
+
+    private fun expandDirectory(parentNode: FileTreeNode, directory: File, depth: Int) {
         try {
             val files = directory.listFiles()?.sortedWith(
-                compareBy<File> { !it.isDirectory() }.thenBy { it.name.lowercase() }
+                compareBy<File> { !it.isDirectory }.thenBy { it.name.lowercase() }
             ) ?: return
 
+            val nodesToAdd = mutableListOf<FileTreeNode>()
+            val processedFiles = mutableSetOf<File>()
+
             for (file in files) {
-                if (file.name.startsWith(".")) continue
+                if (file.name.startsWith(".") || file in processedFiles) continue
 
-                val childItem = TreeItem(file)
-                parentItem.children.add(childItem)
+                if (file.isDirectory) {
+                    var currentFile = file
+                    var compactedName = file.name
+                    val chain = mutableListOf(currentFile)
 
-                if (file.isDirectory()) {
-                    childItem.children.add(TreeItem(File("Loading...")))
-
-                    childItem.expandedProperty().addListener { _, _, isExpanded ->
-                        if (isExpanded && childItem.children.size == 1 &&
-                            childItem.children[0].value.name == "Loading...") {
-                            childItem.children.clear()
-                            loadDirectoryContents(childItem, file)
-                        }
+                    var compactableChild = getCompactableChild(currentFile)
+                    while (compactableChild != null) {
+                        currentFile = compactableChild
+                        compactedName += ".${currentFile.name}"
+                        chain.add(currentFile)
+                        compactableChild = getCompactableChild(currentFile)
                     }
+
+                    val node = createDirectoryNode(currentFile, file, depth + 1, if (chain.size > 1) compactedName else null)
+                    nodesToAdd.add(node)
+                    processedFiles.addAll(chain)
+                } else {
+                    nodesToAdd.add(createFileNode(file, depth + 1))
                 }
             }
+
+            val parentIndex = contentContainer.children.indexOf(parentNode)
+            if (parentIndex != -1) {
+                contentContainer.children.addAll(parentIndex + 1, nodesToAdd)
+            }
+
         } catch (e: Exception) {
-            logger.error("Failed to load directory contents: ${directory.absolutePath}", e)
+            logger.error("Failed to expand directory: ${directory.absolutePath}", e)
         }
     }
 
+    private fun collapseDirectory(parentNode: FileTreeNode) {
+        val parentIndex = contentContainer.children.indexOf(parentNode)
+        val childrenToRemove = mutableListOf<FileTreeNode>()
+
+        for (i in (parentIndex + 1) until contentContainer.children.size) {
+            val child = contentContainer.children[i] as? FileTreeNode ?: break
+            if (child.depth <= parentNode.depth) break
+            childrenToRemove.add(child)
+        }
+
+        contentContainer.children.removeAll(childrenToRemove)
+    }
+
+    private fun getExpandedChildrenCount(parentNode: FileTreeNode): Int {
+        val parentIndex = contentContainer.children.indexOf(parentNode)
+        var count = 0
+
+        for (i in (parentIndex + 1) until contentContainer.children.size) {
+            val child = contentContainer.children[i] as? FileTreeNode ?: break
+            if (child.depth <= parentNode.depth) break
+            count++
+        }
+
+        return count
+    }
+
     fun getCurrentDirectory(): Path? = currentDirectory
+
+    fun refreshDirectory() {
+        currentDirectory?.let { loadDirectory(it, preserveState = true) }
+    }
+
+    private fun handleNodeSelection(node: FileTreeNode) {
+        if (!isFocused || node != currentlySelectedNode) {
+            requestFocus()
+        }
+
+        if (node == currentlySelectedNode) return
+
+        currentlySelectedNode?.setSelected(false)
+
+        node.setSelected(true)
+        currentlySelectedNode = node
+        node.setTreeFocused(true)
+    }
+
+    private fun updateAllNodesDragStatus(sourceNode: FileTreeNode) {
+        contentContainer.children.forEach { node ->
+            if (node is FileTreeNode) {
+                node.updateDragTargetStatus(sourceNode)
+            }
+        }
+    }
+
+    private fun clearAllNodesDragStatus() {
+        contentContainer.children.forEach { node ->
+            (node as? FileTreeNode)?.clearDragTargetStatus()
+        }
+    }
 }

@@ -4,6 +4,7 @@ import io.github.frostzie.datapackide.events.handlers.FileActionHandler
 import io.github.frostzie.datapackide.events.handlers.MenuActionHandler
 import io.github.frostzie.datapackide.events.handlers.StatusActionHandler
 import io.github.frostzie.datapackide.events.handlers.UIActionHandler
+import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.utils.LoggerProvider
@@ -15,6 +16,7 @@ import javafx.stage.Stage
  */
 class EventHandlerSystem(
     private val textEditor: TextEditor?,
+    private val fileTreeView: FileTreeView?,
     private val statusBar: StatusBar?,
     private val parentStage: Stage?
 ) {
@@ -35,7 +37,7 @@ class EventHandlerSystem(
         }
 
         MenuActionHandler(textEditor).initialize()
-        FileActionHandler(textEditor, parentStage).initialize()
+        FileActionHandler(textEditor, fileTreeView, parentStage).initialize()
         UIActionHandler(parentStage).initialize()
         StatusActionHandler(statusBar).initialize()
 
