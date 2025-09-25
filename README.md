@@ -81,7 +81,7 @@ If you are only interested in running a build for your own use, try older artifa
 
 ## 🖐️ Want to support the project?
 Here's a donation link:<br>
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/gbraad)
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/frostzie)
 <br>
 All proceeds goes to frostzie
 
