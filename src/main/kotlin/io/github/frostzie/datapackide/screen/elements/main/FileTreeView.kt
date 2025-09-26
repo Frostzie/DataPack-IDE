@@ -1,11 +1,11 @@
 package io.github.frostzie.datapackide.screen.elements.main
 
-import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.DirectorySelectedEvent
-import io.github.frostzie.datapackide.events.NodeSelectionRequestEvent
-import io.github.frostzie.datapackide.events.FileTreeDragStartEvent
-import io.github.frostzie.datapackide.events.FileTreeDragEndEvent
-import io.github.frostzie.datapackide.events.FileOpenEvent
+import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
+import io.github.frostzie.datapackide.eventsOLD.DirectorySelectedEvent
+import io.github.frostzie.datapackide.eventsOLD.NodeSelectionRequestEvent
+import io.github.frostzie.datapackide.eventsOLD.FileTreeDragStartEvent
+import io.github.frostzie.datapackide.eventsOLD.FileTreeDragEndEvent
+import io.github.frostzie.datapackide.eventsOLD.FileOpenEvent
 import io.github.frostzie.datapackide.utils.ComponentResizer
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.UIConstants
@@ -92,16 +92,16 @@ class FileTreeView : VBox() {
     }
 
     private fun setupEventListeners() {
-        EventBus.register<DirectorySelectedEvent> { event ->
+        EventBusOLD.register<DirectorySelectedEvent> { event ->
             loadDirectory(event.directoryPath, preserveState = false)
         }
-        EventBus.register<NodeSelectionRequestEvent> { event ->
+        EventBusOLD.register<NodeSelectionRequestEvent> { event ->
             handleNodeSelection(event.node)
         }
-        EventBus.register<FileTreeDragStartEvent> { event ->
+        EventBusOLD.register<FileTreeDragStartEvent> { event ->
             updateAllNodesDragStatus(event.sourceNode)
         }
-        EventBus.register<FileTreeDragEndEvent> {
+        EventBusOLD.register<FileTreeDragEndEvent> {
             clearAllNodesDragStatus()
         }
     }
@@ -181,7 +181,7 @@ class FileTreeView : VBox() {
 
         node.setOnDoubleClick {
             logger.info("File double-clicked: ${file.name}")
-            EventBus.post(FileOpenEvent(file.toPath()))
+            EventBusOLD.post(FileOpenEvent(file.toPath()))
         }
 
         return node

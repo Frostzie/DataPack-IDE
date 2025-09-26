@@ -1,16 +1,11 @@
-package io.github.frostzie.datapackide.events
+package io.github.frostzie.datapackide.eventsOLD
 
 /**
  * UI-related events
  */
-
+@Deprecated("Replacing with newer system")
 enum class UIAction {
     // Window Controls
-    MINIMIZE_WINDOW,
-    MAXIMIZE_WINDOW,
-    RESTORE_WINDOW,
-    TOGGLE_WINDOW_MODES, // This is when double-clicking to maximize or restore the window
-    REQUEST_WINDOW_CLOSE,
     TOGGLE_WINDOW,
 
     // Sidebar Actions

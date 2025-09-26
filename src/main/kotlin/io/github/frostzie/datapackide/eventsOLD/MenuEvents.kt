@@ -1,9 +1,9 @@
-package io.github.frostzie.datapackide.events
+package io.github.frostzie.datapackide.eventsOLD
 
 /**
  * Menu-related events
  */
-
+@Deprecated("Replacing with newer system")
 enum class MenuCategory {
     FILE,
     EDIT,
@@ -57,3 +57,12 @@ data class MenuVisibilityEvent(
     val category: MenuCategory? = null, // null = all menus
     val visible: Boolean
 )
+
+// TEMP
+class ShowSettingsRequest
+
+// TEMP
+class ToggleMenuBarRequest
+
+// TEMP
+data class MenuBarVisibilityChanged(val isVisible: Boolean)

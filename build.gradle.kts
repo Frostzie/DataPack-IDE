@@ -1,3 +1,4 @@
+import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.tasks.bundling.Jar
 import kotlin.String
 
@@ -36,8 +37,9 @@ repositories {
 }
 
 dependencies {
-	minecraft(libs.minecraft)
-	mappings(libs.yarn)
+	"minecraft"(libs.minecraft)
+	"mappings"("net.fabricmc:yarn:${libs.versions.yarn.get()}:v2")
+
 	modCompileOnly(libs.fabric.api)
 	modImplementation(libs.fabric.loader)
 	modImplementation(libs.fabric.kotlin)

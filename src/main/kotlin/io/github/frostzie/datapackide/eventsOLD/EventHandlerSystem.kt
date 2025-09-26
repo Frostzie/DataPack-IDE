@@ -1,15 +1,16 @@
-package io.github.frostzie.datapackide.events
+package io.github.frostzie.datapackide.eventsOLD
 
-import io.github.frostzie.datapackide.events.handlers.FileActionHandler
-import io.github.frostzie.datapackide.events.handlers.MenuActionHandler
-import io.github.frostzie.datapackide.events.handlers.StatusActionHandler
-import io.github.frostzie.datapackide.events.handlers.UIActionHandler
+import io.github.frostzie.datapackide.eventsOLD.handlersOLD.FileActionHandler
+import io.github.frostzie.datapackide.eventsOLD.handlersOLD.MenuActionHandler
+import io.github.frostzie.datapackide.eventsOLD.handlersOLD.StatusActionHandler
+import io.github.frostzie.datapackide.eventsOLD.handlersOLD.UIActionHandler
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.stage.Stage
 
+@Deprecated("Replacing with newer system")
 /**
  * Central event handler system
  * Registers all event listeners and handles application-wide event processing

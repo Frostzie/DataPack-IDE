@@ -1,34 +1,42 @@
-package io.github.frostzie.datapackide.events.handlers
+package io.github.frostzie.datapackide.eventsOLD.handlersOLD
 
 import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand
-import io.github.frostzie.datapackide.events.*
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.MainWindowClose
+import io.github.frostzie.datapackide.eventsOLD.*
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 
+@Deprecated("Replacing with newer system")
 /**
  * Handles menu actions and routes them to the appropriate components.
  */
-class MenuActionHandler(private val textEditor: TextEditor?) {
+class MenuActionHandler(textEditor: TextEditor?) {
     companion object {
         private val logger = LoggerProvider.getLogger("MenuActionHandler")
     }
 
     fun initialize() {
-        EventBus.register<MenuActionEvent> { event ->
-            logger.debug("Handling menu action: ${event.category}.${event.action}")
-
-            when (event.category) {
-                MenuCategory.FILE -> handleFileMenuAction(event.action)
-                MenuCategory.EDIT -> handleEditMenuAction(event.action)
-                MenuCategory.DATAPACK -> handleDatapackMenuAction(event.action)
-                MenuCategory.HELP -> handleHelpMenuAction(event.action)
-            }
-        }
-
-        EventBus.register<MenuVisibilityEvent> { event ->
-            logger.debug("Menu visibility changed: ${event.category} = ${event.visible}")
-        }
+        EventBus.register(this)
         logger.info("MenuActionHandler initialized")
+    }
+
+    @SubscribeEvent
+    fun onMenuAction(event: MenuActionEvent) {
+        logger.debug("Handling menu action: {}.{}", event.category, event.action)
+
+        when (event.category) {
+            MenuCategory.FILE -> handleFileMenuAction(event.action)
+            MenuCategory.DATAPACK -> handleDatapackMenuAction(event.action)
+            MenuCategory.HELP -> handleHelpMenuAction(event.action)
+            MenuCategory.EDIT -> TODO()
+        }
+    }
+
+    @SubscribeEvent
+    fun onMenuVisibilityChanged(event: MenuVisibilityEvent) {
+        logger.debug("Menu visibility changed: {} = {}", event.category, event.visible)
     }
 
     private fun handleFileMenuAction(action: MenuAction) {
@@ -38,22 +46,8 @@ class MenuActionHandler(private val textEditor: TextEditor?) {
             MenuAction.SAVE_FILE -> EventBus.post(FileActionEvent(FileAction.SAVE_FILE))
             MenuAction.SAVE_AS_FILE -> EventBus.post(FileActionEvent(FileAction.SAVE_AS_FILE))
             MenuAction.CLOSE_FILE -> EventBus.post(FileActionEvent(FileAction.CLOSE_FILE))
-            MenuAction.EXIT -> EventBus.post(UIActionEvent(UIAction.REQUEST_WINDOW_CLOSE))
+            MenuAction.EXIT -> EventBus.post(MainWindowClose()) //TEMP
             else -> logger.warn("Unhandled file menu action: $action")
-        }
-    }
-
-    private fun handleEditMenuAction(action: MenuAction) {
-        when (action) {
-            MenuAction.UNDO -> textEditor?.undo()
-            MenuAction.REDO -> textEditor?.redo()
-            MenuAction.CUT -> textEditor?.cut()
-            MenuAction.COPY -> textEditor?.copy()
-            MenuAction.PASTE -> textEditor?.paste()
-            MenuAction.SELECT_ALL -> textEditor?.selectAll()
-            MenuAction.FIND -> logger.info("Find dialog requested") // TODO: Post UIActionEvent
-            MenuAction.REPLACE -> logger.info("Replace dialog requested") // TODO: Post UIActionEvent
-            else -> logger.warn("Unhandled edit menu action: $action")
         }
     }
 

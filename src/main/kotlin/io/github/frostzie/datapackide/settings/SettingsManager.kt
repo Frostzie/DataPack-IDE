@@ -5,8 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.UIAction
-import io.github.frostzie.datapackide.events.UIActionEvent
+import io.github.frostzie.datapackide.eventsOLD.SettingsSaveRequestEvent
 import io.github.frostzie.datapackide.settings.annotations.*
 import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
 import io.github.frostzie.datapackide.settings.categories.MainConfig
@@ -58,9 +57,11 @@ object SettingsManager {
     }
 
     private fun registerEventHandlers() {
-        EventBus.register<UIActionEvent> { event ->
-            if (event.action == UIAction.SAVE_SETTINGS) saveSettings()
-        }
+        EventBus.register(this)
+    }
+    @SubscribeEvent
+    fun onSettingsSaveRequest(event: SettingsSaveRequestEvent) {
+        saveSettings()
     }
 
     fun getDefaultValue(property: KProperty1<*, *>): Any? = defaultValues[property]

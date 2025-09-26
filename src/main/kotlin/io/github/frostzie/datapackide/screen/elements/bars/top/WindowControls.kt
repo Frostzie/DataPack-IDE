@@ -1,11 +1,14 @@
 package io.github.frostzie.datapackide.screen.elements.bars.top
 
+import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
+import io.github.frostzie.datapackide.events.MainWindowRestore
 import io.github.frostzie.datapackide.utils.IconButton
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.UIActionEvent
-import io.github.frostzie.datapackide.events.UIAction
-import io.github.frostzie.datapackide.events.WindowStateEvent
+import io.github.frostzie.datapackide.events.MainWindowClose
+import io.github.frostzie.datapackide.events.MainWindowMaximize
+import io.github.frostzie.datapackide.events.MainWindowMinimize
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import javafx.application.Platform
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
@@ -18,14 +21,15 @@ class WindowControls : HBox() {
 
     private var isMaximized = false
     private var maximizeButton: IconButton
+    private var minimizeButton: IconButton
+    private var closeButton: IconButton
 
     init {
         setupWindowControls()
-        registerEventHandlers()
 
-        val minimizeButton = createMinimizeButton()
+        minimizeButton = createMinimizeButton()
         maximizeButton = createMaximizeButton()
-        val closeButton = createCloseButton()
+        closeButton = createCloseButton()
 
         children.addAll(minimizeButton, maximizeButton, closeButton)
         logger.debug("Window controls initialized")
@@ -40,7 +44,7 @@ class WindowControls : HBox() {
             styleClass.addAll("window-control-button", "minimize-icon")
             tooltip = Tooltip("Minimize")
             setOnAction {
-                EventBus.post(UIActionEvent(UIAction.MINIMIZE_WINDOW))
+                EventBus.post(MainWindowMinimize())
             }
         }
     }
@@ -50,8 +54,11 @@ class WindowControls : HBox() {
             updateMaximizeButtonStyle()
             tooltip = Tooltip("Maximize/Restore")
             setOnAction {
-                val newAction = if (isMaximized) UIAction.RESTORE_WINDOW else UIAction.MAXIMIZE_WINDOW
-                EventBus.post(UIActionEvent(newAction))
+                if (isMaximized) {
+                    EventBus.post(MainWindowRestore())
+                } else {
+                    EventBus.post(MainWindowMaximize())
+                }
             }
         }
     }
@@ -66,18 +73,17 @@ class WindowControls : HBox() {
             styleClass.addAll("window-control-button", "close-icon")
             tooltip = Tooltip("Close")
             setOnAction {
-                EventBus.post(UIActionEvent(UIAction.REQUEST_WINDOW_CLOSE))
+                EventBus.post(MainWindowClose())
             }
         }
     }
 
-    private fun registerEventHandlers() {
-        EventBus.register<WindowStateEvent> { event ->
-            if (isMaximized != event.isMaximized) {
-                isMaximized = event.isMaximized
-                Platform.runLater {
-                    maximizeButton.updateMaximizeButtonStyle()
-                }
+    @SubscribeEvent
+    fun onWindowStateChanged(event: MainWindowMaximizedStateChanged) {
+        if (isMaximized != event.isMaximized) {
+            isMaximized = event.isMaximized
+            Platform.runLater {
+                maximizeButton.updateMaximizeButtonStyle()
             }
         }
     }

@@ -1,6 +1,6 @@
-package io.github.frostzie.datapackide.events.handlers
+package io.github.frostzie.datapackide.eventsOLD.handlersOLD
 
-import io.github.frostzie.datapackide.events.*
+import io.github.frostzie.datapackide.eventsOLD.*
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.screen.elements.popup.NewFileWindow
@@ -12,6 +12,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.exists
 
+@Deprecated("Replacing with newer system")
 /**
  * Handles file-related actions such as creating, opening, saving, and deleting files.
  */
@@ -25,17 +26,17 @@ class FileActionHandler(
     }
 
     fun initialize() {
-        EventBus.register<FileActionEvent> { event ->
+        EventBusOLD.register<FileActionEvent> { event ->
             logger.debug("Handling file action: {}", event.action)
             handleFileAction(event)
         }
 
-        EventBus.register<FileOpenEvent> { event ->
+        EventBusOLD.register<FileOpenEvent> { event ->
             logger.info("FileOpenEvent received: ${event.filePath}")
             openFile(event.filePath)
         }
 
-        EventBus.register<DirectorySelectedEvent> { event ->
+        EventBusOLD.register<DirectorySelectedEvent> { event ->
             logger.info("Directory selected event fired: ${event.directoryPath}")
         }
         logger.info("FileActionHandler initialized")
@@ -61,7 +62,7 @@ class FileActionHandler(
             logger.info("File opened successfully: ${filePath.fileName}")
         } catch (e: Exception) {
             logger.error("Failed to open file: $filePath", e)
-            EventBus.post(FileOperationCompleteEvent(
+            EventBusOLD.post(FileOperationCompleteEvent(
                 FileAction.OPEN_FILE, false, filePath, "Failed to open file", e
             ))
         }
@@ -77,7 +78,7 @@ class FileActionHandler(
                 val content = FileUtils.loadFile(fileInfo.path)
                 if (content != null) {
                     textEditor?.setText(content, fileInfo.path.toString())
-                    EventBus.post(FileOperationCompleteEvent(
+                    EventBusOLD.post(FileOperationCompleteEvent(
                         FileAction.NEW_FILE, true, fileInfo.path, "File created successfully"
                     ))
                 }
@@ -89,7 +90,7 @@ class FileActionHandler(
         val files = FileUtils.listDatapackFiles()
         if (files.isNotEmpty()) {
             val mostRecent = files.first()
-            EventBus.post(FileOpenEvent(mostRecent.path))
+            EventBusOLD.post(FileOpenEvent(mostRecent.path))
         } else {
             createNewFile()
         }
@@ -103,7 +104,7 @@ class FileActionHandler(
             val filePath = Paths.get(currentPath)
             if (FileUtils.saveFile(filePath, content)) {
                 textEditor.markAsSaved()
-                EventBus.post(FileSavedEvent(filePath, content))
+                EventBusOLD.post(FileSavedEvent(filePath, content))
             }
         } else {
             saveAsFile()
@@ -116,7 +117,7 @@ class FileActionHandler(
 
         fileInfo?.let {
             textEditor?.setText(content, it.path.toString())
-            EventBus.post(FileSavedEvent(it.path, content))
+            EventBusOLD.post(FileSavedEvent(it.path, content))
         }
     }
 
@@ -130,7 +131,7 @@ class FileActionHandler(
 
     private fun deleteFile(filePath: Path) {
         if (FileUtils.deleteFile(filePath)) {
-            EventBus.post(FileOperationCompleteEvent(
+            EventBusOLD.post(FileOperationCompleteEvent(
                 FileAction.DELETE_FILE, true, filePath, "File deleted successfully"
             ))
         }
@@ -153,11 +154,11 @@ class FileActionHandler(
 
                 fileTreeView?.refreshDirectory()
 
-                EventBus.post(FileOperationCompleteEvent(FileAction.MOVE, true, targetPath, "File moved successfully: ${sourcePath.fileName} -> ${targetPath.parent.fileName}/"))
+                EventBusOLD.post(FileOperationCompleteEvent(FileAction.MOVE, true, targetPath, "File moved successfully: ${sourcePath.fileName} -> ${targetPath.parent.fileName}/"))
             }
         } catch (e: Exception) {
             logger.error("Failed to move file: ${sourcePath.fileName}", e)
-            EventBus.post(FileOperationCompleteEvent(FileAction.MOVE, false, sourcePath, "Failed to move file: ${sourcePath.fileName}", e))
+            EventBusOLD.post(FileOperationCompleteEvent(FileAction.MOVE, false, sourcePath, "Failed to move file: ${sourcePath.fileName}", e))
         }
     }
 }

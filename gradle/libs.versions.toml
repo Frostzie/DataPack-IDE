@@ -1,7 +1,7 @@
 [versions]
 version = "0.0.1-dev"
 minecraft = "1.21.8"
-yarn_mappings = "1.21.8+build.1"
+yarn = "1.21.8+build.1"
 loom_version = "1.11-SNAPSHOT"
 loader_version = "0.17.2"
 fabric_version = "0.131.0+1.21.8"
@@ -15,7 +15,6 @@ fx_borderless = "5.0.12"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
-yarn = { module = "net.fabricmc:yarn", version.ref = "yarn_mappings" }
 fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "loader_version" }
 fabric_api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_version" }
 fabric_kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric_kotlin" }

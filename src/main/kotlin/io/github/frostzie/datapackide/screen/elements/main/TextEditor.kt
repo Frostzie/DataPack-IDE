@@ -1,10 +1,10 @@
 package io.github.frostzie.datapackide.screen.elements.main
 
 import io.github.frostzie.datapackide.config.WebsiteConfig
-import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.FileOpenEvent
-import io.github.frostzie.datapackide.events.EditorContentChangedEvent
-import io.github.frostzie.datapackide.events.EditorCursorChangedEvent
+import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
+import io.github.frostzie.datapackide.eventsOLD.FileOpenEvent
+import io.github.frostzie.datapackide.eventsOLD.EditorContentChangedEvent
+import io.github.frostzie.datapackide.eventsOLD.EditorCursorChangedEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.beans.property.SimpleStringProperty
 import javafx.application.Platform
@@ -74,7 +74,7 @@ class TextEditor : VBox() {
     }
 
     private fun setupEventListeners() {
-        EventBus.register<FileOpenEvent> { event ->
+        EventBusOLD.register<FileOpenEvent> { event ->
             openFileInWebView(event.filePath)
         }
     }
@@ -149,7 +149,7 @@ class TextEditor : VBox() {
                 }
                 updateLineCount(content)
 
-                EventBus.post(EditorContentChangedEvent(content, currentFilePath))
+                EventBusOLD.post(EditorContentChangedEvent(content, currentFilePath))
             }
         }
 
@@ -158,7 +158,7 @@ class TextEditor : VBox() {
                 logger.info("EditorBridge received cursor change: Ln $line, Col $column")
                 onCursorPositionChanged?.invoke(line, column)
 
-                EventBus.post(EditorCursorChangedEvent(line, column, currentFilePath))
+                EventBusOLD.post(EditorCursorChangedEvent(line, column, currentFilePath))
             }
         }
     }

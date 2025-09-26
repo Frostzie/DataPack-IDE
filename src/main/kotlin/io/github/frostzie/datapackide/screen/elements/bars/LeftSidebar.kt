@@ -1,8 +1,8 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
-import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.UIActionEvent
-import io.github.frostzie.datapackide.events.UIAction
+import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
+import io.github.frostzie.datapackide.eventsOLD.UIActionEvent
+import io.github.frostzie.datapackide.eventsOLD.UIAction
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.scene.control.Button
 import javafx.scene.control.ContentDisplay
@@ -38,12 +38,12 @@ class LeftSidebar : VBox() {
     //TODO: does nothing yet! (was used for testing event fires in log)
     private fun onSearch() {
         logger.info("Search button clicked")
-        EventBus.post(UIActionEvent(UIAction.TOGGLE_SEARCH))
+        EventBusOLD.post(UIActionEvent(UIAction.TOGGLE_SEARCH))
     }
 
     private fun onFileExplorer() {
         logger.info("File Explorer button clicked")
-        EventBus.post(UIActionEvent(UIAction.OPEN_DIRECTORY_CHOOSER))
+        EventBusOLD.post(UIActionEvent(UIAction.OPEN_DIRECTORY_CHOOSER))
     }
 
     private inner class SidebarButton(

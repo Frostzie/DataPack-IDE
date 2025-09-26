@@ -1,10 +1,21 @@
 package io.github.frostzie.datapackide.screen.elements.popup
 
-import io.github.frostzie.datapackide.settings.SettingsController
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.eventsOLD.PopulateSettingsContentEvent
+import io.github.frostzie.datapackide.eventsOLD.SelectTreeItemEvent
+import io.github.frostzie.datapackide.eventsOLD.SettingsCategorySelectedEvent
+import io.github.frostzie.datapackide.eventsOLD.SettingsCloseRequestEvent
+import io.github.frostzie.datapackide.eventsOLD.SettingsSaveRequestEvent
+import io.github.frostzie.datapackide.eventsOLD.SettingsSearchEvent
+import io.github.frostzie.datapackide.eventsOLD.SettingsSearchResultSelectedEvent
+import io.github.frostzie.datapackide.eventsOLD.ShowSearchResultsEvent
+import io.github.frostzie.datapackide.modules.popup.SettingsModule
 import io.github.frostzie.datapackide.settings.SettingsManager
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.utils.ui.SettingsControlBuilder
 import javafx.application.Platform
+import javafx.beans.value.ChangeListener
 import javafx.scene.control.*
 import javafx.scene.layout.*
 import kotlin.reflect.KClass
@@ -13,7 +24,7 @@ import kotlin.reflect.KClass
  * Builds the UI for the settings popup window.
  * This class is responsible for layout and component creation, while the logic is handled by SettingsController.
  */
-class SettingsWindow(private val controller: SettingsController) {
+class SettingsView(val settingsModule: SettingsModule) {
 
     lateinit var searchField: TextField
     lateinit var categoryTreeView: TreeView<CategoryItem>
@@ -21,6 +32,7 @@ class SettingsWindow(private val controller: SettingsController) {
     lateinit var searchResults: ListView<SettingsManager.SearchResult>
 
     fun createContent(): VBox {
+        EventBus.register(this)
         return VBox().apply {
             val mainContent = createMainContent()
             VBox.setVgrow(mainContent, Priority.ALWAYS)
@@ -48,18 +60,18 @@ class SettingsWindow(private val controller: SettingsController) {
 
             val closeButton = Button("✕").apply {
                 styleClass.add("title-close-button")
-                setOnAction { controller.handleClose() }
+                setOnAction { EventBus.post(SettingsCloseRequestEvent()) }
             }
 
             children.addAll(titleLabel, spacer, closeButton)
 
             setOnMousePressed { event ->
-                controller.xOffset = event.sceneX
-                controller.yOffset = event.sceneY
+                settingsModule.xOffset = event.sceneX
+                settingsModule.yOffset = event.sceneY
             }
             setOnMouseDragged { event ->
-                controller.stage?.x = event.screenX - controller.xOffset
-                controller.stage?.y = event.screenY - controller.yOffset
+                settingsModule.stage?.x = event.screenX - settingsModule.xOffset
+                settingsModule.stage?.y = event.screenY - settingsModule.yOffset
             }
         }
     }
@@ -68,6 +80,9 @@ class SettingsWindow(private val controller: SettingsController) {
         searchField = TextField().apply {
             styleClass.add("search-field")
             promptText = "Search"
+            textProperty().addListener(ChangeListener { _, _, newValue ->
+                EventBus.post(SettingsSearchEvent(newValue))
+            })
         }
 
         return HBox().apply {
@@ -129,7 +144,7 @@ class SettingsWindow(private val controller: SettingsController) {
             isShowRoot = false
 
             selectionModel.selectedItemProperty().addListener { _, _, newItem ->
-                newItem?.let { controller.handleCategorySelection(it.value) }
+                newItem?.let { EventBus.post(SettingsCategorySelectedEvent(it.value)) }
             }
 
             setCellFactory {
@@ -143,6 +158,8 @@ class SettingsWindow(private val controller: SettingsController) {
                         text = if (empty) null else item?.name
                     }
                 }
+            }
+            setOnMouseClicked { event ->
             }
         }
     }
@@ -159,6 +176,10 @@ class SettingsWindow(private val controller: SettingsController) {
             styleClass.add("search-results")
             isVisible = false
             isManaged = false
+
+            setOnMouseClicked { event ->
+                selectionModel.selectedItem?.let { EventBus.post(SettingsSearchResultSelectedEvent(it)) }
+            }
 
             setCellFactory {
                 object : ListCell<SettingsManager.SearchResult>() {
@@ -330,12 +351,12 @@ class SettingsWindow(private val controller: SettingsController) {
 
             val applyButton = Button("Apply").apply {
                 styleClass.add("apply-button")
-                setOnAction { controller.handleSave() }
+                setOnAction { EventBus.post(SettingsSaveRequestEvent()) }
             }
 
             val closeButton = Button("Close").apply {
                 styleClass.add("close-button")
-                setOnAction { controller.handleClose() }
+                setOnAction { EventBus.post(SettingsCloseRequestEvent()) }
             }
 
             children.addAll(spacer, applyButton, closeButton)
@@ -353,5 +374,25 @@ class SettingsWindow(private val controller: SettingsController) {
 
     enum class CategoryType {
         ROOT, MAIN_CATEGORY, SUB_CATEGORY
+    }
+
+    @SubscribeEvent
+    fun onPopulateContent(event: PopulateSettingsContentEvent) {
+        contentArea.children.setAll(event.content)
+    }
+
+    @SubscribeEvent
+    fun onShowSearchResults(event: ShowSearchResultsEvent) {
+        val showResults = event.results.isNotEmpty()
+        searchResults.items.setAll(event.results)
+        searchResults.isVisible = showResults
+        searchResults.isManaged = showResults
+        categoryTreeView.isVisible = !showResults
+        categoryTreeView.isManaged = !showResults
+    }
+
+    @SubscribeEvent
+    fun onSelectTreeItem(event: SelectTreeItemEvent) {
+        selectTreeItem(event.categoryIndex, event.subCategory)
     }
 }

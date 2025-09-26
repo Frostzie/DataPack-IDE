@@ -1,13 +1,17 @@
 package io.github.frostzie.datapackide.screen
 
-import io.github.frostzie.datapackide.events.EventHandlerSystem
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.eventsOLD.EventHandlerSystem
+import io.github.frostzie.datapackide.handlers.bars.top.TopBarHandler
+import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
+import io.github.frostzie.datapackide.modules.popup.SettingsModule
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftSidebar
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
-import io.github.frostzie.datapackide.screen.elements.bars.top.TopBar
+import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.ResizeHandler
@@ -28,7 +32,7 @@ class MainApplication {
         private var fxInitialized = false
 
         // UI Components
-        private var topBar: TopBar? = null
+        private var topBarView: TopBarView? = null
         private var leftSidebar: LeftSidebar? = null
         private var fileTreeView: FileTreeView? = null
         private var statusBar: StatusBar? = null
@@ -37,6 +41,11 @@ class MainApplication {
 
         // Action handler
         private var eventHandlerSystem: EventHandlerSystem? = null
+
+        // New Modules and Handlers
+        private var topBarModule: TopBarModule? = null
+        private var topBarHandler: TopBarHandler? = null
+        private var settingsModule: SettingsModule? = null
 
         fun initializeJavaFX() {
             if (!fxInitialized) {
@@ -67,13 +76,17 @@ class MainApplication {
             val root = BorderPane()
             root.styleClass.add("window") // Add CSS class for drop shadow
 
-        topBar = TopBar()
+            topBarView = TopBarView()
             leftSidebar = LeftSidebar()
             textEditor = TextEditor()
             fileTreeView = FileTreeView()
             statusBar = StatusBar()
 
             eventHandlerSystem = EventHandlerSystem(textEditor, fileTreeView, statusBar, stage)
+
+            topBarModule = TopBarModule(stage)
+            topBarHandler = TopBarHandler(topBarModule!!)
+            settingsModule = SettingsModule(stage)
 
             setupEventHandlers()
             setupTextEditorBindings()
@@ -92,7 +105,7 @@ class MainApplication {
                 HBox.setHgrow(contentArea, Priority.ALWAYS)
             }
 
-            root.top = topBar
+            root.top = topBarView
             root.center = centerContent
             root.bottom = statusBar
 
@@ -140,6 +153,14 @@ class MainApplication {
         }
 
         private fun setupEventHandlers() {
+            // New event bus registrations
+            EventBus.register(topBarHandler!!)
+            topBarView?.let {
+                EventBus.register(it)
+                EventBus.register(it.windowControls)
+            }
+
+            // Old event system for remaining components
             eventHandlerSystem?.initialize()
             logger.debug("Event handlers initialized")
         }

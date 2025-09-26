@@ -4,45 +4,46 @@ import io.github.frostzie.datapackide.utils.IconButton
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.MenuActionEvent
-import io.github.frostzie.datapackide.events.MenuCategory
-import io.github.frostzie.datapackide.events.MenuAction
-import io.github.frostzie.datapackide.events.UIAction
-import io.github.frostzie.datapackide.events.UIActionEvent
-import io.github.frostzie.datapackide.events.MenuVisibilityEvent
+import io.github.frostzie.datapackide.events.MainWindowMaximize
+import io.github.frostzie.datapackide.eventsOLD.MenuActionEvent
+import io.github.frostzie.datapackide.eventsOLD.MenuCategory
+import io.github.frostzie.datapackide.eventsOLD.MenuAction
+import io.github.frostzie.datapackide.eventsOLD.ShowSettingsRequest
+import io.github.frostzie.datapackide.eventsOLD.ToggleMenuBarRequest
+import io.github.frostzie.datapackide.eventsOLD.MenuBarVisibilityChanged
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import javafx.scene.control.Tooltip
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 
-class TopBar : HBox() {
+class TopBarView : HBox() {
 
     companion object {
         private val logger = LoggerProvider.getLogger("TopBar")
     }
 
-    private val toolControls: ToolControls
-    private val windowControls: WindowControls
-    private var menuBarVisible = true
+    private val menuControls: MenuControls
+    internal val windowControls: WindowControls
     private var hideMenuButton: IconButton
     private var runDataPackButton: IconButton
     private var settingsButton: IconButton
 
     init {
         setupTopBar()
-        toolControls = createApplicationMenuBar()
+        menuControls = createApplicationMenuBar()
         hideMenuButton = createHideMenuButton()
         runDataPackButton = createRunDataPackButton()
         settingsButton = createSettingsButton()
         windowControls = createWindowControls()
 
-        layoutComponents(hideMenuButton, runDataPackButton, toolControls, settingsButton, windowControls)
+        layoutComponents(hideMenuButton, runDataPackButton, menuControls, settingsButton, windowControls)
 
         this.setOnMouseClicked { event ->
             if (event.button == MouseButton.PRIMARY && event.clickCount == 2) {
                 if (event.target == this || (event.target as? Region)?.styleClass?.contains("title-spacer") == true) {
-                    EventBus.post(UIActionEvent(UIAction.TOGGLE_WINDOW_MODES))
+                    EventBus.post(MainWindowMaximize())
                 }
             }
         }
@@ -60,7 +61,9 @@ class TopBar : HBox() {
         return IconButton {
             styleClass.addAll("hide-tools-button", "title-bar-icon-button", "hide-tools-icon")
             tooltip = Tooltip("Toggle Menu Bar")
-            setOnAction { toggleMenuBar() }
+            setOnAction {
+                EventBus.post(ToggleMenuBarRequest())
+            }
         }
     }
 
@@ -79,13 +82,13 @@ class TopBar : HBox() {
             styleClass.addAll("settings-button", "title-bar-icon-button", "settings-icon")
             tooltip = Tooltip("Settings")
             setOnAction {
-                EventBus.post(MenuActionEvent(MenuCategory.HELP, MenuAction.PREFERENCES))
+                EventBus.post(ShowSettingsRequest())
             }
         }
     }
 
-    private fun createApplicationMenuBar(): ToolControls {
-        return ToolControls().apply {
+    private fun createApplicationMenuBar(): MenuControls {
+        return MenuControls().apply {
             styleClass.add("title-menu-bar")
         }
     }
@@ -97,7 +100,7 @@ class TopBar : HBox() {
     private fun layoutComponents(
         hideMenuButton: IconButton,
         runDataPackButton: IconButton,
-        toolControls: ToolControls,
+        menuControls: MenuControls,
         settingsButton: IconButton,
         windowControls: WindowControls
     ) {
@@ -106,14 +109,12 @@ class TopBar : HBox() {
             styleClass.add("title-spacer")
         }
 
-        children.addAll(hideMenuButton, toolControls, spacer, runDataPackButton, settingsButton, windowControls)
+        children.addAll(hideMenuButton, menuControls, spacer, runDataPackButton, settingsButton, windowControls)
     }
 
-    private fun toggleMenuBar() {
-        menuBarVisible = !menuBarVisible
-        toolControls.isVisible = menuBarVisible
-        toolControls.isManaged = menuBarVisible
-        EventBus.post(MenuVisibilityEvent(visible = menuBarVisible))
-        logger.info("Menu bar visibility toggled: $menuBarVisible")
+    @SubscribeEvent
+    fun onMenuBarVisibilityChanged(event: MenuBarVisibilityChanged) {
+        menuControls.isVisible = event.isVisible
+        menuControls.isManaged = event.isVisible
     }
 }

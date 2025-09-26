@@ -1,12 +1,13 @@
-package io.github.frostzie.datapackide.events.handlers
+package io.github.frostzie.datapackide.eventsOLD.handlersOLD
 
-import io.github.frostzie.datapackide.events.EditorCursorChangedEvent
-import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.StatusType
-import io.github.frostzie.datapackide.events.StatusUpdateEvent
+import io.github.frostzie.datapackide.eventsOLD.EditorCursorChangedEvent
+import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
+import io.github.frostzie.datapackide.eventsOLD.StatusType
+import io.github.frostzie.datapackide.eventsOLD.StatusUpdateEvent
 import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
 import io.github.frostzie.datapackide.utils.LoggerProvider
 
+@Deprecated("Replacing with newer system")
 /**
  * Handles status bar updates based on various events.
  */
@@ -16,11 +17,11 @@ class StatusActionHandler(private val statusBar: StatusBar?) {
     }
 
     fun initialize() {
-        EventBus.register<EditorCursorChangedEvent> { event ->
+        EventBusOLD.register<EditorCursorChangedEvent> { event ->
             statusBar?.updateCursorPosition(event.line, event.column)
         }
 
-        EventBus.register<StatusUpdateEvent> { event ->
+        EventBusOLD.register<StatusUpdateEvent> { event ->
             handleStatusUpdate(event)
         }
         logger.info("StatusActionHandler initialized")

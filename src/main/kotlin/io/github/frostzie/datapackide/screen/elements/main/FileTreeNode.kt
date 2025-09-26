@@ -1,11 +1,11 @@
 package io.github.frostzie.datapackide.screen.elements.main
 
-import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.NodeSelectionRequestEvent
-import io.github.frostzie.datapackide.events.FileActionEvent
-import io.github.frostzie.datapackide.events.FileAction
-import io.github.frostzie.datapackide.events.FileTreeDragStartEvent
-import io.github.frostzie.datapackide.events.FileTreeDragEndEvent
+import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
+import io.github.frostzie.datapackide.eventsOLD.NodeSelectionRequestEvent
+import io.github.frostzie.datapackide.eventsOLD.FileActionEvent
+import io.github.frostzie.datapackide.eventsOLD.FileAction
+import io.github.frostzie.datapackide.eventsOLD.FileTreeDragStartEvent
+import io.github.frostzie.datapackide.eventsOLD.FileTreeDragEndEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.geometry.Insets
 import javafx.scene.input.ClipboardContent
@@ -147,7 +147,7 @@ class FileTreeNode(
     private fun handleMouseClick(event: MouseEvent) {
         if (event.button != MouseButton.PRIMARY) return
 
-        EventBus.post(NodeSelectionRequestEvent(this))
+        EventBusOLD.post(NodeSelectionRequestEvent(this))
 
         val currentTime = System.currentTimeMillis()
 
@@ -218,7 +218,7 @@ class FileTreeNode(
 
                 setTreeFocused(false)
 
-                EventBus.post(FileTreeDragStartEvent(this))
+                EventBusOLD.post(FileTreeDragStartEvent(this))
 
                 logger.debug("Drag started for: ${file.name}")
                 event.consume()
@@ -252,7 +252,7 @@ class FileTreeNode(
                 if (isValidTarget) {
                     val targetPath = file.toPath().resolve(sourceFile.name)
 
-                    EventBus.post(FileActionEvent(
+                    EventBusOLD.post(FileActionEvent(
                         action = FileAction.MOVE,
                         metadata = mapOf(
                             "sourcePath" to sourceFile.toPath(),
@@ -276,7 +276,7 @@ class FileTreeNode(
                 if (treeView.isFocused) setTreeFocused(true)
             }
 
-            EventBus.post(FileTreeDragEndEvent())
+            EventBusOLD.post(FileTreeDragEndEvent())
 
             event.consume()
         }

@@ -2,24 +2,25 @@ package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.MenuActionEvent
-import io.github.frostzie.datapackide.events.MenuCategory
-import io.github.frostzie.datapackide.events.MenuAction
+import io.github.frostzie.datapackide.eventsOLD.MenuActionEvent
+import io.github.frostzie.datapackide.eventsOLD.MenuCategory
+import io.github.frostzie.datapackide.eventsOLD.ShowSettingsRequest
+import io.github.frostzie.datapackide.eventsOLD.MenuAction
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
 
-class ToolControls : MenuBar() {
+class MenuControls : MenuBar() {
 
     companion object {
-        private val logger = LoggerProvider.getLogger("ToolControls")
+        private val logger = LoggerProvider.getLogger("MenuControls")
     }
 
     init {
         styleClass.add("main-menu-bar")
         createMenus()
-        logger.info("ToolControls initialized with event system")
+        logger.info("MenuControls initialized with event system")
     }
 
     private fun createMenus() {
@@ -128,8 +129,8 @@ class ToolControls : MenuBar() {
         return Menu("Help").apply {
             styleClass.add("menu-help")
             items.addAll(
-                createMenuItem("Preferences", "menu-item-preferences") {
-                    EventBus.post(MenuActionEvent(MenuCategory.HELP, MenuAction.PREFERENCES))
+                createMenuItem("Preferences...", "menu-item-preferences") {
+                    EventBus.post(ShowSettingsRequest())
                 },
                 SeparatorMenuItem(),
                 createMenuItem("About DataPack IDE", "menu-item-about") {

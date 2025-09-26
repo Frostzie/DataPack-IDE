@@ -1,4 +1,4 @@
-package io.github.frostzie.datapackide.events
+package io.github.frostzie.datapackide.eventsOLD
 
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeNode
 import java.nio.file.Path
