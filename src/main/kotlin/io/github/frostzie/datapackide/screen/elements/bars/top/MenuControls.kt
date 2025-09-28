@@ -1,10 +1,12 @@
 package io.github.frostzie.datapackide.screen.elements.bars.top
 
+import io.github.frostzie.datapackide.events.AboutMod
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.ReloadDatapack
+import io.github.frostzie.datapackide.events.SettingsWindowOpen
 import io.github.frostzie.datapackide.eventsOLD.MenuActionEvent
 import io.github.frostzie.datapackide.eventsOLD.MenuCategory
-import io.github.frostzie.datapackide.eventsOLD.ShowSettingsRequest
 import io.github.frostzie.datapackide.eventsOLD.MenuAction
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
@@ -113,7 +115,7 @@ class MenuControls : MenuBar() {
             styleClass.add("menu-datapack")
             items.addAll(
                 createMenuItem("Run Datapack", "menu-item-run", KeyCode.F5) {
-                    EventBus.post(MenuActionEvent(MenuCategory.DATAPACK, MenuAction.RELOAD_DATAPACKS))
+                    EventBus.post(ReloadDatapack())
                 },
                 createMenuItem("Validate Datapack", "menu-item-validate", KeyCode.F7) {
                     EventBus.post(MenuActionEvent(MenuCategory.DATAPACK, MenuAction.VALIDATE_DATAPACK))
@@ -130,11 +132,11 @@ class MenuControls : MenuBar() {
             styleClass.add("menu-help")
             items.addAll(
                 createMenuItem("Preferences...", "menu-item-preferences") {
-                    EventBus.post(ShowSettingsRequest())
+                    EventBus.post(SettingsWindowOpen())
                 },
                 SeparatorMenuItem(),
                 createMenuItem("About DataPack IDE", "menu-item-about") {
-                    EventBus.post(MenuActionEvent(MenuCategory.HELP, MenuAction.ABOUT))
+                    EventBus.post(AboutMod())
                 }
             )
         }

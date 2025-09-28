@@ -2,7 +2,6 @@ package io.github.frostzie.datapackide.screen.elements.bars
 
 import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.Label
 import javafx.scene.control.Separator
@@ -11,7 +10,7 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import net.fabricmc.loader.api.FabricLoader
 
-class StatusBar : HBox() {
+class BottomBarView : HBox() {
 
     companion object {
         private val LOGGER = LoggerProvider.getLogger("StatusBar")

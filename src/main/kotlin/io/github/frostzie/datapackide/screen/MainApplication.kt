@@ -7,8 +7,8 @@ import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
 import io.github.frostzie.datapackide.modules.popup.SettingsModule
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
-import io.github.frostzie.datapackide.screen.elements.bars.LeftSidebar
-import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
+import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
+import io.github.frostzie.datapackide.screen.elements.bars.BottomBarView
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
@@ -33,9 +33,9 @@ class MainApplication {
 
         // UI Components
         private var topBarView: TopBarView? = null
-        private var leftSidebar: LeftSidebar? = null
+        private var leftBarView: LeftBarView? = null
         private var fileTreeView: FileTreeView? = null
-        private var statusBar: StatusBar? = null
+        private var bottomBarView: BottomBarView? = null
         private var textEditor: TextEditor? = null
         private var contentArea: HBox? = null
 
@@ -77,12 +77,12 @@ class MainApplication {
             root.styleClass.add("window") // Add CSS class for drop shadow
 
             topBarView = TopBarView()
-            leftSidebar = LeftSidebar()
+            leftBarView = LeftBarView()
             textEditor = TextEditor()
             fileTreeView = FileTreeView()
-            statusBar = StatusBar()
+            bottomBarView = BottomBarView()
 
-            eventHandlerSystem = EventHandlerSystem(textEditor, fileTreeView, statusBar, stage)
+            eventHandlerSystem = EventHandlerSystem(textEditor, fileTreeView, bottomBarView, stage)
 
             topBarModule = TopBarModule(stage)
             topBarHandler = TopBarHandler(topBarModule!!)
@@ -101,13 +101,13 @@ class MainApplication {
             }
 
             val centerContent = HBox().apply {
-                children.addAll(leftSidebar, contentArea)
+                children.addAll(leftBarView, contentArea)
                 HBox.setHgrow(contentArea, Priority.ALWAYS)
             }
 
             root.top = topBarView
             root.center = centerContent
-            root.bottom = statusBar
+            root.bottom = bottomBarView
 
             setupStageDimensions(stage, root)
 
@@ -167,7 +167,7 @@ class MainApplication {
 
         private fun setupTextEditorBindings() {
             textEditor?.let { editor ->
-                statusBar?.let { status ->
+                bottomBarView?.let { status ->
                     editor.onCursorPositionChanged = { line, column ->
                         status.updateCursorPosition(line, column)
                     }
@@ -228,7 +228,7 @@ class MainApplication {
             JavaFXInitializer.runLater {
                 primaryStage?.takeIf { it.isShowing }?.let {
                     it.hide()
-                    logger.info("Main IDE Window hidden via hideMainWindow()!")
+                    logger.debug("Main IDE Window hidden via hideMainWindow()!")
                 }
             }
         }

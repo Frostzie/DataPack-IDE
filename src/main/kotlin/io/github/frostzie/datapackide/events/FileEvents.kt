@@ -1,5 +1,7 @@
 package io.github.frostzie.datapackide.events
 
+class ChooseDirectory
+
 class NewFile
 class DeleteFile
 class RenameFile

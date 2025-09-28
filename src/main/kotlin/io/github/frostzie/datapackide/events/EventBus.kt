@@ -41,7 +41,7 @@ object EventBus {
         }
 
         handlerMap[handler] = registered
-        logger.info("REgistered handler ${handler::class.simpleName} with ${methods.size} subs")
+        logger.info("Registered handler ${handler::class.simpleName} with ${methods.size} subscribers")
     }
 
     fun unregister(handler: Any) {

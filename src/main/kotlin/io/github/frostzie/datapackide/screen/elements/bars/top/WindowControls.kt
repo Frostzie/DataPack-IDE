@@ -19,7 +19,7 @@ class WindowControls : HBox() {
         private val logger = LoggerProvider.getLogger("WindowControls")
     }
 
-    private var isMaximized = false
+    var isMaximized = false
     private var maximizeButton: IconButton
     private var minimizeButton: IconButton
     private var closeButton: IconButton

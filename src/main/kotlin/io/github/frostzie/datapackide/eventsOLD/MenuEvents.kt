@@ -10,7 +10,7 @@ enum class MenuCategory {
     DATAPACK,
     HELP
 }
-
+@Deprecated("Replacing with newer system")
 enum class MenuAction {
     // File Menu
     NEW_FILE,
@@ -34,13 +34,8 @@ enum class MenuAction {
     VALIDATE_DATAPACK,
     PACKAGE_DATAPACK,
     RELOAD_DATAPACKS,
-
-    // Help Menu
-    PREFERENCES,
-    ABOUT,
-    //TODO: DOCUMENTATION
 }
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when a menu item is selected
  */
@@ -49,7 +44,7 @@ data class MenuActionEvent(
     val action: MenuAction,
     val metadata: Map<String, Any> = emptyMap()
 )
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when menu visibility changes
  */
@@ -57,12 +52,3 @@ data class MenuVisibilityEvent(
     val category: MenuCategory? = null, // null = all menus
     val visible: Boolean
 )
-
-// TEMP
-class ShowSettingsRequest
-
-// TEMP
-class ToggleMenuBarRequest
-
-// TEMP
-data class MenuBarVisibilityChanged(val isVisible: Boolean)

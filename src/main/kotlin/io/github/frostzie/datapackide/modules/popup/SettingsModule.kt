@@ -1,11 +1,10 @@
 package io.github.frostzie.datapackide.modules.popup
 
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.SettingsWindowOpen
 import io.github.frostzie.datapackide.eventsOLD.PopulateSettingsContentEvent
 import io.github.frostzie.datapackide.eventsOLD.SelectTreeItemEvent
 import io.github.frostzie.datapackide.eventsOLD.ShowSearchResultsEvent
-import io.github.frostzie.datapackide.eventsOLD.UIAction
-import io.github.frostzie.datapackide.eventsOLD.UIActionEvent
 import io.github.frostzie.datapackide.handlers.popup.SettingsHandler
 import io.github.frostzie.datapackide.screen.elements.popup.SettingsView
 import io.github.frostzie.datapackide.settings.SettingsManager
@@ -32,17 +31,15 @@ class SettingsModule(private val parentStage: Stage) {
 
     init {
         EventBus.register(this)
-        logger.info("SettingsModule initialized and listening for UIActionEvent.SHOW_SETTINGS")
+        logger.info("SettingsModule initialized and listening for SettingsWindowOpen")
     }
 
-    @SubscribeEvent //TODO: Change
-    fun onShowSettingsRequest(event: UIActionEvent) {
-        if (event.action == UIAction.SHOW_SETTINGS) {
-            showSettingsWindow()
-        }
+    @SubscribeEvent
+    fun onShowSettingsWindow(event: SettingsWindowOpen) {
+        showSettingsWindow()
     }
 
-    private fun showSettingsWindow() {
+    fun showSettingsWindow() {
         if (!::view.isInitialized) {
             view = SettingsView(this)
             handler = SettingsHandler(this)
@@ -75,7 +72,6 @@ class SettingsModule(private val parentStage: Stage) {
 
     fun closeSettings() {
         stage?.close()
-        logger.info("Settings window closed.")
     }
 
     fun handleCategorySelection(item: SettingsView.CategoryItem) {

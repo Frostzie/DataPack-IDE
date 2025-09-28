@@ -1,8 +1,10 @@
 package io.github.frostzie.datapackide.eventsOLD.handlersOLD
 
 import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand
+import io.github.frostzie.datapackide.events.AboutMod
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowClose
+import io.github.frostzie.datapackide.events.SettingsWindowOpen
 import io.github.frostzie.datapackide.eventsOLD.*
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
@@ -29,8 +31,8 @@ class MenuActionHandler(textEditor: TextEditor?) {
         when (event.category) {
             MenuCategory.FILE -> handleFileMenuAction(event.action)
             MenuCategory.DATAPACK -> handleDatapackMenuAction(event.action)
-            MenuCategory.HELP -> handleHelpMenuAction(event.action)
-            MenuCategory.EDIT -> TODO()
+            MenuCategory.HELP -> TODO("Removal")
+            MenuCategory.EDIT -> TODO("Removal")
         }
     }
 
@@ -57,14 +59,6 @@ class MenuActionHandler(textEditor: TextEditor?) {
             MenuAction.VALIDATE_DATAPACK -> logger.info("Validate datapack requested") // TODO: Implement
             MenuAction.PACKAGE_DATAPACK -> logger.info("Package datapack requested") // TODO: Implement
             else -> logger.warn("Unhandled datapack menu action: $action")
-        }
-    }
-
-    private fun handleHelpMenuAction(action: MenuAction) {
-        when (action) {
-            MenuAction.PREFERENCES -> EventBus.post(UIActionEvent(UIAction.SHOW_SETTINGS))
-            MenuAction.ABOUT -> EventBus.post(UIActionEvent(UIAction.SHOW_ABOUT))
-            else -> logger.warn("Unhandled help menu action: $action")
         }
     }
 }

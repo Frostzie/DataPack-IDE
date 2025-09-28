@@ -5,35 +5,11 @@ package io.github.frostzie.datapackide.eventsOLD
  */
 @Deprecated("Replacing with newer system")
 enum class UIAction {
-    // Window Controls
-    TOGGLE_WINDOW,
 
-    // Sidebar Actions
-    //TODO: TOGGLE_FILE_TREE,
-    TOGGLE_SEARCH,
-    OPEN_DIRECTORY_CHOOSER,
-
-    // Status Bar Updates
-    //TODO: UPDATE_CURSOR_POSITION,
-    //TODO: UPDATE_FILE_STATUS,
-    //TODO: UPDATE_LINE_COUNT,
-
-    // Theme and Appearance
-    //TODO: TOGGLE_CUSTOM_THEMES,
-    //TODO: SET_CUSTOM_THEME,
     RELOAD_STYLES,
     RESET_STYLES_TO_DEFAULT,
-
-    // Settings
-    SAVE_SETTINGS,
-
-    // App & Popup State
-    SHOW_SETTINGS,
-    SHOW_ABOUT,
-    //TODO: APP_WARN,
-    //TODO: APP_CONFIRM
 }
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when a UI action is requested
  */
@@ -42,15 +18,7 @@ data class UIActionEvent(
     val data: Map<String, Any> = emptyMap()
 )
 
-/**
- * Event fired when window state changes
- */
-data class WindowStateEvent(
-    val isVisible: Boolean,
-    val isMaximized: Boolean = false,
-    val isMinimized: Boolean = false
-)
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when cursor position updates (existing functionality)
  */
@@ -59,7 +27,7 @@ data class EditorCursorChangedEvent(
     val column: Int,
     val filePath: String?
 )
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when editor content changes (existing functionality)
  */
@@ -67,7 +35,7 @@ data class EditorContentChangedEvent(
     val content: String,
     val filePath: String?
 )
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when editor focus changes (existing functionality)
  */
@@ -75,7 +43,7 @@ data class EditorFocusEvent(
     val hasFocus: Boolean,
     val filePath: String?
 )
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when status information should be updated
  */
@@ -84,8 +52,8 @@ data class StatusUpdateEvent(
     val message: String,
     val data: Map<String, Any> = emptyMap()
 )
-
+@Deprecated("Replacing with newer system")
 enum class StatusType {
-    CURSOR_POSITION,
-    FILE_INFO
+    CURSOR_POSITION
+
 }
