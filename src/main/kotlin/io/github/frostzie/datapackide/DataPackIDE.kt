@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil
+import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 
 class DataPackIDE : ModInitializer {
@@ -45,7 +46,7 @@ class DataPackIDE : ModInitializer {
                 } else {
                     logger.error("Cannot open IDE window - JavaFX is not available")
                     client.player?.sendMessage(
-                        net.minecraft.text.Text.literal("§cDataPack IDE: JavaFX not available - cannot open GUI"),
+                        Text.literal("§cDataPack IDE: JavaFX not available - cannot open GUI"),
                         false
                     )
                 }

@@ -1,11 +1,15 @@
 package io.github.frostzie.datapackide.screen.elements.main
 
+import com.google.common.eventbus.Subscribe
 import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
-import io.github.frostzie.datapackide.eventsOLD.DirectorySelectedEvent
 import io.github.frostzie.datapackide.eventsOLD.NodeSelectionRequestEvent
 import io.github.frostzie.datapackide.eventsOLD.FileTreeDragStartEvent
 import io.github.frostzie.datapackide.eventsOLD.FileTreeDragEndEvent
 import io.github.frostzie.datapackide.eventsOLD.FileOpenEvent
+import io.github.frostzie.datapackide.events.DirectorySelected
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.eventsOLD.DirectorySelectedEvent
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.ComponentResizer
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.UIConstants
@@ -92,9 +96,8 @@ class FileTreeView : VBox() {
     }
 
     private fun setupEventListeners() {
-        EventBusOLD.register<DirectorySelectedEvent> { event ->
-            loadDirectory(event.directoryPath, preserveState = false)
-        }
+        EventBus.register(this)
+
         EventBusOLD.register<NodeSelectionRequestEvent> { event ->
             handleNodeSelection(event.node)
         }
@@ -104,6 +107,11 @@ class FileTreeView : VBox() {
         EventBusOLD.register<FileTreeDragEndEvent> {
             clearAllNodesDragStatus()
         }
+    }
+
+    @SubscribeEvent
+    fun onDirectorySelected(event: DirectorySelected) {
+        loadDirectory(event.directoryPath, preserveState = false)
     }
 
     private fun showPlaceholder() {

@@ -7,8 +7,14 @@
 	"authors": [
 		"Frostzie"
 	],
+	"contributors": [
+		"Arttale",
+		"Huckle"
+	],
 	"contact": {
-		"sources": "https://github.com/Frostzie/DataPack-IDE"
+		"homepage": "https://github.com/Frostzie/Datapack-IDE",
+		"sources": "https://github.com/Frostzie/Datapack-IDE",
+		"issues": "https://github.com/Frostzie/Datapack-IDE/issues"
 	},
 	"license": "LGPL-2.1",
 	"icon": "assets/datapack-ide/icon.png",
@@ -26,7 +32,7 @@
 	],
 	"depends": {
 		"fabricloader": "*",
-		"minecraft": ">=1.21.6 <=1.21.8",
+		"minecraft": "*",
 		"java": ">=21",
 		"fabric-api": "*",
 		"fabric-language-kotlin": "*"
@@ -34,7 +40,7 @@
 	"custom": {
 		"modmenu": {
 			"links": {
-				"modmenu.discord": ""
+				"modmenu.discord": "https://discord.gg/qZ885qTvkx"
 			}
 		}
 	}

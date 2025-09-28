@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.eventsOLD
 
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeNode
+import io.github.frostzie.datapackide.utils.LoggerProvider
 import java.nio.file.Path
 
 @Deprecated("Replacing with newer system")
