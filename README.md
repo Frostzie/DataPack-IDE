@@ -27,8 +27,8 @@ Datapack-IDE is a minecraft mod that allows in game data pack editing with a bui
 |![preview_1](https://github.com/user-attachments/assets/34fb01f6-20d0-4813-8b87-81d70ad0a3dd)|![preview_2](https://github.com/user-attachments/assets/421dee13-82b1-4578-953c-1219a8e3b215)|
 
 The goal of this mod aside from basic coding functionality expected from vscode is:
-* 1: to provide tools ingame for debugging or fast implementation to speed up datapack development
-* 2: to provide a collaborative datapack programming environment.
+* 1: to provide ingame tools for debugging or fast implementation to speed up datapack development
+* 2: to provide a collaborative datapack programming environment (multiplayer support).
 
 ## ✅ What's implemented?
 
@@ -71,13 +71,18 @@ Warning that this version isn't a stable build as it is a dev build, if the curr
 If you are only interested in running a build for your own use, try older artifacts if the lastest isn't working.
 </details>
 <hr>
-## 👥 Contributers
 
-|Profile|Name|Role/Involvement|what I'm here for|
-|-|-|-|-|
-|<img src="https://github.com/Frostzie.png" width="60px;"/> | [Frostzie](https://github.com/Frostzie)| Lead developer                             | Second big project, first being skyfall - a skyblock utility mod. The heavy lifter here|
-|<img src="https://github.com/Arttale.png" width="60px;"/>  | [Arttale](https://github.com/Arttale)  | Designer, Assistant developer, Datapack dev| Mostly here for consulting and project direction, help shaped the look and direction of the mod and this readme, also good looking|
-|<img src="https://github.com/CrazyH2.png" width="60px;"/>  | [Huckle](https://github.com/CrazyH2)   | Web developer, Datapack dev                | Great help with CSS and HTML side of things|
+## ❓FAQ
+
+#### Will it support forge/paper?
+We do have future plans for forge after the offical release. However paper optimisation impacts the underlying way the game work (mob ai, chunk handling etc) to datapack features that straight up won't work,<br> safe to say we won't be supporting paper compatibility any time soon.
+
+#### When will it be released?
+The beta release isn't expected any time soon, there isn't any exact set date, we do have plans to move into alpha by December.<br> If you are looking for updates check up on our discord we have regular updates on our progress posted up on there.
+
+#### What versions of minecraft will you be supporting?
+so far the mod is working from versions 1.6 to 1.8, 1.9, 1.21.6 to 1.21.8 to 1.21.9 release candidate 1.<br>
+We haven't determine the range for long term support (LTS) currently, This will be explored more by the time we get to beta.
 
 ## 🖐️ Want to support the project?
 Here's a donation link:<br>
@@ -86,7 +91,6 @@ Here's a donation link:<br>
 All proceeds goes to frostzie
 
 ## ☝️ Want to give feedback or request features?
-<hr>
 Any input is appreciated here
 <h4 align="left">
   <a href="https://github.com/Frostzie/DataPack-IDE/issues/new?title=Feedback%3A+&labels=feedback%2C&assignees=Frostzie%2C">🗒️ Open Feedback Issue</a>
@@ -94,4 +98,3 @@ Any input is appreciated here
 <br>
   <a href="https://github.com/Frostzie/DataPack-IDE/issues/new?title=Feature%20Request%3A+&labels=featurerequest%2C&assignees=Frostzie%2C">💡 Open Feature Issue</a>
 </h4>
-<hr>
