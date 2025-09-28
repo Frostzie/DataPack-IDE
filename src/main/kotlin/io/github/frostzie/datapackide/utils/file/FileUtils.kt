@@ -1,11 +1,25 @@
-package io.github.frostzie.datapackide.utils
+package io.github.frostzie.datapackide.utils.file
 
+import io.github.frostzie.datapackide.utils.LoggerProvider
 import net.fabricmc.loader.api.FabricLoader
 import java.io.IOException
-import java.nio.file.*
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import kotlin.io.path.*
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteExisting
+import kotlin.io.path.exists
+import kotlin.io.path.extension
+import kotlin.io.path.fileSize
+import kotlin.io.path.isRegularFile
+import kotlin.io.path.name
+import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 /**
  * Utility class for managing datapack files within the datapack directory. //TODO: change to the actual datapack directory config is only for temp
@@ -200,7 +214,7 @@ object FileUtils {
                         type = detectFileType(path),
                         lastModified = LocalDateTime.ofEpochSecond(
                             Files.getLastModifiedTime(path).toInstant().epochSecond, 0,
-                            java.time.ZoneOffset.UTC
+                            ZoneOffset.UTC
                         ),
                         size = path.fileSize()
                     )

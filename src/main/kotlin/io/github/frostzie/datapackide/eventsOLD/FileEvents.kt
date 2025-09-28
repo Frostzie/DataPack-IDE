@@ -18,7 +18,7 @@ enum class FileAction {
     RELOAD_FILE,
     MOVE
 }
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when a file action is requested
  */
@@ -28,17 +28,17 @@ data class FileActionEvent(
     val content: String? = null,
     val metadata: Map<String, Any> = emptyMap()
 )
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when a file should be opened (existing functionality)
  */
 data class FileOpenEvent(val filePath: Path)
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when a directory is selected for file tree (existing functionality)
  */
 data class DirectorySelectedEvent(val directoryPath: Path)
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when a file is saved (existing functionality)
  */
@@ -46,7 +46,7 @@ data class FileSavedEvent(
     val filePath: Path,
     val content: String
 )
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when file operations complete
  */
@@ -57,17 +57,17 @@ data class FileOperationCompleteEvent(
     val message: String? = null,
     val error: Throwable? = null
 )
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when a node in the FileTreeView requests to be selected
  */
 data class NodeSelectionRequestEvent(val node: FileTreeNode)
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when a drag operation starts in the file tree.
  */
 data class FileTreeDragStartEvent(val sourceNode: FileTreeNode)
-
+@Deprecated("Replacing with newer system")
 /**
  * Event fired when a drag operation ends in the file tree.
  */

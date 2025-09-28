@@ -4,7 +4,7 @@ import io.github.frostzie.datapackide.eventsOLD.*
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
 import io.github.frostzie.datapackide.screen.elements.popup.NewFileWindow
-import io.github.frostzie.datapackide.utils.FileUtils
+import io.github.frostzie.datapackide.utils.file.FileUtils
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.stage.Stage
 import java.nio.file.Files

@@ -2,7 +2,10 @@ package io.github.frostzie.datapackide.screen
 
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.eventsOLD.EventHandlerSystem
+import io.github.frostzie.datapackide.handlers.bars.LeftBarHandler
 import io.github.frostzie.datapackide.handlers.bars.top.TopBarHandler
+import io.github.frostzie.datapackide.handlers.popup.SettingsHandler
+import io.github.frostzie.datapackide.modules.bars.LeftBarModule
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
 import io.github.frostzie.datapackide.modules.popup.SettingsModule
 import io.github.frostzie.datapackide.screen.elements.main.TextEditor
@@ -15,6 +18,7 @@ import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.ResizeHandler
+import io.github.frostzie.datapackide.utils.file.DirectoryChooseUtils
 import javafx.application.Platform
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
@@ -45,6 +49,10 @@ class MainApplication {
         // New Modules and Handlers
         private var topBarModule: TopBarModule? = null
         private var topBarHandler: TopBarHandler? = null
+
+        private var leftBarModule: LeftBarModule? = null
+        private var leftBarHandler: LeftBarHandler? = null
+
         private var settingsModule: SettingsModule? = null
 
         fun initializeJavaFX() {
@@ -86,6 +94,10 @@ class MainApplication {
 
             topBarModule = TopBarModule(stage)
             topBarHandler = TopBarHandler(topBarModule!!)
+
+            leftBarModule = LeftBarModule(stage)
+            leftBarHandler = LeftBarHandler(leftBarModule!!)
+
             settingsModule = SettingsModule(stage)
 
             setupEventHandlers()
@@ -123,7 +135,6 @@ class MainApplication {
             val borderWidth = UIConstants.WINDOW_BORDER_WIDTH
             val topBarHeight = UIConstants.TOP_BAR_HEIGHT
             val statusBarHeight = UIConstants.STATUS_BAR_HEIGHT
-            val leftSidebarWidth = UIConstants.LEFT_SIDEBAR_WIDTH
             
             root.minWidth = minContentWidth + borderWidth
             root.maxWidth = maxContentWidth + borderWidth
@@ -159,6 +170,9 @@ class MainApplication {
                 EventBus.register(it)
                 EventBus.register(it.windowControls)
             }
+
+            EventBus.register(leftBarHandler!!)
+            leftBarView?.let { EventBus.register(it) }
 
             // Old event system for remaining components
             eventHandlerSystem?.initialize()

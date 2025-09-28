@@ -1,6 +1,6 @@
 package io.github.frostzie.datapackide.screen.elements.popup
 
-import io.github.frostzie.datapackide.utils.FileUtils
+import io.github.frostzie.datapackide.utils.file.FileUtils
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.CSSManager
 import javafx.geometry.Pos

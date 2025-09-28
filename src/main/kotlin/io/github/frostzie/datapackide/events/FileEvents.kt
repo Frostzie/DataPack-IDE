@@ -1,6 +1,9 @@
 package io.github.frostzie.datapackide.events
 
+import java.nio.file.Path
+
 class ChooseDirectory
+data class DirectorySelected(val directoryPath: Path)
 
 class NewFile
 class DeleteFile
