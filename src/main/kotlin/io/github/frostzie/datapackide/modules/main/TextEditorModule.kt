@@ -1,42 +1,48 @@
 package io.github.frostzie.datapackide.modules.main
 
-import io.github.frostzie.datapackide.screen.elements.main.TextEditor
-import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
 
-//TODO: Eventually...
-class TextEditorModule(private val textEditor: TextEditor?) {
-
-    companion object {
-        private val logger = LoggerProvider.getLogger("TextEditorModule")
-    }
+class TextEditorModule(private val textEditorView: TextEditorView) {
 
     fun undo() {
-        textEditor?.undo()
-        logger.debug("Undo action performed")
+        textEditorView.requestFocus()
+        textEditorView.run {
+            webView.engine.executeScript("window.editorUndo && window.editorUndo();")
+        }
     }
 
     fun redo() {
-        textEditor?.redo()
-        logger.debug("Redo action performed")
+        textEditorView.requestFocus()
+        textEditorView.run {
+            webView.engine.executeScript("window.editorRedo && window.editorRedo();")
+        }
     }
 
     fun cut() {
-        textEditor?.cut()
-        logger.debug("Cut action performed")
+        textEditorView.requestFocus()
+        textEditorView.run {
+            webView.engine.executeScript("window.editorCut && window.editorCut();")
+        }
     }
 
     fun copy() {
-        textEditor?.copy()
-        logger.debug("Copy action performed")
+        textEditorView.requestFocus()
+        textEditorView.run {
+            webView.engine.executeScript("window.editorCopy && window.editorCopy();")
+        }
     }
 
     fun paste() {
-        textEditor?.paste()
-        logger.debug("Paste action performed")
+        textEditorView.requestFocus()
+        textEditorView.run {
+            webView.engine.executeScript("window.editorPaste && window.editorPaste();")
+        }
     }
 
     fun selectAll() {
-        textEditor?.selectAll()
-        logger.debug("Select All action performed")
+        textEditorView.requestFocus()
+        textEditorView.run {
+            webView.engine.executeScript("window.editorSelectAll && window.editorSelectAll();")
+        }
     }
 }

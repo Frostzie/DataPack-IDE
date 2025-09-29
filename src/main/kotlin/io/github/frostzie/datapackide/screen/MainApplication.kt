@@ -4,11 +4,12 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.eventsOLD.EventHandlerSystem
 import io.github.frostzie.datapackide.handlers.bars.LeftBarHandler
 import io.github.frostzie.datapackide.handlers.bars.top.TopBarHandler
-import io.github.frostzie.datapackide.handlers.popup.SettingsHandler
+import io.github.frostzie.datapackide.handlers.main.TextEditorHandler
 import io.github.frostzie.datapackide.modules.bars.LeftBarModule
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
+import io.github.frostzie.datapackide.modules.main.TextEditorModule
 import io.github.frostzie.datapackide.modules.popup.SettingsModule
-import io.github.frostzie.datapackide.screen.elements.main.TextEditor
+import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
 import io.github.frostzie.datapackide.screen.elements.bars.BottomBarView
@@ -18,7 +19,6 @@ import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.ResizeHandler
-import io.github.frostzie.datapackide.utils.file.DirectoryChooseUtils
 import javafx.application.Platform
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
@@ -40,7 +40,7 @@ class MainApplication {
         private var leftBarView: LeftBarView? = null
         private var fileTreeView: FileTreeView? = null
         private var bottomBarView: BottomBarView? = null
-        private var textEditor: TextEditor? = null
+        private var textEditorView: TextEditorView? = null
         private var contentArea: HBox? = null
 
         // Action handler
@@ -49,6 +49,9 @@ class MainApplication {
         // New Modules and Handlers
         private var topBarModule: TopBarModule? = null
         private var topBarHandler: TopBarHandler? = null
+
+        private var textEditorModule: TextEditorModule? = null
+        private var textEditorHandler: TextEditorHandler? = null
 
         private var leftBarModule: LeftBarModule? = null
         private var leftBarHandler: LeftBarHandler? = null
@@ -86,14 +89,18 @@ class MainApplication {
 
             topBarView = TopBarView()
             leftBarView = LeftBarView()
-            textEditor = TextEditor()
+            textEditorView = TextEditorView()
             fileTreeView = FileTreeView()
             bottomBarView = BottomBarView()
 
-            eventHandlerSystem = EventHandlerSystem(textEditor, fileTreeView, bottomBarView, stage)
+            eventHandlerSystem = EventHandlerSystem(fileTreeView, bottomBarView, stage)
 
             topBarModule = TopBarModule(stage)
             topBarHandler = TopBarHandler(topBarModule!!)
+
+            textEditorModule = TextEditorModule(textEditorView!!) //TODO: Change to actual module when moving View -> Module
+            textEditorHandler = TextEditorHandler(textEditorModule!!)
+
 
             leftBarModule = LeftBarModule(stage)
             leftBarHandler = LeftBarHandler(leftBarModule!!)
@@ -104,8 +111,8 @@ class MainApplication {
             setupTextEditorBindings()
 
             contentArea = HBox().apply {
-                children.addAll(fileTreeView, textEditor)
-                HBox.setHgrow(textEditor, Priority.ALWAYS)
+                children.addAll(fileTreeView, textEditorView)
+                HBox.setHgrow(textEditorView, Priority.ALWAYS)
                 HBox.setHgrow(fileTreeView, Priority.NEVER) // Prevent HBox from resizing FileTree
                 spacing = 0.0
                 prefHeight = Region.USE_COMPUTED_SIZE
@@ -171,6 +178,9 @@ class MainApplication {
                 EventBus.register(it.windowControls)
             }
 
+            EventBus.register(textEditorHandler!!)
+            textEditorView?.let { EventBus.register(it) }
+
             EventBus.register(leftBarHandler!!)
             leftBarView?.let { EventBus.register(it) }
 
@@ -180,7 +190,7 @@ class MainApplication {
         }
 
         private fun setupTextEditorBindings() {
-            textEditor?.let { editor ->
+            textEditorView?.let { editor ->
                 bottomBarView?.let { status ->
                     editor.onCursorPositionChanged = { line, column ->
                         status.updateCursorPosition(line, column)
@@ -201,7 +211,7 @@ class MainApplication {
                 }
                 primaryStage?.show()
                 primaryStage?.toFront()
-                textEditor?.requestFocus()
+                textEditorView?.requestFocus()
                 logger.info("Main IDE Window shown!")
             }
         }
@@ -265,7 +275,7 @@ class MainApplication {
                     } else {
                         stage.show()
                         stage.toFront()
-                        textEditor?.requestFocus()
+                        textEditorView?.requestFocus()
                         logger.info("Main IDE Window shown!")
                     }
                 }

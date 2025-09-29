@@ -19,7 +19,7 @@ import kotlin.io.path.readText
 /**
  * WebView-based text editor that renders the website from config folder
  */
-class TextEditor : VBox() {
+class TextEditorView : VBox() {
 
     companion object {
         private val logger = LoggerProvider.getLogger("TextEditor")
@@ -29,7 +29,7 @@ class TextEditor : VBox() {
     val modifiedProperty = SimpleStringProperty("")
     val lineCountProperty = SimpleStringProperty("Lines: 1")
 
-    private lateinit var webView: WebView
+    lateinit var webView: WebView
     private var currentFilePath: String? = null
     private var isModified: Boolean = false
 
@@ -133,7 +133,7 @@ class TextEditor : VBox() {
 
     var onCursorPositionChanged: ((line: Int, column: Int) -> Unit)? = null
 
-    inner class EditorBridge(private val editor: TextEditor) {
+    inner class EditorBridge(private val editor: TextEditorView) {
         fun editorReady() {
             logger.info("CodeMirror editor is ready.")
             Platform.runLater {
@@ -207,6 +207,7 @@ class TextEditor : VBox() {
         }
     }
 
+    /*
     fun cut() {
         webView.engine.executeScript("window.editorCut && window.editorCut();")
     }
@@ -230,6 +231,7 @@ class TextEditor : VBox() {
     fun selectAll() {
         webView.engine.executeScript("window.editorSelectAll && window.editorSelectAll();")
     }
+    */
 
     fun find(searchText: String): Boolean {
         return try {

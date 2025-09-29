@@ -2,7 +2,7 @@ package io.github.frostzie.datapackide.eventsOLD.handlersOLD
 
 import io.github.frostzie.datapackide.eventsOLD.*
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
-import io.github.frostzie.datapackide.screen.elements.main.TextEditor
+import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
 import io.github.frostzie.datapackide.screen.elements.popup.NewFileWindow
 import io.github.frostzie.datapackide.utils.file.FileUtils
 import io.github.frostzie.datapackide.utils.LoggerProvider
@@ -17,7 +17,7 @@ import kotlin.io.path.exists
  * Handles file-related actions such as creating, opening, saving, and deleting files.
  */
 class FileActionHandler(
-    private val textEditor: TextEditor?,
+    private val textEditorView: TextEditorView?,
     private val fileTreeView: FileTreeView?,
     private val parentStage: Stage?
 ) {
@@ -58,7 +58,7 @@ class FileActionHandler(
     private fun openFile(filePath: Path) {
         try {
             val content = filePath.toFile().readText()
-            textEditor?.setText(content, filePath.toString())
+            textEditorView?.setText(content, filePath.toString())
             logger.info("File opened successfully: ${filePath.fileName}")
         } catch (e: Exception) {
             logger.error("Failed to open file: $filePath", e)
@@ -77,7 +77,7 @@ class FileActionHandler(
             if (fileInfo != null) {
                 val content = FileUtils.loadFile(fileInfo.path)
                 if (content != null) {
-                    textEditor?.setText(content, fileInfo.path.toString())
+                    textEditorView?.setText(content, fileInfo.path.toString())
                     EventBusOLD.post(FileOperationCompleteEvent(
                         FileAction.NEW_FILE, true, fileInfo.path, "File created successfully"
                     ))
@@ -97,13 +97,13 @@ class FileActionHandler(
     }
 
     private fun saveCurrentFile() {
-        val content = textEditor?.getText() ?: ""
-        val currentPath = textEditor?.getCurrentFilePath()
+        val content = textEditorView?.getText() ?: ""
+        val currentPath = textEditorView?.getCurrentFilePath()
 
         if (currentPath != null && currentPath != "Untitled") {
             val filePath = Paths.get(currentPath)
             if (FileUtils.saveFile(filePath, content)) {
-                textEditor.markAsSaved()
+                textEditorView.markAsSaved()
                 EventBusOLD.post(FileSavedEvent(filePath, content))
             }
         } else {
@@ -112,21 +112,21 @@ class FileActionHandler(
     }
 
     private fun saveAsFile() {
-        val content = textEditor?.getText() ?: ""
+        val content = textEditorView?.getText() ?: ""
         val fileInfo = FileUtils.saveAsNewFile(content, FileUtils.FileType.JSON, "datapack_file")
 
         fileInfo?.let {
-            textEditor?.setText(content, it.path.toString())
+            textEditorView?.setText(content, it.path.toString())
             EventBusOLD.post(FileSavedEvent(it.path, content))
         }
     }
 
     private fun closeCurrentFile() {
-        if (textEditor?.isModified() == true) {
+        if (textEditorView?.isModified() == true) {
             // TODO: Show confirmation dialog
             logger.info("File has unsaved changes")
         }
-        textEditor?.newFile()
+        textEditorView?.newFile()
     }
 
     private fun deleteFile(filePath: Path) {

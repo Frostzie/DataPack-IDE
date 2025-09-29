@@ -7,8 +7,6 @@ package io.github.frostzie.datapackide.eventsOLD
 enum class MenuCategory {
     FILE,
     EDIT,
-    DATAPACK,
-    HELP
 }
 @Deprecated("Replacing with newer system")
 enum class MenuAction {
@@ -19,21 +17,6 @@ enum class MenuAction {
     SAVE_AS_FILE,
     CLOSE_FILE,
     EXIT,
-
-    // Edit Menu
-    UNDO,
-    REDO,
-    CUT,
-    COPY,
-    PASTE,
-    FIND,
-    REPLACE,
-    SELECT_ALL,
-
-    // Datapack Menu
-    VALIDATE_DATAPACK,
-    PACKAGE_DATAPACK,
-    RELOAD_DATAPACKS,
 }
 @Deprecated("Replacing with newer system")
 /**

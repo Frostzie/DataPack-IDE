@@ -1,8 +1,15 @@
 package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import io.github.frostzie.datapackide.events.AboutMod
+import io.github.frostzie.datapackide.events.EditorCopy
+import io.github.frostzie.datapackide.events.EditorCut
+import io.github.frostzie.datapackide.events.EditorPaste
+import io.github.frostzie.datapackide.events.EditorRedo
+import io.github.frostzie.datapackide.events.EditorUndo
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.ExportDatapack
+import io.github.frostzie.datapackide.events.NewFile
 import io.github.frostzie.datapackide.events.ReloadDatapack
 import io.github.frostzie.datapackide.events.SettingsWindowOpen
 import io.github.frostzie.datapackide.eventsOLD.MenuActionEvent
@@ -55,7 +62,7 @@ class MenuControls : MenuBar() {
             styleClass.add("menu-file")
             items.addAll(
                 createMenuItem("New File", "menu-item-new", KeyCode.N, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.NEW_FILE))
+                    EventBus.post(NewFile())
                 },
                 createMenuItem("Open File...", "menu-item-open", KeyCode.O, KeyCombination.CONTROL_DOWN) {
                     EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.OPEN_FILE))
@@ -70,10 +77,6 @@ class MenuControls : MenuBar() {
                 SeparatorMenuItem(),
                 createMenuItem("Close File", "menu-item-close", KeyCode.W, KeyCombination.CONTROL_DOWN) {
                     EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.CLOSE_FILE))
-                },
-                SeparatorMenuItem(),
-                createMenuItem("Exit", "menu-item-exit", KeyCode.Q, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.EXIT))
                 }
             )
         }
@@ -84,28 +87,22 @@ class MenuControls : MenuBar() {
             styleClass.add("menu-edit")
             items.addAll(
                 createMenuItem("Undo", "menu-item-undo", KeyCode.Z, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.UNDO))
+                    EventBus.post(EditorUndo())
                 },
                 createMenuItem("Redo", "menu-item-redo", KeyCode.Y, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.REDO))
+                    EventBus.post(EditorRedo())
                 },
                 SeparatorMenuItem(),
                 createMenuItem("Cut", "menu-item-cut", KeyCode.X, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.CUT))
+                    EventBus.post(EditorCut())
                 },
                 createMenuItem("Copy", "menu-item-copy", KeyCode.C, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.COPY))
+                    EventBus.post(EditorCopy())
                 },
                 createMenuItem("Paste", "menu-item-paste", KeyCode.V, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.PASTE))
-                },
-                SeparatorMenuItem(),
-                createMenuItem("Find", "menu-item-find", KeyCode.F, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.FIND))
-                },
-                createMenuItem("Replace", "menu-item-replace", KeyCode.R, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.EDIT, MenuAction.REPLACE))
+                    EventBus.post(EditorPaste())
                 }
+                //TODO: Find + Replace functionality
             )
         }
     }
@@ -114,14 +111,11 @@ class MenuControls : MenuBar() {
         return Menu("Datapack").apply {
             styleClass.add("menu-datapack")
             items.addAll(
-                createMenuItem("Run Datapack", "menu-item-run", KeyCode.F5) {
+                createMenuItem("Run Datapack", "menu-item-run") {
                     EventBus.post(ReloadDatapack())
                 },
-                createMenuItem("Validate Datapack", "menu-item-validate", KeyCode.F7) {
-                    EventBus.post(MenuActionEvent(MenuCategory.DATAPACK, MenuAction.VALIDATE_DATAPACK))
-                },
-                createMenuItem("Package Datapack", "menu-item-package", KeyCode.F9) {
-                    EventBus.post(MenuActionEvent(MenuCategory.DATAPACK, MenuAction.PACKAGE_DATAPACK))
+                createMenuItem("Package Datapack", "menu-item-package") {
+                    EventBus.post(ExportDatapack())
                 }
             )
         }
