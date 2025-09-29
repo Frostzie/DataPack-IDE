@@ -4,7 +4,7 @@
 }
 
 /* Container VBox */
-.left-sidebar {
+.left-bar {
     -fx-background-color: #181818;
     -title-text: #dddddd;
 
@@ -14,7 +14,7 @@
 }
 
 /* Button chrome */
-.sidebar-button {
+.left-bar-button {
     -fx-background-color: transparent;
     -fx-background-radius: 0;
     -fx-border-width: 0;
@@ -24,7 +24,7 @@
     -fx-pref-width: 40;
 }
 
-.sidebar-button:hover {
+.left-bar-button:hover {
     -fx-background-color: #444444;
 }
 

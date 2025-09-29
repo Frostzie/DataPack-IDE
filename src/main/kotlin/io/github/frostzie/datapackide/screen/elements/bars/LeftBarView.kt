@@ -7,7 +7,6 @@ import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.VBox
 
-//TODO: Change sidebar to leftbar in css
 class LeftBarView : VBox() {
 
     companion object {
@@ -26,13 +25,13 @@ class LeftBarView : VBox() {
     }
 
     private fun setupLeftBar() {
-        styleClass.add("left-sidebar")
+        styleClass.add("left-bar")
         logger.debug("Left bar initialized")
     }
 
     private fun directoryChooseButton(): IconButton {
         return IconButton {
-            styleClass.addAll("sidebar-button", "directory-choose-icon")
+            styleClass.addAll("left-bar-button", "directory-choose-icon")
             tooltip = Tooltip("Choose Directory")
             setOnAction {
                 EventBus.post(ChooseDirectory())
@@ -42,7 +41,7 @@ class LeftBarView : VBox() {
 
     private fun searchButton(): IconButton {
         return IconButton {
-            styleClass.addAll("sidebar-button", "search-icon")
+            styleClass.addAll("left-bar-button", "search-icon")
             tooltip = Tooltip("Search")
             setOnAction {
                 logger.info("Search button clicked") //TODO: Implement search
