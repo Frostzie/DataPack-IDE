@@ -55,9 +55,6 @@ class TopBarView : HBox() {
 
     private fun setupTopBar() {
         styleClass.add("title-bar")
-        prefHeight = UIConstants.TOP_BAR_HEIGHT
-        minHeight = UIConstants.TOP_BAR_HEIGHT
-        maxHeight = UIConstants.TOP_BAR_HEIGHT
     }
 
     private fun createHideMenuButton(): IconButton {

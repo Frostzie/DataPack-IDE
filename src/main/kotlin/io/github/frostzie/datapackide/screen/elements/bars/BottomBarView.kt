@@ -1,6 +1,5 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
-import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.Label
@@ -32,9 +31,6 @@ class BottomBarView : HBox() {
 
     init {
         styleClass.add("status-bar")
-        prefHeight = UIConstants.STATUS_BAR_HEIGHT
-        minHeight = UIConstants.STATUS_BAR_HEIGHT
-        maxHeight = UIConstants.STATUS_BAR_HEIGHT
         createStatusElements()
         bindProperties()
         LOGGER.info("Status bar initialized")

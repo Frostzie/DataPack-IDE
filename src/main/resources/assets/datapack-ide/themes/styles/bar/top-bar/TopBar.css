@@ -9,6 +9,10 @@
     -title-border: #2b2b2b;
     -title-text: #dddddd;
 
+    -fx-pref-height: 40px;
+    -fx-min-height: 40px;
+    -fx-max-height: 40px;
+
     -fx-background-color: -title-bg;
     -fx-border-color: -title-border;
     -fx-border-style: solid;
@@ -36,28 +40,27 @@
 
 .tooltip {
     -fx-font-family: system;
-    -fx-font-weight: bold;
     -fx-font-size: 12px;
 }
 
 /* Icon styles within the buttons */
 .hide-tools-icon {
     -fx-font-family: 'Datapack-IDE';
-    -fx-font-size: 16px;
+    -fx-font-size: 20px;
     -fx-text-fill: -title-text;
     -fx-icon-character: "\E906";
 }
 
 .run-datapack-icon {
     -fx-font-family: 'Datapack-IDE';
-    -fx-font-size: 16px;
+    -fx-font-size: 20px;
     -fx-text-fill: -title-text;
     -fx-icon-character: "\E904";
 }
 
 .settings-icon {
     -fx-font-family: 'Datapack-IDE';
-    -fx-font-size: 16px;
+    -fx-font-size: 20px;
     -fx-text-fill: -title-text;
     -fx-icon-character: "\E905";
 }

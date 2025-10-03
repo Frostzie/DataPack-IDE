@@ -16,8 +16,10 @@ object CSSManager {
     private val CSS_CONFIG_PATH = FabricLoader.getInstance().configDir.resolve("datapack-ide/assets/styles/")
 
     private val resourceSearchPaths = listOf(
-        "styles/top-bar/",
-        "styles/",
+        "styles/bar/top-bar/",
+        "styles/bar/",
+        "styles/main/",
+        "styles/popup/",
         ""
     )
 
@@ -29,7 +31,7 @@ object CSSManager {
         "MenuBar.css",
         "TopBar.css",
         "WindowControls.css",
-        "StatusBar.css",
+        "BottomBar.css",
         "TextEditor.css",
         "NewFileWindow.css",
         "Settings.css",
@@ -147,7 +149,7 @@ object CSSManager {
      * Find CSS file in subdirectories, checking all search paths
      */
     private fun findCssInSubdirectory(cssFile: String): String {
-        for (path in configSearchPaths) {
+        for (path in resourceSearchPaths) {
             val fullPath = if (path.isEmpty()) cssFile else "$path$cssFile"
             if (Files.isRegularFile(CSS_CONFIG_PATH.resolve(fullPath))) {
                 return fullPath

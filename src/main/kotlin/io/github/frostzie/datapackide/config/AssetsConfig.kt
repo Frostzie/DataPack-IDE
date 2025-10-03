@@ -72,15 +72,15 @@ object AssetsConfig {
 
     private fun transferStyles() {
         val styleFiles = mapOf(
-            "MenuBar.css" to "top-bar/",
-            "TopBar.css" to "top-bar/",
-            "WindowControls.css" to "top-bar/",
-            "StatusBar.css" to "",
-            "TextEditor.css" to "",
-            "NewFileWindow.css" to "",
-            "Settings.css" to "",
-            "LeftBar.css" to "",
-            "FileTree.css" to "",
+            "MenuBar.css" to "bar/top-bar/",
+            "TopBar.css" to "bar/top-bar/",
+            "WindowControls.css" to "bar/top-bar/",
+            "BottomBar.css" to "bar/",
+            "TextEditor.css" to "main/",
+            "NewFileWindow.css" to "popup/",
+            "Settings.css" to "popup/",
+            "LeftBar.css" to "bar/",
+            "FileTree.css" to "main/",
             "Window.css" to ""
         )
 
@@ -97,7 +97,7 @@ object AssetsConfig {
 
     internal fun transferAsset(resourcePath: String, targetFile: Path, assetType: String) {
         if (Files.exists(targetFile)) {
-            logger.debug("Skipping transfer for existing $assetType: ${targetFile.fileName}")
+            logger.debug("Skipping transfer for existing {}: {}", assetType, targetFile.fileName)
             return
         }
 

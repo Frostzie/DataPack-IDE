@@ -10,13 +10,6 @@ import java.nio.file.Path
  */
 
 enum class FileAction {
-    NEW_FILE,
-    OPEN_FILE,
-    SAVE_FILE,
-    SAVE_AS_FILE,
-    CLOSE_FILE,
-    DELETE_FILE,
-    RELOAD_FILE,
     MOVE
 }
 @Deprecated("Replacing with newer system")

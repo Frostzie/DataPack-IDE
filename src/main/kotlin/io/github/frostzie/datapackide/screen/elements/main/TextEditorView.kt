@@ -1,13 +1,14 @@
 package io.github.frostzie.datapackide.screen.elements.main
 
 import io.github.frostzie.datapackide.config.WebsiteConfig
+import io.github.frostzie.datapackide.events.EditorCursorPosition
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.eventsOLD.EditorContentChangedEvent
 import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
 import io.github.frostzie.datapackide.eventsOLD.FileOpenEvent
-import io.github.frostzie.datapackide.eventsOLD.EditorContentChangedEvent
-import io.github.frostzie.datapackide.eventsOLD.EditorCursorChangedEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import javafx.beans.property.SimpleStringProperty
 import javafx.application.Platform
+import javafx.beans.property.SimpleStringProperty
 import javafx.concurrent.Worker
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
@@ -131,8 +132,6 @@ class TextEditorView : VBox() {
         }
     }
 
-    var onCursorPositionChanged: ((line: Int, column: Int) -> Unit)? = null
-
     inner class EditorBridge(private val editor: TextEditorView) {
         fun editorReady() {
             logger.info("CodeMirror editor is ready.")
@@ -155,10 +154,8 @@ class TextEditorView : VBox() {
 
         fun cursorPositionChanged(line: Int, column: Int) {
             Platform.runLater {
-                logger.info("EditorBridge received cursor change: Ln $line, Col $column")
-                onCursorPositionChanged?.invoke(line, column)
-
-                EventBusOLD.post(EditorCursorChangedEvent(line, column, currentFilePath))
+                logger.debug("EditorBridge received cursor change: Ln $line, Col $column")
+                EventBus.post(EditorCursorPosition(line, column))
             }
         }
     }
@@ -206,32 +203,6 @@ class TextEditorView : VBox() {
             ""
         }
     }
-
-    /*
-    fun cut() {
-        webView.engine.executeScript("window.editorCut && window.editorCut();")
-    }
-
-    fun copy() {
-        webView.engine.executeScript("window.editorCopy && window.editorCopy();")
-    }
-
-    fun paste() {
-        webView.engine.executeScript("window.editorPaste && window.editorPaste();")
-    }
-
-    fun undo() {
-        webView.engine.executeScript("window.editorUndo && window.editorUndo();")
-    }
-
-    fun redo() {
-        webView.engine.executeScript("window.editorRedo && window.editorRedo();")
-    }
-
-    fun selectAll() {
-        webView.engine.executeScript("window.editorSelectAll && window.editorSelectAll();")
-    }
-    */
 
     fun find(searchText: String): Boolean {
         return try {

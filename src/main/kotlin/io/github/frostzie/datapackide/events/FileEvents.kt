@@ -16,3 +16,6 @@ class PasteFile
 
 class CopyPath
 class OpenWith
+
+class SaveFile
+class SaveAsFile

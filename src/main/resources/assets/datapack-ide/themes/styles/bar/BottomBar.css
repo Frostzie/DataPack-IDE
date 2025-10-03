@@ -5,6 +5,10 @@
     -status-text: #dddddd;
     -status-separator: #555555;
 
+    -fx-min-height: 35px;
+    -fx-pref-height: 35px;
+    -fx-max-height: 35px;
+
     -fx-border-color: -status-border;
     -fx-border-style: solid;
     -fx-border-width: 1px;

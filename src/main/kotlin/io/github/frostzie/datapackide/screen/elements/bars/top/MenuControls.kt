@@ -1,6 +1,8 @@
 package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import io.github.frostzie.datapackide.events.AboutMod
+import io.github.frostzie.datapackide.events.ChooseDirectory
+import io.github.frostzie.datapackide.events.EditorCloseTab
 import io.github.frostzie.datapackide.events.EditorCopy
 import io.github.frostzie.datapackide.events.EditorCut
 import io.github.frostzie.datapackide.events.EditorPaste
@@ -11,10 +13,9 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.ExportDatapack
 import io.github.frostzie.datapackide.events.NewFile
 import io.github.frostzie.datapackide.events.ReloadDatapack
+import io.github.frostzie.datapackide.events.SaveAsFile
+import io.github.frostzie.datapackide.events.SaveFile
 import io.github.frostzie.datapackide.events.SettingsWindowOpen
-import io.github.frostzie.datapackide.eventsOLD.MenuActionEvent
-import io.github.frostzie.datapackide.eventsOLD.MenuCategory
-import io.github.frostzie.datapackide.eventsOLD.MenuAction
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
@@ -65,18 +66,18 @@ class MenuControls : MenuBar() {
                     EventBus.post(NewFile())
                 },
                 createMenuItem("Open File...", "menu-item-open", KeyCode.O, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.OPEN_FILE))
+                    EventBus.post(ChooseDirectory())
                 },
                 SeparatorMenuItem(),
                 createMenuItem("Save", "menu-item-save", KeyCode.S, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.SAVE_FILE))
+                    EventBus.post(SaveFile())
                 },
                 createMenuItem("Save As...", "menu-item-saveas", KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.SAVE_AS_FILE))
+                    EventBus.post(SaveAsFile())
                 },
                 SeparatorMenuItem(),
                 createMenuItem("Close File", "menu-item-close", KeyCode.W, KeyCombination.CONTROL_DOWN) {
-                    EventBus.post(MenuActionEvent(MenuCategory.FILE, MenuAction.CLOSE_FILE))
+                    EventBus.post(EditorCloseTab())
                 }
             )
         }

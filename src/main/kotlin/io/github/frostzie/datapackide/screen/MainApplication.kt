@@ -1,29 +1,30 @@
 package io.github.frostzie.datapackide.screen
 
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.eventsOLD.EventHandlerSystem
+import io.github.frostzie.datapackide.handlers.bars.BottomBarHandler
 import io.github.frostzie.datapackide.handlers.bars.LeftBarHandler
 import io.github.frostzie.datapackide.handlers.bars.top.TopBarHandler
 import io.github.frostzie.datapackide.handlers.main.TextEditorHandler
+import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.modules.bars.LeftBarModule
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
 import io.github.frostzie.datapackide.modules.main.TextEditorModule
 import io.github.frostzie.datapackide.modules.popup.SettingsModule
-import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
-import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
-import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
 import io.github.frostzie.datapackide.screen.elements.bars.BottomBarView
-import io.github.frostzie.datapackide.utils.LoggerProvider
-import io.github.frostzie.datapackide.utils.JavaFXInitializer
+import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
 import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
-import io.github.frostzie.datapackide.utils.UIConstants
+import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
+import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
 import io.github.frostzie.datapackide.utils.CSSManager
+import io.github.frostzie.datapackide.utils.JavaFXInitializer
+import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.ResizeHandler
+import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Platform
+import javafx.scene.Scene
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
-import javafx.scene.Scene
 import javafx.scene.layout.Region
 import javafx.stage.Stage
 import javafx.stage.StageStyle
@@ -43,9 +44,6 @@ class MainApplication {
         private var textEditorView: TextEditorView? = null
         private var contentArea: HBox? = null
 
-        // Action handler
-        private var eventHandlerSystem: EventHandlerSystem? = null
-
         // New Modules and Handlers
         private var topBarModule: TopBarModule? = null
         private var topBarHandler: TopBarHandler? = null
@@ -55,6 +53,9 @@ class MainApplication {
 
         private var leftBarModule: LeftBarModule? = null
         private var leftBarHandler: LeftBarHandler? = null
+
+        private var bottomBarModule: BottomBarModule? = null
+        private var bottomBarHandler: BottomBarHandler? = null
 
         private var settingsModule: SettingsModule? = null
 
@@ -93,8 +94,6 @@ class MainApplication {
             fileTreeView = FileTreeView()
             bottomBarView = BottomBarView()
 
-            eventHandlerSystem = EventHandlerSystem(fileTreeView, bottomBarView, stage)
-
             topBarModule = TopBarModule(stage)
             topBarHandler = TopBarHandler(topBarModule!!)
 
@@ -105,10 +104,12 @@ class MainApplication {
             leftBarModule = LeftBarModule(stage)
             leftBarHandler = LeftBarHandler(leftBarModule!!)
 
+            bottomBarModule = BottomBarModule(stage)
+            bottomBarHandler = BottomBarHandler(bottomBarModule!!)
+
             settingsModule = SettingsModule(stage)
 
             setupEventHandlers()
-            setupTextEditorBindings()
 
             contentArea = HBox().apply {
                 children.addAll(fileTreeView, textEditorView)
@@ -140,8 +141,8 @@ class MainApplication {
             val maxContentHeight = Double.MAX_VALUE
 
             val borderWidth = UIConstants.WINDOW_BORDER_WIDTH
-            val topBarHeight = UIConstants.TOP_BAR_HEIGHT
-            val statusBarHeight = UIConstants.STATUS_BAR_HEIGHT
+            val topBarHeight = 40.0
+            val statusBarHeight = 24.0
             
             root.minWidth = minContentWidth + borderWidth
             root.maxWidth = maxContentWidth + borderWidth
@@ -184,20 +185,10 @@ class MainApplication {
             EventBus.register(leftBarHandler!!)
             leftBarView?.let { EventBus.register(it) }
 
-            // Old event system for remaining components
-            eventHandlerSystem?.initialize()
-            logger.debug("Event handlers initialized")
-        }
+            EventBus.register(bottomBarHandler!!)
+            bottomBarView?.let { EventBus.register(it) }
 
-        private fun setupTextEditorBindings() {
-            textEditorView?.let { editor ->
-                bottomBarView?.let { status ->
-                    editor.onCursorPositionChanged = { line, column ->
-                        status.updateCursorPosition(line, column)
-                    }
-                    logger.debug("Text editor bindings set up with status bar")
-                }
-            }
+            logger.debug("Event handlers initialized")
         }
 
         fun showMainWindow() {

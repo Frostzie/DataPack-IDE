@@ -8,8 +8,6 @@ object UIConstants {
 
     // Main Window Layout
     const val TOP_BAR_HEIGHT = 40.0
-    const val STATUS_BAR_HEIGHT = 24.0
-    const val LEFT_SIDEBAR_WIDTH = 40.0
 
     // File Tree View
     const val FILE_TREE_DEFAULT_WIDTH = 250.0

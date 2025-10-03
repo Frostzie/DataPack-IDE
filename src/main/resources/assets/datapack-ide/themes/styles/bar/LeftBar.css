@@ -8,6 +8,10 @@
     -fx-background-color: #181818;
     -title-text: #dddddd;
 
+    -fx-pref-width: 40px;
+    -fx-min-width: 40px;
+    -fx-max-width: 40px;
+
     -fx-border-color: #2b2b2b;
     -fx-border-style: solid;
     -fx-border-width: 1px;

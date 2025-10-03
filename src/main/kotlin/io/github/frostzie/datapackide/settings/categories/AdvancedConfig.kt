@@ -4,11 +4,8 @@ import io.github.frostzie.datapackide.settings.annotations.ConfigCategory
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorButton
 import io.github.frostzie.datapackide.settings.annotations.ConfigOption
 import io.github.frostzie.datapackide.settings.annotations.Expose
-
-import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
-import io.github.frostzie.datapackide.eventsOLD.UIAction
-import io.github.frostzie.datapackide.eventsOLD.UIActionEvent
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorBoolean
+import io.github.frostzie.datapackide.utils.CSSManager
 
 object AdvancedConfig {
 
@@ -16,13 +13,13 @@ object AdvancedConfig {
     @ConfigCategory(name = "Dev", desc = "Debug and development options")
     @ConfigOption(name = "Reload Styles", desc = "Reloads all css styles from configs")
     @ConfigEditorButton(text = "Reload All Styles")
-    val reloadStyles: () -> Unit = { EventBusOLD.post(UIActionEvent(UIAction.RELOAD_STYLES)) }
+    val reloadStyles: () -> Unit = { CSSManager.reloadAllStyles() }
 
     @Expose
     @ConfigCategory(name = "Dev")
     @ConfigOption(name = "Reset All Styles", desc = "Resets all styles to their default state")
     @ConfigEditorButton(text = "Reset Styles")
-    val resetStylesToDefault: () -> Unit = { EventBusOLD.post(UIActionEvent(UIAction.RESET_STYLES_TO_DEFAULT)) }
+    val resetStylesToDefault: () -> Unit = { CSSManager.reloadAllStyles() }
 
     @Expose
     @ConfigCategory(name = "Debug")
