@@ -1,20 +1,10 @@
 package io.github.frostzie.datapackide.eventsOLD
 
-/**
- * UI-related events
- */
-@Deprecated("Replacing with newer system")
-enum class UIAction {
-
-    RELOAD_STYLES,
-    RESET_STYLES_TO_DEFAULT,
-}
 @Deprecated("Replacing with newer system")
 /**
  * Event fired when a UI action is requested
  */
 data class UIActionEvent(
-    val action: UIAction,
     val data: Map<String, Any> = emptyMap()
 )
 
@@ -48,12 +38,6 @@ data class EditorFocusEvent(
  * Event fired when status information should be updated
  */
 data class StatusUpdateEvent(
-    val type: StatusType,
     val message: String,
     val data: Map<String, Any> = emptyMap()
 )
-@Deprecated("Replacing with newer system")
-enum class StatusType {
-    CURSOR_POSITION
-
-}
