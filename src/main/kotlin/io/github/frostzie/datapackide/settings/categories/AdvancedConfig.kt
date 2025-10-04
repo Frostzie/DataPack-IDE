@@ -1,11 +1,8 @@
 package io.github.frostzie.datapackide.settings.categories
 
-import io.github.frostzie.datapackide.settings.annotations.ConfigCategory
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorButton
-import io.github.frostzie.datapackide.settings.annotations.ConfigOption
-import io.github.frostzie.datapackide.settings.annotations.Expose
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorBoolean
+import io.github.frostzie.datapackide.settings.annotations.*
 import io.github.frostzie.datapackide.utils.CSSManager
+import javafx.beans.property.SimpleBooleanProperty
 
 object AdvancedConfig {
 
@@ -25,11 +22,11 @@ object AdvancedConfig {
     @ConfigCategory(name = "Debug")
     @ConfigOption(name = "Enable Debug Mode", desc = "Enables all debugging features")
     @ConfigEditorBoolean
-    var enableDebugMode: Boolean = false
+    val enableDebugMode = SimpleBooleanProperty(false)
 
     @Expose
     @ConfigCategory(name = "Debug")
     @ConfigOption(name = "Show TreeView Hitboxes", desc = "Shows visual borders around File Tree components for debugging layout")
     @ConfigEditorBoolean
-    var debugTreeViewHitbox: Boolean = false
+    val debugTreeViewHitbox = SimpleBooleanProperty(false)
 }

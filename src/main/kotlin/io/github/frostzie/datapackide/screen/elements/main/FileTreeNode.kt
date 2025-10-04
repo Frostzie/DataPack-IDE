@@ -48,7 +48,7 @@ class FileTreeNode(
     private var lastClickTime = 0L
     private var isSelected = false
     private var isDragSource = false
-    private val config get() = AdvancedConfig.enableDebugMode && AdvancedConfig.debugTreeViewHitbox
+    private val config get() = AdvancedConfig.enableDebugMode.value && AdvancedConfig.debugTreeViewHitbox.value
 
     init {
         styleClass.add("file-tree-node")

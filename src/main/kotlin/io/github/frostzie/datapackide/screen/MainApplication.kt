@@ -9,7 +9,7 @@ import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.modules.bars.LeftBarModule
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
 import io.github.frostzie.datapackide.modules.main.TextEditorModule
-import io.github.frostzie.datapackide.modules.popup.SettingsModule
+import io.github.frostzie.datapackide.modules.popup.settings.SettingsModule
 import io.github.frostzie.datapackide.screen.elements.bars.BottomBarView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
 import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView

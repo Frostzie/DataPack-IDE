@@ -5,16 +5,16 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.eventsOLD.SettingsSaveRequestEvent
+import io.github.frostzie.datapackide.events.SettingsWindowCloseSave
 import io.github.frostzie.datapackide.settings.annotations.*
 import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
 import io.github.frostzie.datapackide.settings.categories.MainConfig
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import javafx.beans.property.Property
 import java.io.FileReader
 import java.io.FileWriter
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.isAccessible
@@ -48,7 +48,10 @@ object SettingsManager {
                 configClass.declaredMemberProperties.forEach { prop ->
                     if (prop.findAnnotation<Expose>() != null) {
                         @Suppress("UNCHECKED_CAST")
-                        defaultValues[prop] = (prop as KProperty1<Any, *>).get(objectInstance)
+                        val propertyObject = (prop as KProperty1<Any, *>).get(objectInstance)
+                        if (propertyObject is Property<*>) {
+                            defaultValues[prop] = propertyObject.value
+                        }
                     }
                 }
             }
@@ -60,7 +63,7 @@ object SettingsManager {
         EventBus.register(this)
     }
     @SubscribeEvent
-    fun onSettingsSaveRequest(event: SettingsSaveRequestEvent) {
+    fun onSettingsSaveRequest(event: SettingsWindowCloseSave) {
         saveSettings()
     }
 
@@ -171,7 +174,8 @@ object SettingsManager {
 
                 if (objectInstance != null) {
                     getConfigFields(configClass).forEach { field ->
-                        val value = field.property.get(objectInstance)
+                        val prop = field.property.get(field.objectInstance) as? Property<*>
+                        val value = prop?.value
                         when (value) {
                             is Boolean -> categoryObject.addProperty(field.property.name, value)
                             is String -> categoryObject.addProperty(field.property.name, value)
@@ -214,6 +218,13 @@ object SettingsManager {
                             val jsonElement = categoryObject.get(field.property.name)
                             if (jsonElement != null && !jsonElement.isJsonNull) {
                                 try {
+                                    @Suppress("UNCHECKED_CAST")
+                                    val prop = field.property.get(objectInstance) as? Property<Any>
+                                    if (prop == null) {
+                                        logger.warn("Could not get Property object for ${field.name}")
+                                        return@forEach
+                                    }
+
                                     val value = when (field.editorType) {
                                         EditorType.BOOLEAN -> jsonElement.asBoolean
                                         EditorType.TEXT, EditorType.DROPDOWN -> jsonElement.asString
@@ -223,8 +234,7 @@ object SettingsManager {
                                     }
 
                                     if (value != null) {
-                                        val mutableProperty = field.property as? KMutableProperty1<Any, Any>
-                                        mutableProperty?.setter?.call(field.objectInstance, value)
+                                        prop.value = value
                                         logger.debug("Loaded setting: {} = {}", field.name, value)
                                     } else {
                                         logger.debug("Skipping setting for button: ${field.name}")

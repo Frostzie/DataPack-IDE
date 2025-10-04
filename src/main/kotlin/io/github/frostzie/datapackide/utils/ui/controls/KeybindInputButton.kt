@@ -1,29 +1,30 @@
 package io.github.frostzie.datapackide.utils.ui.controls
 
 import io.github.frostzie.datapackide.settings.KeyCombination
+import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.control.Button
 import javafx.scene.input.KeyCode
 
 /**
  * A custom button that listens for and captures a [KeyCombination].
+ * The captured combination is stored in the [keybindProperty].
  */
-class KeybindInputButton(
-    initialValue: KeyCombination,
-    private val onKeybindChanged: (KeyCombination) -> Unit
-) : Button(initialValue.toString()) {
+class KeybindInputButton : Button() {
 
-    var currentKeybind: KeyCombination = initialValue
-        set(value) {
-            field = value
-            text = value.toString()
-        }
+    val keybindProperty = SimpleObjectProperty<KeyCombination>()
 
     private var isListening = false
 
     init {
         styleClass.add("keybind-input-button")
 
-        setOnAction {
+        keybindProperty.addListener { _, _, newKeybind ->
+            text = newKeybind?.toString() ?: "None"
+        }
+
+        text = keybindProperty.get()?.toString() ?: "None"
+
+        setOnAction { event ->
             if (!isListening) {
                 startListening()
             }
@@ -43,8 +44,7 @@ class KeybindInputButton(
                 }
 
                 val newKeybind = KeyCombination.fromEvent(event)
-                currentKeybind = newKeybind
-                onKeybindChanged(newKeybind)
+                keybindProperty.set(newKeybind)
                 stopListening(true)
             }
         }
@@ -66,7 +66,7 @@ class KeybindInputButton(
         isListening = false
 
         if (!wasCompleted) {
-            text = currentKeybind.toString()
+            text = keybindProperty.get()?.toString() ?: "None"
         }
         styleClass.remove("listening")
     }

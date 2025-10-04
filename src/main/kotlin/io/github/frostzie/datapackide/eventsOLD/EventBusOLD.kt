@@ -35,28 +35,4 @@ object EventBusOLD {
         }
         logger.debug("Posted event: ${eventClass.simpleName}")
     }
-
-    /**
-     * Clear all listeners (useful for testing)
-     */
-    fun clear() {
-        listeners.clear()
-        logger.debug("Cleared all event listeners")
-    }
-
-    /**
-     * Get count of listeners for a specific event type
-     */
-    inline fun <reified T : Any> getListenerCount(): Int {
-        return listeners[T::class.java]?.size ?: 0
-    }
-
-    /**
-     * Remove all listeners for a specific event type
-     */
-    inline fun <reified T : Any> clearListeners() {
-        val eventClass = T::class.java
-        listeners.remove(eventClass)
-        logger.debug("Cleared listeners for ${eventClass.simpleName}")
-    }
 }
