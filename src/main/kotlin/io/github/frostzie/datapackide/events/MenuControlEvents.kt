@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.events
 
 class ToggleMenuControls
-class AboutMod
+class AboutModLink
+class DiscordLink
 
 data class MenuControlsVisibilityChanged(val isVisible: Boolean)

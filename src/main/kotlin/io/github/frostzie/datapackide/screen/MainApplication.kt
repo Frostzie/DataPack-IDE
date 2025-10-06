@@ -92,7 +92,9 @@ class MainApplication {
             leftBarView = LeftBarView()
             textEditorView = TextEditorView()
             fileTreeView = FileTreeView()
-            bottomBarView = BottomBarView()
+
+            bottomBarModule = BottomBarModule()
+            bottomBarHandler = BottomBarHandler(bottomBarModule!!)
 
             topBarModule = TopBarModule(stage)
             topBarHandler = TopBarHandler(topBarModule!!)
@@ -100,12 +102,8 @@ class MainApplication {
             textEditorModule = TextEditorModule(textEditorView!!) //TODO: Change to actual module when moving View -> Module
             textEditorHandler = TextEditorHandler(textEditorModule!!)
 
-
             leftBarModule = LeftBarModule(stage)
             leftBarHandler = LeftBarHandler(leftBarModule!!)
-
-            bottomBarModule = BottomBarModule(stage)
-            bottomBarHandler = BottomBarHandler(bottomBarModule!!)
 
             settingsModule = SettingsModule(stage)
 

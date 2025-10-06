@@ -1,11 +1,15 @@
 package io.github.frostzie.datapackide.modules.bars.top
 
+import net.minecraft.util.Util
+import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
 import io.github.frostzie.datapackide.events.MenuControlsVisibilityChanged
+import io.github.frostzie.datapackide.screen.MainApplication
 import javafx.geometry.Rectangle2D
 import javafx.stage.Screen
 import javafx.stage.Stage
+import java.net.URI
 
 class TopBarModule(private val stage: Stage?) {
 
@@ -43,6 +47,10 @@ class TopBarModule(private val stage: Stage?) {
         }
     }
 
+    fun hideWindow() {
+        MainApplication.hideMainWindow()
+    }
+
     /**
      * Toggles the visibility of the menu bar.
      */
@@ -54,9 +62,17 @@ class TopBarModule(private val stage: Stage?) {
     }
 
     /**
-     * Opens GitHub page when About button pressed.
+     * Menu button actions
      */
-    fun aboutMod() {
-        //TODO: Open https://github.com/Frostzie/DataPack-IDE
+    fun aboutModLink() {
+        Util.getOperatingSystem().open(URI("https://github.com/Frostzie/DataPack-IDE"))
+    }
+
+    fun discordLink() {
+        Util.getOperatingSystem().open(URI("https://discord.gg/qZ885qTvkx"))
+    }
+
+    fun reloadDatapacks() {
+        ReloadDataPacksCommand.executeCommandButton()
     }
 }

@@ -1,7 +1,7 @@
 package io.github.frostzie.datapackide.handlers.bars.top
 
-import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand
-import io.github.frostzie.datapackide.events.AboutMod
+import io.github.frostzie.datapackide.events.AboutModLink
+import io.github.frostzie.datapackide.events.DiscordLink
 import io.github.frostzie.datapackide.events.MainWindowClose
 import io.github.frostzie.datapackide.events.MainWindowMaximize
 import io.github.frostzie.datapackide.events.MainWindowMinimize
@@ -9,7 +9,6 @@ import io.github.frostzie.datapackide.events.MainWindowRestore
 import io.github.frostzie.datapackide.events.ReloadDatapack
 import io.github.frostzie.datapackide.events.ToggleMenuControls
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
-import io.github.frostzie.datapackide.screen.MainApplication
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 
 @Suppress("unused")
@@ -32,12 +31,12 @@ class TopBarHandler(private val topBarModule: TopBarModule) {
 
     @SubscribeEvent
     fun onClose(event: MainWindowClose) {
-        MainApplication.hideMainWindow()
+        topBarModule.hideWindow()
     }
 
     @SubscribeEvent
     fun reloadDatapack(event: ReloadDatapack) {
-        ReloadDataPacksCommand.executeCommandButton()
+        topBarModule.reloadDatapacks()
     }
 
     @SubscribeEvent
@@ -46,7 +45,12 @@ class TopBarHandler(private val topBarModule: TopBarModule) {
     }
 
     @SubscribeEvent
-    fun onAboutMod(event: AboutMod) {
-        topBarModule.aboutMod()
+    fun onAboutModLink(event: AboutModLink) {
+        topBarModule.aboutModLink()
+    }
+
+    @SubscribeEvent
+    fun onDiscordLink(event: DiscordLink) {
+        topBarModule.discordLink()
     }
 }

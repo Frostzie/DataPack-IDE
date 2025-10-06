@@ -1,7 +1,8 @@
 package io.github.frostzie.datapackide.screen.elements.bars.top
 
-import io.github.frostzie.datapackide.events.AboutMod
+import io.github.frostzie.datapackide.events.AboutModLink
 import io.github.frostzie.datapackide.events.ChooseDirectory
+import io.github.frostzie.datapackide.events.DiscordLink
 import io.github.frostzie.datapackide.events.EditorCloseTab
 import io.github.frostzie.datapackide.events.EditorCopy
 import io.github.frostzie.datapackide.events.EditorCut
@@ -131,7 +132,10 @@ class MenuControls : MenuBar() {
                 },
                 SeparatorMenuItem(),
                 createMenuItem("About DataPack IDE", "menu-item-about") {
-                    EventBus.post(AboutMod())
+                    EventBus.post(AboutModLink())
+                },
+                createMenuItem("Discord Server", "menu-item-discord") {
+                    EventBus.post(DiscordLink())
                 }
             )
         }
