@@ -2,10 +2,12 @@ package io.github.frostzie.datapackide.modules.popup.settings
 
 import io.github.frostzie.datapackide.events.*
 import io.github.frostzie.datapackide.handlers.popup.settings.SettingsHandler
-import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsNav
 import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
-import io.github.frostzie.datapackide.settings.ConfigField
 import io.github.frostzie.datapackide.settings.SettingsManager
+import io.github.frostzie.datapackide.settings.data.CategoryItem
+import io.github.frostzie.datapackide.settings.data.CategoryType
+import io.github.frostzie.datapackide.settings.data.ConfigField
+import io.github.frostzie.datapackide.settings.data.SearchResult
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.scene.Scene
@@ -43,7 +45,7 @@ class SettingsModule(private val parentStage: Stage) {
         }
     }
 
-    fun selectCategory(item: SettingsNav.CategoryItem) {
+    fun selectCategory(item: CategoryItem) {
         val sections = mutableListOf<SectionData>()
         val title: String
 
@@ -113,7 +115,7 @@ class SettingsModule(private val parentStage: Stage) {
 
     fun saveSettings() {
         SettingsManager.saveSettings()
-                logger.info("Settings saved.")
+        logger.debug("Settings saved.")
     }
 
     fun closeSettings() {
@@ -167,17 +169,5 @@ class SettingsModule(private val parentStage: Stage) {
         if (field.category?.desc?.lowercase()?.contains(query) == true) score += 10
 
         return score
-    }
-
-    //TODO: Move this out of here prob
-    data class SearchResult(
-        val mainCategory: String,
-        val subCategory: String,
-        val field: ConfigField,
-        val relevanceScore: Int
-    )
-
-    enum class CategoryType {
-        ROOT, MAIN_CATEGORY, SUB_CATEGORY
     }
 }

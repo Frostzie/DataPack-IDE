@@ -7,6 +7,13 @@ import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.settings.annotations.*
 import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
 import io.github.frostzie.datapackide.settings.categories.MainConfig
+import io.github.frostzie.datapackide.settings.data.BooleanConfigField
+import io.github.frostzie.datapackide.settings.data.ButtonConfigField
+import io.github.frostzie.datapackide.settings.data.ConfigField
+import io.github.frostzie.datapackide.settings.data.DropdownConfigField
+import io.github.frostzie.datapackide.settings.data.KeybindConfigField
+import io.github.frostzie.datapackide.settings.data.SliderConfigField
+import io.github.frostzie.datapackide.settings.data.TextConfigField
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.beans.property.Property
 import java.io.FileReader
@@ -132,7 +139,10 @@ object SettingsManager {
                         property.findAnnotation<ConfigEditorKeybind>() != null -> {
                             if (propValue is Property<*> && propValue.value is KeyCombination) {
                                 KeybindConfigField(
-                                    objectInstance, p as KProperty1<Any, Property<KeyCombination>>, option.name, option.desc,
+                                    objectInstance,
+                                    p as KProperty1<Any, Property<KeyCombination>>,
+                                    option.name,
+                                    option.desc,
                                     property.findAnnotation()
                                 )
                             } else {

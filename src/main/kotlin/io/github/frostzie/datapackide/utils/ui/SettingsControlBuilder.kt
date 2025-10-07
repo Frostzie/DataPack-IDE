@@ -2,6 +2,13 @@ package io.github.frostzie.datapackide.utils.ui
 
 import io.github.frostzie.datapackide.settings.*
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorSlider
+import io.github.frostzie.datapackide.settings.data.BooleanConfigField
+import io.github.frostzie.datapackide.settings.data.ButtonConfigField
+import io.github.frostzie.datapackide.settings.data.ConfigField
+import io.github.frostzie.datapackide.settings.data.DropdownConfigField
+import io.github.frostzie.datapackide.settings.data.KeybindConfigField
+import io.github.frostzie.datapackide.settings.data.SliderConfigField
+import io.github.frostzie.datapackide.settings.data.TextConfigField
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.ui.controls.KeybindInputButton
 import javafx.scene.Node

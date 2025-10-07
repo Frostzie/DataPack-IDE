@@ -1,5 +1,6 @@
-package io.github.frostzie.datapackide.settings
+package io.github.frostzie.datapackide.settings.data
 
+import io.github.frostzie.datapackide.settings.KeyCombination
 import io.github.frostzie.datapackide.settings.annotations.ConfigCategory
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorButton
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorDropdown

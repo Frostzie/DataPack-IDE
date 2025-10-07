@@ -1,8 +1,10 @@
 package io.github.frostzie.datapackide.screen.elements.popup.settings
 
 import io.github.frostzie.datapackide.events.*
-import io.github.frostzie.datapackide.modules.popup.settings.SettingsModule
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
+import io.github.frostzie.datapackide.settings.data.CategoryItem
+import io.github.frostzie.datapackide.settings.data.CategoryType
+import io.github.frostzie.datapackide.settings.data.SearchResult
 import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
@@ -11,11 +13,13 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
-import kotlin.reflect.KClass
 
-class SettingsNav() : VBox() {
+/**
+ * Settings navigation panel - displays category tree and search results.
+ */
+class SettingsNav : VBox() {
     private lateinit var searchField: TextField
-    private lateinit var searchResults: ListView<SettingsModule.SearchResult> // Possible change to use events
+    private lateinit var searchResults: ListView<SearchResult>
     private lateinit var categoryTreeView: TreeView<CategoryItem>
 
     init {
@@ -61,6 +65,7 @@ class SettingsNav() : VBox() {
             selectionModel.selectedItemProperty().addListener { _, _, newItem ->
                 newItem?.value?.let { EventBus.post(SettingsCategorySelected(it)) }
             }
+
             setCellFactory {
                 object : TreeCell<CategoryItem>() {
                     init { isWrapText = true }
@@ -72,26 +77,37 @@ class SettingsNav() : VBox() {
             }
         }
 
-        searchResults = ListView<SettingsModule.SearchResult>().apply {
+        searchResults = ListView<SearchResult>().apply {
             styleClass.add("search-results")
             isVisible = false
             isManaged = false
 
             setOnMouseClicked {
-                selectionModel.selectedItem?.let { EventBus.post(SettingsSearchResultSelected(it)) }
+                selectionModel.selectedItem?.let {
+                    EventBus.post(SettingsSearchResultSelected(it))
+                }
             }
 
             setCellFactory {
-                object : ListCell<SettingsModule.SearchResult>() {
-                    private val titleLabel = Label().apply { styleClass.add("search-result-title"); isWrapText = true }
-                    private val pathLabel = Label().apply { styleClass.add("search-result-path"); isWrapText = true }
-                    private val descriptionLabel = Label().apply { styleClass.add("search-result-description"); isWrapText = true }
+                object : ListCell<SearchResult>() {
+                    private val titleLabel = Label().apply {
+                        styleClass.add("search-result-title")
+                        isWrapText = true
+                    }
+                    private val pathLabel = Label().apply {
+                        styleClass.add("search-result-path")
+                        isWrapText = true
+                    }
+                    private val descriptionLabel = Label().apply {
+                        styleClass.add("search-result-description")
+                        isWrapText = true
+                    }
                     private val content = VBox(titleLabel, pathLabel, descriptionLabel).apply {
                         styleClass.add("search-result-item")
                         prefWidth = 0.0
                     }
 
-                    override fun updateItem(item: SettingsModule.SearchResult?, empty: Boolean) {
+                    override fun updateItem(item: SearchResult?, empty: Boolean) {
                         super.updateItem(item, empty)
                         if (empty || item == null) {
                             graphic = null
@@ -107,31 +123,50 @@ class SettingsNav() : VBox() {
         }
     }
 
+    /**
+     * Receives available categories from the module via event bus.
+     * Builds the category tree structure for display.
+     */
     @SubscribeEvent
     fun onCategoriesAvailable(event: SettingsCategoriesAvailable) {
-        val rootItem = TreeItem(CategoryItem("Settings", SettingsModule.CategoryType.ROOT))
+        val rootItem = TreeItem(CategoryItem("Settings", CategoryType.ROOT))
         rootItem.isExpanded = true
 
         event.categories.forEach { categoryData ->
             val categoryItem = TreeItem(
                 CategoryItem(
                     categoryData.name,
-                    SettingsModule.CategoryType.MAIN_CATEGORY,
+                    CategoryType.MAIN_CATEGORY,
                     categoryData.configClass
                 )
             )
             categoryItem.isExpanded = true
 
             categoryData.subCategories.forEach { subCategoryName ->
-                val subItem = TreeItem(CategoryItem(subCategoryName, SettingsModule.CategoryType.SUB_CATEGORY, categoryData.configClass, subCategoryName))
+                val subItem = TreeItem(
+                    CategoryItem(
+                        subCategoryName,
+                        CategoryType.SUB_CATEGORY,
+                        categoryData.configClass,
+                        subCategoryName
+                    )
+                )
                 categoryItem.children.add(subItem)
             }
             rootItem.children.add(categoryItem)
         }
+
         categoryTreeView.root = rootItem
-        Platform.runLater { categoryTreeView.selectionModel.select(1) }
+
+        Platform.runLater {
+            categoryTreeView.selectionModel.select(1)
+        }
     }
 
+    /**
+     * Selects a tree item based on indices.
+     * Used when navigating from search results.
+     */
     @SubscribeEvent
     fun onSelectTreeItem(event: SelectTreeItem) {
         Platform.runLater {
@@ -148,8 +183,10 @@ class SettingsNav() : VBox() {
 
             targetItem?.let {
                 categoryTreeView.selectionModel.select(it)
+
+                // Expand parent items
                 var parent = it.parent
-                                while (parent != null && !parent.isExpanded) {
+                while (parent != null && !parent.isExpanded) {
                     parent.isExpanded = true
                     parent = parent.parent
                 }
@@ -157,22 +194,19 @@ class SettingsNav() : VBox() {
         }
     }
 
+    /**
+     * Receives search results from the module and displays them.
+     * Toggles between tree view and search results view.
+     */
     @SubscribeEvent
     fun onSearchResultsAvailable(event: SettingsSearchResultsAvailable) {
         val showResults = event.results.isNotEmpty()
+
         searchResults.items.setAll(event.results)
         searchResults.isVisible = showResults
         searchResults.isManaged = showResults
+
         categoryTreeView.isVisible = !showResults
         categoryTreeView.isManaged = !showResults
-    }
-
-    data class CategoryItem(
-        val name: String,
-        val type: SettingsModule.CategoryType,
-        val configClass: KClass<*>? = null,
-        val subCategory: String? = null
-    ) {
-        override fun toString(): String = name
     }
 }

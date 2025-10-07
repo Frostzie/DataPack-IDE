@@ -2,7 +2,7 @@ package io.github.frostzie.datapackide.screen.elements.popup.settings
 
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.SettingsContentUpdate
-import io.github.frostzie.datapackide.settings.ConfigField
+import io.github.frostzie.datapackide.settings.data.ConfigField
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.ui.SettingsControlBuilder
 import javafx.scene.control.Label
