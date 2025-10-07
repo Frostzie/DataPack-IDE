@@ -16,16 +16,12 @@ object CSSManager {
     private val CSS_CONFIG_PATH = FabricLoader.getInstance().configDir.resolve("datapack-ide/assets/styles/")
 
     private val resourceSearchPaths = listOf(
-        "styles/bar/top-bar/",
-        "styles/bar/",
-        "styles/main/",
-        "styles/popup/",
+        "bar/top-bar/",
+        "bar/",
+        "main/",
+        "popup/",
         ""
     )
-
-    private val configSearchPaths = listOf(
-        "top-bar/",
-        "")
 
     private val cssFiles = listOf(
         "MenuBar.css",
