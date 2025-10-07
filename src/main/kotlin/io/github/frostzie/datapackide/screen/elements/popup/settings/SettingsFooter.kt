@@ -1,7 +1,7 @@
 package io.github.frostzie.datapackide.screen.elements.popup.settings
 
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.SettingSave
+import io.github.frostzie.datapackide.events.SettingsSave
 import io.github.frostzie.datapackide.events.SettingsWindowCloseSave
 import javafx.scene.control.Button
 import javafx.scene.layout.HBox
@@ -18,7 +18,7 @@ class SettingsFooter : HBox() {
 
         val applyButton = Button("Apply").apply {
             styleClass.add("apply-button")
-            setOnAction { EventBus.post(SettingSave()) }
+            setOnAction { EventBus.post(SettingsSave()) }
         }
 
         val closeButton = Button("Close").apply {

@@ -1,8 +1,10 @@
 package io.github.frostzie.datapackide.screen.elements.popup.settings
 
-import io.github.frostzie.datapackide.settings.SettingsManager
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.SettingsContentUpdate
+import io.github.frostzie.datapackide.settings.ConfigField
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.ui.SettingsControlBuilder
-import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.Separator
@@ -10,70 +12,41 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.HBox.setHgrow
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
-import kotlin.reflect.KClass
 
 class SettingsContent : VBox() {
     init {
         styleClass.add("settings-content-area")
         setVgrow(this, Priority.ALWAYS)
         setHgrow(this, Priority.ALWAYS)
+        EventBus.register(this)
     }
 
-    fun populate(content: Node) {
-        children.setAll(content)
-    }
-
-    fun createFullCategoryContent(categoryName: String, configClass: KClass<*>): ScrollPane {
+    @SubscribeEvent
+    fun onContentUpdate(event: SettingsContentUpdate) {
         val content = VBox().apply {
             styleClass.add("category-content")
             spacing = 20.0
 
-            val categoryTitle = Label(categoryName.replaceFirstChar { it.uppercase() } + " Settings").apply {
+            val categoryTitle = Label(event.title).apply {
                 styleClass.add("category-title")
             }
             children.add(categoryTitle)
 
-            val nestedCategories = SettingsManager.getNestedCategories(configClass)
-            nestedCategories.forEach { (subCategoryName, fields) ->
-                children.add(createSubCategorySection(subCategoryName, fields))
+            event.sections.forEach { sectionData ->
+                children.add(createSubCategorySection(sectionData.name, sectionData.description, sectionData.fields))
             }
         }
 
-        return ScrollPane(content).apply {
+        val scrollPane = ScrollPane(content).apply {
             styleClass.add("category-scroll")
             isFitToWidth = true
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
             vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
         }
+        children.setAll(scrollPane)
     }
 
-    fun createSubCategoryContent(configClass: KClass<*>, subCategoryName: String): ScrollPane {
-        val nestedCategories = SettingsManager.getNestedCategories(configClass)
-        val fields = nestedCategories[subCategoryName] ?: emptyList()
-
-        val content = VBox().apply {
-            styleClass.add("category-content")
-            spacing = 15.0
-
-            val title = Label("$subCategoryName Settings").apply {
-                styleClass.add("category-title")
-            }
-            children.add(title)
-
-            fields.forEach { field ->
-                children.add(createFieldControl(field))
-            }
-        }
-
-        return ScrollPane(content).apply {
-            styleClass.add("category-scroll")
-            isFitToWidth = true
-            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
-            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
-        }
-    }
-
-    private fun createSubCategorySection(subCategoryName: String, fields: List<SettingsManager.ConfigField>): VBox {
+    private fun createSubCategorySection(subCategoryName: String, description: String?, fields: List<ConfigField>): VBox {
         return VBox().apply {
             styleClass.add("subcategory-section")
             spacing = 10.0
@@ -87,7 +60,7 @@ class SettingsContent : VBox() {
 
                 val separator = Separator().apply {
                     styleClass.add("subcategory-separator")
-                    setHgrow(this, Priority.ALWAYS)
+                    HBox.setHgrow(this, Priority.ALWAYS)
                 }
 
                 children.addAll(subTitle, separator)
@@ -95,9 +68,8 @@ class SettingsContent : VBox() {
 
             children.add(subCategoryHeader)
 
-            val categoryDesc = fields.firstOrNull()?.category?.desc
-            if (!categoryDesc.isNullOrBlank()) {
-                val descLabel = Label(categoryDesc).apply {
+            if (!description.isNullOrBlank()) {
+                val descLabel = Label(description).apply {
                     styleClass.add("subcategory-description")
                     isWrapText = true
                 }
@@ -110,7 +82,7 @@ class SettingsContent : VBox() {
         }
     }
 
-    private fun createFieldControl(field: SettingsManager.ConfigField): VBox {
+    private fun createFieldControl(field: ConfigField): VBox {
         return VBox().apply {
             styleClass.add("field-control")
             spacing = 5.0

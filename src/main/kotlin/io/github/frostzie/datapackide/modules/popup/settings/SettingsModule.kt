@@ -1,15 +1,13 @@
 package io.github.frostzie.datapackide.modules.popup.settings
 
-import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.SettingsWindowOpen
+import io.github.frostzie.datapackide.events.*
 import io.github.frostzie.datapackide.handlers.popup.settings.SettingsHandler
 import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsNav
 import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
+import io.github.frostzie.datapackide.settings.ConfigField
 import io.github.frostzie.datapackide.settings.SettingsManager
-import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import javafx.application.Platform
 import javafx.scene.Scene
 import javafx.scene.paint.Color
 import javafx.stage.Modality
@@ -21,29 +19,71 @@ class SettingsModule(private val parentStage: Stage) {
         private val logger = LoggerProvider.getLogger("SettingsModule")
     }
 
-    private lateinit var view: SettingsView
-    private lateinit var handler: SettingsHandler
+    private var handler: SettingsHandler = SettingsHandler(this)
     var stage: Stage? = null
     var xOffset = 0.0
     var yOffset = 0.0
 
     init {
-        EventBus.register(this)
-        logger.info("SettingsModule initialized and listening for SettingsWindowOpen")
+        EventBus.register(handler)
+        logger.info("SettingsModule initialized and handler registered.")
     }
 
-    @SubscribeEvent
-    fun onShowSettingsWindow(event: SettingsWindowOpen) {
-        showSettingsWindow()
+    fun dragWindow(screenX: Double, screenY: Double) {
+        stage?.x = screenX - xOffset
+        stage?.y = screenY - yOffset
+    }
+
+    fun search(query: String) {
+        if (query.isBlank()) {
+            EventBus.post(SettingsSearchResultsAvailable(emptyList()))
+        } else {
+            val results = searchSettings(query)
+            EventBus.post(SettingsSearchResultsAvailable(results))
+        }
+    }
+
+    fun selectCategory(item: SettingsNav.CategoryItem) {
+        val sections = mutableListOf<SectionData>()
+        val title: String
+
+        when (item.type) {
+            CategoryType.MAIN_CATEGORY -> {
+                title = "${item.name} Settings"
+                item.configClass?.let { configClass ->
+                    val nestedCategories = SettingsManager.getNestedCategories(configClass)
+                    nestedCategories.forEach { (subCategoryName, fields) ->
+                        sections.add(SectionData(subCategoryName, fields.firstOrNull()?.category?.desc, fields))
+                    }
+                }
+            }
+            CategoryType.SUB_CATEGORY -> {
+                title = "${item.subCategory} Settings"
+                item.configClass?.let { configClass ->
+                    item.subCategory?.let { subCategory ->
+                        val nestedCategories = SettingsManager.getNestedCategories(configClass)
+                        val fields = nestedCategories[subCategory] ?: emptyList()
+                        sections.add(SectionData(subCategory, fields.firstOrNull()?.category?.desc, fields))
+                    }
+                }
+            }
+            else -> return
+        }
+
+        EventBus.post(SettingsContentUpdate(title, sections))
+    }
+
+    fun selectSearchResult(result: SearchResult) {
+        val categories = SettingsManager.getConfigCategories()
+        val categoryIndex = categories.indexOfFirst { it.first == result.mainCategory }
+
+        if (categoryIndex != -1) {
+            EventBus.post(SelectTreeItem(categoryIndex, result.subCategory))
+            EventBus.post(SettingsSearchResultsAvailable(emptyList()))
+        }
     }
 
     fun showSettingsWindow() {
-        if (!::view.isInitialized) {
-            view = SettingsView(this)
-            handler = SettingsHandler(this)
-            EventBus.register(handler)
-        }
-
         if (stage == null) {
             stage = Stage().apply {
                 initStyle(StageStyle.UNDECORATED)
@@ -54,56 +94,90 @@ class SettingsModule(private val parentStage: Stage) {
                 minHeight = 600.0
             }
 
-            val content = view.createContent()
-            val scene = Scene(content, 900.0, 700.0).apply { fill = Color.TRANSPARENT }
+            val view = SettingsView()
+            val scene = Scene(view, 900.0, 700.0).apply { fill = Color.TRANSPARENT }
             CSSManager.applyPopupStyles(scene, "Settings.css")
             stage?.scene = scene
             stage?.centerOnScreen()
-            Platform.runLater { view.categoryTreeView.selectionModel.select(1) }
         }
         stage?.showAndWait()
     }
 
+    fun loadAndSendCategories() {
+        val categoryDataList = SettingsManager.getConfigCategories().map { (categoryName, configClass) ->
+            val subCategories = SettingsManager.getNestedCategories(configClass).keys.sorted()
+            CategoryData(categoryName.replaceFirstChar { it.uppercase() }, configClass, subCategories)
+        }
+        EventBus.post(SettingsCategoriesAvailable(categoryDataList))
+    }
+
     fun saveSettings() {
         SettingsManager.saveSettings()
-        logger.info("Settings saved.")
+                logger.info("Settings saved.")
     }
 
     fun closeSettings() {
         stage?.close()
     }
 
-    fun handleCategorySelection(item: SettingsNav.CategoryItem) {
-        val content = when (item.type) {
-            SettingsNav.CategoryType.MAIN_CATEGORY -> {
-                item.configClass?.let { view.createFullCategoryContent(item.name, it) }
-            }
+    private fun searchSettings(query: String): List<SearchResult> {
+        val results = mutableListOf<SearchResult>()
 
-            SettingsNav.CategoryType.SUB_CATEGORY -> {
-                item.configClass?.let { view.createSubCategoryContent(it, item.subCategory!!) }
+        if (query.isBlank()) return results
+
+        val lowerQuery = query.lowercase()
+
+        SettingsManager.getConfigCategories().forEach { (categoryName, configClass) ->
+            val fields = SettingsManager.getConfigFields(configClass)
+
+            fields.forEach { field ->
+                val relevanceScore = calculateRelevance(field, lowerQuery)
+                if (relevanceScore > 0) {
+                    results.add(
+                        SearchResult(
+                            mainCategory = categoryName,
+                            subCategory = field.category?.name ?: "General",
+                            field = field,
+                            relevanceScore = relevanceScore
+                        )
+                    )
+                }
             }
-            else -> null
         }
 
-        content?.let { view.populateContent(it) }
+        return results.sortedByDescending { it.relevanceScore }
     }
 
-    fun handleSearch(query: String) {
-        if (query.isBlank()) {
-            view.showSearchResults(emptyList())
-        } else {
-            val results = SettingsManager.searchSettings(query)
-            view.showSearchResults(results)
-        }
+    private fun calculateRelevance(field: ConfigField, query: String): Int {
+        var score = 0
+
+        // Exact name match gets the highest score
+        if (field.name.lowercase() == query) score += 100
+
+        // Name contains query
+        if (field.name.lowercase().contains(query)) score += 50
+
+        // Description contains query
+        if (field.description.lowercase().contains(query)) score += 25
+
+        // Category name contains query
+        if (field.category?.name?.lowercase()?.contains(query) == true) score += 15
+
+        // Category description contains query
+        if (field.category?.desc?.lowercase()?.contains(query) == true) score += 10
+
+        return score
     }
 
-    fun handleSearchResultSelection(result: SettingsManager.SearchResult) {
-        val categories = SettingsManager.getConfigCategories()
-        val categoryIndex = categories.indexOfFirst { it.first == result.mainCategory }
+    //TODO: Move this out of here prob
+    data class SearchResult(
+        val mainCategory: String,
+        val subCategory: String,
+        val field: ConfigField,
+        val relevanceScore: Int
+    )
 
-        if (categoryIndex != -1) {
-            view.selectTreeItem(categoryIndex, result.subCategory)
-            view.showSearchResults(emptyList())
-        }
+    enum class CategoryType {
+        ROOT, MAIN_CATEGORY, SUB_CATEGORY
     }
 }
