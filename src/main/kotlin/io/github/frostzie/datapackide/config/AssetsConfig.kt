@@ -42,7 +42,7 @@ object AssetsConfig {
      * Deletes existing assets from the config folder and re-copies the default ones from the mod's resources.
      * This serves as a "reset to default" function.
      */
-    fun forceTransferAllAssets() {
+    fun forceTransferAllStyleAssets() {
         logger.warn("Forcibly re-transferring all assets, this will overwrite any user modifications in the config/datapack-ide/assets/ directory!")
         try {
             if (Files.exists(stylesDir)) {

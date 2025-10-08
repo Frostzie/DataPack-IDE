@@ -5,16 +5,20 @@ import io.github.frostzie.datapackide.handlers.bars.BottomBarHandler
 import io.github.frostzie.datapackide.handlers.bars.LeftBarHandler
 import io.github.frostzie.datapackide.handlers.bars.top.TopBarHandler
 import io.github.frostzie.datapackide.handlers.main.TextEditorHandler
+import io.github.frostzie.datapackide.handlers.popup.settings.SettingsHandler
 import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.modules.bars.LeftBarModule
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
 import io.github.frostzie.datapackide.modules.main.TextEditorModule
 import io.github.frostzie.datapackide.modules.popup.settings.SettingsModule
+import io.github.frostzie.datapackide.handlers.popup.settings.ThemeHandler
+import io.github.frostzie.datapackide.modules.popup.settings.ThemeModule
 import io.github.frostzie.datapackide.screen.elements.bars.BottomBarView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
 import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
+import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.utils.LoggerProvider
@@ -41,6 +45,7 @@ class MainApplication {
         private var leftBarView: LeftBarView? = null
         private var fileTreeView: FileTreeView? = null
         private var bottomBarView: BottomBarView? = null
+        private var settingsView: SettingsView? = null
         private var textEditorView: TextEditorView? = null
         private var contentArea: HBox? = null
 
@@ -58,6 +63,10 @@ class MainApplication {
         private var bottomBarHandler: BottomBarHandler? = null
 
         private var settingsModule: SettingsModule? = null
+        private var settingsHandler: SettingsHandler? = null
+
+        private var themeModule: ThemeModule? = null
+        private var themeHandler: ThemeHandler? = null
 
         fun initializeJavaFX() {
             if (!fxInitialized) {
@@ -105,7 +114,11 @@ class MainApplication {
             leftBarModule = LeftBarModule(stage)
             leftBarHandler = LeftBarHandler(leftBarModule!!)
 
-            settingsModule = SettingsModule(stage)
+            themeModule = ThemeModule()
+            themeHandler = ThemeHandler(themeModule!!)
+
+            settingsModule = SettingsModule(stage, themeModule!!)
+            settingsHandler = SettingsHandler(settingsModule!!)
 
             setupEventHandlers()
 
@@ -186,6 +199,10 @@ class MainApplication {
             EventBus.register(bottomBarHandler!!)
             bottomBarView?.let { EventBus.register(it) }
 
+            EventBus.register(settingsHandler!!)
+            settingsView?.let { EventBus.register(it) }
+            EventBus.register(themeHandler!!)
+
             logger.debug("Event handlers initialized")
         }
 
@@ -215,6 +232,7 @@ class MainApplication {
                 val mainUI = createMainUI(stage)
                 val scene = Scene(mainUI, 1200.0, 800.0)
 
+                themeModule?.scenes?.add(scene)
                 stage.scene = scene
                 stage.title = "DataPack IDE"
                 stage.width = 1200.0

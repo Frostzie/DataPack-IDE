@@ -1,7 +1,6 @@
 package io.github.frostzie.datapackide.modules.popup.settings
 
 import io.github.frostzie.datapackide.events.*
-import io.github.frostzie.datapackide.handlers.popup.settings.SettingsHandler
 import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
 import io.github.frostzie.datapackide.settings.SettingsManager
 import io.github.frostzie.datapackide.settings.data.CategoryItem
@@ -16,20 +15,14 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 
-class SettingsModule(private val parentStage: Stage) {
+class SettingsModule(private val parentStage: Stage, private val themeModule: ThemeModule) {
     companion object {
         private val logger = LoggerProvider.getLogger("SettingsModule")
     }
 
-    private var handler: SettingsHandler = SettingsHandler(this)
     var stage: Stage? = null
     var xOffset = 0.0
     var yOffset = 0.0
-
-    init {
-        EventBus.register(handler)
-        logger.info("SettingsModule initialized and handler registered.")
-    }
 
     fun dragWindow(screenX: Double, screenY: Double) {
         stage?.x = screenX - xOffset
@@ -99,6 +92,7 @@ class SettingsModule(private val parentStage: Stage) {
             val view = SettingsView()
             val scene = Scene(view, 900.0, 700.0).apply { fill = Color.TRANSPARENT }
             CSSManager.applyPopupStyles(scene, "Settings.css")
+            themeModule.scenes.add(scene)
             stage?.scene = scene
             stage?.centerOnScreen()
         }
