@@ -26,3 +26,5 @@ data class SettingsCategoriesAvailable(val categories: List<CategoryData>)
 
 data class SectionData(val name: String, val description: String?, val fields: List<ConfigField>)
 data class SettingsContentUpdate(val title: String, val sections: List<SectionData>)
+
+data class HighlightField(val field: ConfigField)

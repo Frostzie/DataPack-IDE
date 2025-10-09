@@ -200,13 +200,17 @@ class SettingsNav : VBox() {
      */
     @SubscribeEvent
     fun onSearchResultsAvailable(event: SettingsSearchResultsAvailable) {
-        val showResults = event.results.isNotEmpty()
+        displaySearchResults(event.results)
+    }
 
-        searchResults.items.setAll(event.results)
-        searchResults.isVisible = showResults
-        searchResults.isManaged = showResults
+    fun displaySearchResults(results: List<SearchResult>) {
+        val isSearching = searchField.text.isNotBlank()
 
-        categoryTreeView.isVisible = !showResults
-        categoryTreeView.isManaged = !showResults
+        searchResults.items.setAll(results)
+        searchResults.isVisible = isSearching
+        searchResults.isManaged = isSearching
+
+        categoryTreeView.isVisible = !isSearching
+        categoryTreeView.isManaged = !isSearching
     }
 }

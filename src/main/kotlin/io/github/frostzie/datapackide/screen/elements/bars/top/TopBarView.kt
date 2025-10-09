@@ -2,7 +2,6 @@ package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import io.github.frostzie.datapackide.utils.IconButton
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import io.github.frostzie.datapackide.utils.UIConstants
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximize
 import io.github.frostzie.datapackide.events.MainWindowRestore

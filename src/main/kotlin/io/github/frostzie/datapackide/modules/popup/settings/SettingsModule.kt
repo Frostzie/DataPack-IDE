@@ -74,7 +74,7 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
 
         if (categoryIndex != -1) {
             EventBus.post(SelectTreeItem(categoryIndex, result.subCategory))
-            EventBus.post(SettingsSearchResultsAvailable(emptyList()))
+            EventBus.post(HighlightField(result.field))
         }
     }
 
@@ -117,31 +117,20 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
     }
 
     private fun searchSettings(query: String): List<SearchResult> {
-        val results = mutableListOf<SearchResult>()
-
-        if (query.isBlank()) return results
+        if (query.isBlank()) return emptyList()
 
         val lowerQuery = query.lowercase()
 
-        SettingsManager.getConfigCategories().forEach { (categoryName, configClass) ->
-            val fields = SettingsManager.getConfigFields(configClass)
-
-            fields.forEach { field ->
+        return SettingsManager.getConfigCategories()
+            .flatMap { (categoryName, configClass) ->
+                SettingsManager.getConfigFields(configClass).mapNotNull { field ->
                 val relevanceScore = calculateRelevance(field, lowerQuery)
                 if (relevanceScore > 0) {
-                    results.add(
-                        SearchResult(
-                            mainCategory = categoryName,
-                            subCategory = field.category?.name ?: "General",
-                            field = field,
-                            relevanceScore = relevanceScore
-                        )
-                    )
-                }
+                        SearchResult(categoryName, field.category?.name ?: "General", field, relevanceScore)
+                } else null
             }
         }
-
-        return results.sortedByDescending { it.relevanceScore }
+        .sortedByDescending { it.relevanceScore }
     }
 
     private fun calculateRelevance(field: ConfigField, query: String): Int {
