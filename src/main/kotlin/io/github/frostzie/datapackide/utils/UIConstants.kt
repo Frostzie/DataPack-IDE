@@ -3,6 +3,7 @@ package io.github.frostzie.datapackide.utils
 /**
  * A central place for all UI dimension constants.
  * This helps in maintaining a consistent look and feel and makes it easy to adjust the layout.
+ * Possible that this will no longer be kept and instead, the user could modify the sizes of each element.
  */
 object UIConstants {
 

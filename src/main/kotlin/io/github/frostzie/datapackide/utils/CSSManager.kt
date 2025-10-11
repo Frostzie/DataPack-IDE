@@ -24,8 +24,8 @@ object CSSManager {
         ""
     )
 
-    private val cssFiles = listOf(
-        "MenuBar.css",
+    private val cssFiles = listOf<String>(
+    /*  "MenuBar.css",
         "TopBar.css",
         "WindowControls.css",
         "BottomBar.css",
@@ -36,7 +36,7 @@ object CSSManager {
         "LeftBar.css",
         "FileTree.css",
         "Window.css",
-        "Palette.css"
+        "Palette.css"  */
     )
 
     /**

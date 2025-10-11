@@ -18,11 +18,12 @@ import io.github.frostzie.datapackide.events.SaveAsFile
 import io.github.frostzie.datapackide.events.SaveFile
 import io.github.frostzie.datapackide.events.SettingsWindowOpen
 import javafx.scene.control.*
+import javafx.scene.control.MenuBar
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
 
-class MenuControls : MenuBar() {
+class MenuBar : MenuBar() {
 
     companion object {
         private val logger = LoggerProvider.getLogger("MenuControls")

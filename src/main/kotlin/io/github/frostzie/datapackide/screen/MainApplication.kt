@@ -19,11 +19,12 @@ import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
 import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
-import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.ResizeHandler
+import atlantafx.base.theme.PrimerDark
 import io.github.frostzie.datapackide.utils.UIConstants
+import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
 import javafx.scene.layout.BorderPane
@@ -75,6 +76,7 @@ class MainApplication {
 
                 try {
                     JavaFXInitializer.startup {
+                        Application.setUserAgentStylesheet(PrimerDark().userAgentStylesheet)
                         JavaFXInitializer.setImplicitExit(false)
                         fxInitialized = true
                         createMainWindow()
@@ -187,7 +189,7 @@ class MainApplication {
             EventBus.register(topBarHandler!!)
             topBarView?.let {
                 EventBus.register(it)
-                EventBus.register(it.windowControls)
+                EventBus.register(it.toolBar)
             }
 
             EventBus.register(textEditorHandler!!)
@@ -240,7 +242,6 @@ class MainApplication {
                 stage.isResizable = true
                 stage.centerOnScreen()
 
-                CSSManager.applyAllStyles(scene)
                 setupWindowResizing(stage)
 
                 stage.setOnCloseRequest { e ->

@@ -7,7 +7,6 @@ import io.github.frostzie.datapackide.settings.data.CategoryItem
 import io.github.frostzie.datapackide.settings.data.CategoryType
 import io.github.frostzie.datapackide.settings.data.ConfigField
 import io.github.frostzie.datapackide.settings.data.SearchResult
-import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.scene.Scene
 import javafx.scene.paint.Color
@@ -103,7 +102,6 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
 
             val view = SettingsView()
             val scene = Scene(view, 900.0, 700.0).apply { fill = Color.TRANSPARENT }
-            CSSManager.applyPopupStyles(scene, "Settings.css", "SettingsControls.css")
             themeModule.scenes.add(scene)
             stage?.scene = scene
             stage?.centerOnScreen()
