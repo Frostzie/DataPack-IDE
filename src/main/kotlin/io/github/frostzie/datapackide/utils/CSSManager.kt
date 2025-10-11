@@ -19,6 +19,7 @@ object CSSManager {
         "bar/top-bar/",
         "bar/",
         "main/",
+        "popup/settings/",
         "popup/",
         ""
     )
@@ -31,9 +32,11 @@ object CSSManager {
         "TextEditor.css",
         "NewFileWindow.css",
         "Settings.css",
+        "SettingsControls.css",
         "LeftBar.css",
         "FileTree.css",
-        "Window.css"
+        "Window.css",
+        "Palette.css"
     )
 
     /**

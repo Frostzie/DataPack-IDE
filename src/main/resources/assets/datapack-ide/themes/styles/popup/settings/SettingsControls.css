@@ -1,0 +1,93 @@
+/* Check Box */
+
+.check-box .box {
+    -fx-background-color: datapack-background;
+    -fx-border-color: datapack-border;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: datapack-text;
+
+}
+
+.check-box:selected .box {
+    -fx-background-color: datapack-background;
+}
+
+.field-textfield {
+    -fx-background-color: -input-bg;
+    -fx-text-fill: -input-text;
+    -fx-border-color: -input-border;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-padding: 5 8;
+}
+
+.field-textfield:focused {
+    -fx-border-color: -input-border-focus;
+}
+
+.field-slider {
+    -fx-pref-width: 200;
+}
+
+.slider-value {
+    -fx-text-fill: -settings-text;
+    -fx-font-size: 11px;
+}
+
+.field-combobox {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: -input-text;
+    -fx-border-color: -input-border;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+}
+
+.field-button {
+    -fx-background-color: -button-bg;
+    -fx-text-fill: -button-text;
+    -fx-border-color: -input-border;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-padding: 6 12;
+}
+
+.field-button:hover {
+    -fx-background-color: -button-hover-bg;
+}
+
+/* Keybind Controls */
+.keybind-input-button {
+    -fx-background-color: -input-bg;
+    -fx-text-fill: -input-text;
+    -fx-border-color: -input-border;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-padding: 6 12;
+    -fx-alignment: center-left;
+}
+
+.keybind-input-button:hover {
+    -fx-border-color: -input-border-focus;
+}
+
+.keybind-input-button.listening {
+    -fx-background-color: -input-border-focus;
+    -fx-text-fill: white;
+}
+
+/* Generic Reset Button for all controls */
+.setting-reset-button {
+    -fx-background-color: -button-bg;
+    -fx-text-fill: -button-text;
+    -fx-border-color: -input-border;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-padding: 4 8;
+    -fx-font-size: 13px;
+}
+
+.setting-reset-button:hover {
+    -fx-background-color: -button-hover-bg;
+}

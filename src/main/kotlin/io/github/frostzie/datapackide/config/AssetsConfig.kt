@@ -78,10 +78,12 @@ object AssetsConfig {
             "BottomBar.css" to "bar/",
             "TextEditor.css" to "main/",
             "NewFileWindow.css" to "popup/",
-            "Settings.css" to "popup/",
+            "Settings.css" to "popup/settings/",
+            "SettingsControls.css" to "popup/settings/",
             "LeftBar.css" to "bar/",
             "FileTree.css" to "main/",
-            "Window.css" to ""
+            "Window.css" to "",
+            "Palette.css" to ""
         )
 
         styleFiles.forEach { (fileName, subPath) ->

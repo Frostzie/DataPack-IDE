@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.settings.annotations.*
-import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
-import io.github.frostzie.datapackide.settings.categories.MainConfig
 import io.github.frostzie.datapackide.settings.data.BooleanConfigField
 import io.github.frostzie.datapackide.settings.data.ButtonConfigField
 import io.github.frostzie.datapackide.settings.data.ConfigField
@@ -15,14 +13,12 @@ import io.github.frostzie.datapackide.settings.data.KeybindConfigField
 import io.github.frostzie.datapackide.settings.data.SliderConfigField
 import io.github.frostzie.datapackide.settings.data.TextConfigField
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import javafx.beans.property.Property
 import java.io.FileReader
 import java.io.FileWriter
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.jvm.isAccessible
 
 object SettingsManager {
     private val logger = LoggerProvider.getLogger("SettingsManager")
@@ -30,12 +26,12 @@ object SettingsManager {
     private val settingsFile = ConfigManager.configDir.resolve("settings.json").toFile()
     private val defaultValues = mutableMapOf<KProperty1<*, *>, Any?>()
 
-    private val configClasses = listOf(
-        "main" to MainConfig::class, //TODO: Remove Example settings
-        //"theme" to ThemeConfig::class, TODO: Add theme settings
-        //"keybinds" to KeybindConfig::class, TODO: Add keybind settings
-        "advanced" to AdvancedConfig::class
-    )
+    private val configClasses = mutableListOf<Pair<String, KClass<*>>>()
+
+    fun register(categoryName: String, configClass: KClass<*>) {
+        configClasses.add(categoryName to configClass)
+        logger.debug("Registered settings category '$categoryName' with ${configClass.simpleName}")
+    }
 
     fun initialize() {
         logger.info("Initializing SettingsManager...")
@@ -76,82 +72,8 @@ object SettingsManager {
                 val option = property.findAnnotation<ConfigOption>()
 
                 if (expose != null && option != null) {
-                    property.isAccessible = true
                     val p = property as KProperty1<Any, Any>
-                    val propValue = p.get(objectInstance)
-
-                    when {
-                        property.findAnnotation<ConfigEditorBoolean>() != null -> {
-                            if (propValue is Property<*> && propValue.value is Boolean) {
-                                BooleanConfigField(
-                                    objectInstance, p as KProperty1<Any, Property<Boolean>>, option.name, option.desc,
-                                    property.findAnnotation()
-                                )
-                            } else {
-                                logger.warn("Mismatched annotation/type for ${property.name} in ${configClass.simpleName}. Expected Property<Boolean>.")
-                                null
-                            }
-                        }
-                        property.findAnnotation<ConfigEditorText>() != null -> {
-                            if (propValue is Property<*> && propValue.value is String) {
-                                TextConfigField(
-                                    objectInstance, p as KProperty1<Any, Property<String>>, option.name, option.desc,
-                                    property.findAnnotation()
-                                )
-                            } else {
-                                logger.warn("Mismatched annotation/type for ${property.name} in ${configClass.simpleName}. Expected Property<String>.")
-                                null
-                            }
-                        }
-                        property.findAnnotation<ConfigEditorSlider>() != null -> {
-                            if (propValue is Property<*> && propValue.value is Number) {
-                                SliderConfigField(
-                                    objectInstance, p as KProperty1<Any, Property<Number>>, option.name, option.desc,
-                                    property.findAnnotation(), property.findAnnotation()!!
-                                )
-                            } else {
-                                logger.warn("Mismatched annotation/type for ${property.name} in ${configClass.simpleName}. Expected Property<Number>.")
-                                null
-                            }
-                        }
-                        property.findAnnotation<ConfigEditorDropdown>() != null -> {
-                            if (propValue is Property<*> && propValue.value is String) {
-                                DropdownConfigField(
-                                    objectInstance, p as KProperty1<Any, Property<String>>, option.name, option.desc,
-                                    property.findAnnotation(), property.findAnnotation()!!
-                                )
-                            } else {
-                                                                logger.warn("Mismatched annotation/type for ${property.name} in ${configClass.simpleName}. Expected Property<String>.")
-                                null
-                            }
-                        }
-                        property.findAnnotation<ConfigEditorButton>() != null -> {
-                            if (propValue is Function0<*>) {
-                                ButtonConfigField(
-                                    objectInstance, p as KProperty1<Any, () -> Unit>, option.name, option.desc,
-                                    property.findAnnotation(), property.findAnnotation()!!
-                                )
-                            } else {
-                                logger.warn("Mismatched annotation/type for ${property.name} in ${configClass.simpleName}. Expected () -> Unit.")
-                                null
-                            }
-                        }
-                        property.findAnnotation<ConfigEditorKeybind>() != null -> {
-                            if (propValue is Property<*> && propValue.value is KeyCombination) {
-                                KeybindConfigField(
-                                    objectInstance,
-                                    p as KProperty1<Any, Property<KeyCombination>>,
-                                    option.name,
-                                    option.desc,
-                                    property.findAnnotation()
-                                )
-                            } else {
-                                logger.warn("Mismatched annotation/type for ${property.name} in ${configClass.simpleName}. Expected Property<KeyCombination>.")
-                                null
-                            }
-                        }
-                        else -> null
-                    }
+                    ConfigFieldManager.create(objectInstance, p, option)
                 } else null
             }
     }

@@ -1,26 +1,25 @@
 package io.github.frostzie.datapackide.screen.elements.popup.settings
 
 import io.github.frostzie.datapackide.events.*
+import io.github.frostzie.datapackide.settings.SettingsManager
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.settings.data.CategoryItem
 import io.github.frostzie.datapackide.settings.data.CategoryType
-import io.github.frostzie.datapackide.settings.data.SearchResult
 import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
-import javafx.scene.control.*
+import javafx.scene.control.TextField
+import javafx.scene.control.TreeCell
+import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
-import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 
-/**
- * Settings navigation panel - displays category tree and search results.
- */
 class SettingsNav : VBox() {
     private lateinit var searchField: TextField
-    private lateinit var searchResults: ListView<SearchResult>
     private lateinit var categoryTreeView: TreeView<CategoryItem>
+    private var originalRoot: TreeItem<CategoryItem>? = null
 
     init {
         styleClass.add("left-panel")
@@ -29,14 +28,9 @@ class SettingsNav : VBox() {
 
         createViewComponents()
 
-        val viewStack = StackPane().apply {
-            children.addAll(categoryTreeView, searchResults)
-            setVgrow(this, Priority.ALWAYS)
-        }
-
         children.addAll(
             createSearchSection(),
-            viewStack
+            categoryTreeView
         )
 
         EventBus.register(this)
@@ -62,6 +56,7 @@ class SettingsNav : VBox() {
         categoryTreeView = TreeView<CategoryItem>().apply {
             styleClass.add("category-tree")
             isShowRoot = false
+            setVgrow(this, Priority.ALWAYS)
             selectionModel.selectedItemProperty().addListener { _, _, newItem ->
                 newItem?.value?.let { EventBus.post(SettingsCategorySelected(it)) }
             }
@@ -76,57 +71,8 @@ class SettingsNav : VBox() {
                 }
             }
         }
-
-        searchResults = ListView<SearchResult>().apply {
-            styleClass.add("search-results")
-            isVisible = false
-            isManaged = false
-
-            setOnMouseClicked {
-                selectionModel.selectedItem?.let {
-                    EventBus.post(SettingsSearchResultSelected(it))
-                }
-            }
-
-            setCellFactory {
-                object : ListCell<SearchResult>() {
-                    private val titleLabel = Label().apply {
-                        styleClass.add("search-result-title")
-                        isWrapText = true
-                    }
-                    private val pathLabel = Label().apply {
-                        styleClass.add("search-result-path")
-                        isWrapText = true
-                    }
-                    private val descriptionLabel = Label().apply {
-                        styleClass.add("search-result-description")
-                        isWrapText = true
-                    }
-                    private val content = VBox(titleLabel, pathLabel, descriptionLabel).apply {
-                        styleClass.add("search-result-item")
-                        prefWidth = 0.0
-                    }
-
-                    override fun updateItem(item: SearchResult?, empty: Boolean) {
-                        super.updateItem(item, empty)
-                        if (empty || item == null) {
-                            graphic = null
-                        } else {
-                            titleLabel.text = item.field.name
-                            pathLabel.text = "${item.mainCategory.replaceFirstChar { it.uppercase() }} > ${item.subCategory}"
-                            descriptionLabel.text = item.field.description
-                            graphic = content
-                        }
-                    }
-                }
-            }
-        }
     }
 
-    /**
-     * Receives available categories from the module via event bus.
-     * Builds the category tree structure for display.
-     */
     @SubscribeEvent
     fun onCategoriesAvailable(event: SettingsCategoriesAvailable) {
         val rootItem = TreeItem(CategoryItem("Settings", CategoryType.ROOT))
@@ -156,61 +102,53 @@ class SettingsNav : VBox() {
             rootItem.children.add(categoryItem)
         }
 
-        categoryTreeView.root = rootItem
+        originalRoot = rootItem
+        categoryTreeView.root = originalRoot
 
         Platform.runLater {
             categoryTreeView.selectionModel.select(1)
         }
     }
 
-    /**
-     * Selects a tree item based on indices.
-     * Used when navigating from search results.
-     */
-    @SubscribeEvent
-    fun onSelectTreeItem(event: SelectTreeItem) {
-        Platform.runLater {
-            val rootItem = categoryTreeView.root
-            if (event.categoryIndex < 0 || event.categoryIndex >= rootItem.children.size) return@runLater
-
-            val mainCategoryItem = rootItem.children[event.categoryIndex]
-
-            val targetItem = if (event.subCategory != null && event.subCategory != "General") {
-                mainCategoryItem.children.find { it.value.subCategory == event.subCategory }
-            } else {
-                mainCategoryItem
-            }
-
-            targetItem?.let {
-                categoryTreeView.selectionModel.select(it)
-
-                // Expand parent items
-                var parent = it.parent
-                while (parent != null && !parent.isExpanded) {
-                    parent.isExpanded = true
-                    parent = parent.parent
-                }
-            }
-        }
-    }
-
-    /**
-     * Receives search results from the module and displays them.
-     * Toggles between tree view and search results view.
-     */
     @SubscribeEvent
     fun onSearchResultsAvailable(event: SettingsSearchResultsAvailable) {
-        displaySearchResults(event.results)
-    }
+        if (event.query.isBlank()) {
+            categoryTreeView.root = originalRoot
+            if (categoryTreeView.root.children.isNotEmpty()) {
+                categoryTreeView.selectionModel.select(1)
+            }
+            return
+        }
 
-    fun displaySearchResults(results: List<SearchResult>) {
-        val isSearching = searchField.text.isNotBlank()
+        val matchingFields = event.results.map { it.field }.toSet()
+        val filteredRoot = TreeItem(CategoryItem("Settings", CategoryType.ROOT))
 
-        searchResults.items.setAll(results)
-        searchResults.isVisible = isSearching
-        searchResults.isManaged = isSearching
+        originalRoot?.children?.forEach { mainCategoryItem ->
+            val newMainCategoryItem = TreeItem(mainCategoryItem.value)
 
-        categoryTreeView.isVisible = !isSearching
-        categoryTreeView.isManaged = !isSearching
+            mainCategoryItem.children.forEach { subCategoryItem ->
+                val fieldsForSubCategory = SettingsManager.getNestedCategories(subCategoryItem.value.configClass!!)[subCategoryItem.value.subCategory!!]
+                val hasMatch = fieldsForSubCategory?.any { it in matchingFields } == true
+
+                if (hasMatch) {
+                    newMainCategoryItem.children.add(TreeItem(subCategoryItem.value))
+                }
+            }
+
+            if (newMainCategoryItem.children.isNotEmpty()) {
+                newMainCategoryItem.isExpanded = true
+                filteredRoot.children.add(newMainCategoryItem)
+            }
+        }
+
+        categoryTreeView.root = filteredRoot
+
+        if (filteredRoot.children.isEmpty()) {
+            EventBus.post(SettingsContentUpdate("No Results Found", emptyList()))
+        } else {
+            val firstItem = filteredRoot.children.first()
+            val itemToSelect = if (firstItem.children.isNotEmpty()) firstItem.children.first() else firstItem
+            categoryTreeView.selectionModel.select(itemToSelect)
+        }
     }
 }

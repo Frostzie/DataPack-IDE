@@ -1,26 +1,20 @@
 package io.github.frostzie.datapackide.screen.elements.popup.settings
 
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.HighlightField
-import io.github.frostzie.datapackide.events.SettingsContentUpdate
 import io.github.frostzie.datapackide.settings.data.ConfigField
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.ui.SettingsControlBuilder
-import javafx.animation.KeyFrame
-import javafx.animation.Timeline
-import javafx.application.Platform
-import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.Separator
 import javafx.scene.layout.HBox
 import javafx.scene.layout.HBox.setHgrow
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
-import javafx.util.Duration
+import io.github.frostzie.datapackide.events.SettingsContentUpdate
+import javafx.geometry.Pos
+import javafx.scene.control.Label
 
 class SettingsContent : VBox() {
-    private val fieldControlMap = mutableMapOf<ConfigField, VBox>()
-    private lateinit var scrollPane: ScrollPane
 
     init {
         styleClass.add("settings-content-area")
@@ -31,7 +25,18 @@ class SettingsContent : VBox() {
 
     @SubscribeEvent
     fun onContentUpdate(event: SettingsContentUpdate) {
-        fieldControlMap.clear()
+        if (event.sections.isEmpty()) {
+            val noResultsLabel = Label("No results found.").apply {
+                styleClass.add("no-results-label")
+            }
+            val container = VBox(noResultsLabel).apply {
+                styleClass.add("category-content")
+                alignment = Pos.CENTER
+            }
+            children.setAll(container)
+            return
+        }
+
         val content = VBox().apply {
             styleClass.add("category-content")
             spacing = 20.0
@@ -42,11 +47,14 @@ class SettingsContent : VBox() {
             children.add(categoryTitle)
 
             event.sections.forEach { sectionData ->
-                children.add(createSubCategorySection(sectionData.name, sectionData.description, sectionData.fields))
+                val section = createSubCategorySection(sectionData.name, sectionData.description, sectionData.fields, event.filterFields)
+                if (section.children.any { it.isVisible }) {
+                    children.add(section)
+                }
             }
         }
 
-        scrollPane = ScrollPane(content).apply {
+        val scrollPane = ScrollPane(content).apply {
             styleClass.add("category-scroll")
             isFitToWidth = true
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
@@ -55,33 +63,8 @@ class SettingsContent : VBox() {
         children.setAll(scrollPane)
     }
 
-    @SubscribeEvent
-    fun onHighlightField(event: HighlightField) {
-        val controlToHighlight = fieldControlMap[event.field]
-        controlToHighlight?.let { control ->
-            Platform.runLater {
-                // Scroll the item into view
-                val viewportHeight = scrollPane.viewportBounds.height
-                val contentHeight = scrollPane.content.boundsInLocal.height
-                if (contentHeight > viewportHeight) {
-                    val controlBounds = control.boundsInParent
-                    val controlY = controlBounds.minY + controlBounds.height / 2.0
-                    val vValue = (controlY - viewportHeight / 2.0) / (contentHeight - viewportHeight)
-                    scrollPane.vvalue = vValue.coerceIn(0.0, 1.0)
-                }
 
-                // Apply highlight
-                control.requestFocus()
-                control.styleClass.add("highlighted")
-                val timeline = Timeline(KeyFrame(Duration.seconds(2.0), {
-                    control.styleClass.remove("highlighted")
-                }))
-                timeline.play()
-            }
-        }
-    }
-
-    private fun createSubCategorySection(subCategoryName: String, description: String?, fields: List<ConfigField>): VBox {
+    private fun createSubCategorySection(subCategoryName: String, description: String?, fields: List<ConfigField>, filterFields: Set<ConfigField>?): VBox {
         return VBox().apply {
             styleClass.add("subcategory-section")
             spacing = 10.0
@@ -95,7 +78,7 @@ class SettingsContent : VBox() {
 
                 val separator = Separator().apply {
                     styleClass.add("subcategory-separator")
-                    HBox.setHgrow(this, Priority.ALWAYS)
+                    setHgrow(this, Priority.ALWAYS)
                 }
 
                 children.addAll(subTitle, separator)
@@ -111,9 +94,15 @@ class SettingsContent : VBox() {
                 children.add(descLabel)
             }
 
-            fields.forEach { field ->
+            val fieldsToShow = if (filterFields != null) fields.filter { it in filterFields } else fields
+
+            fieldsToShow.forEach { field ->
                 children.add(createFieldControl(field))
             }
+
+            val hasVisibleFields = fieldsToShow.isNotEmpty()
+            this.isVisible = hasVisibleFields
+            this.isManaged = hasVisibleFields
         }
     }
 
@@ -136,7 +125,6 @@ class SettingsContent : VBox() {
             }
 
             children.add(SettingsControlBuilder.createControl(field))
-            fieldControlMap[field] = this
         }
     }
 }

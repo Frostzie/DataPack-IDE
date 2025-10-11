@@ -18,11 +18,18 @@ import javafx.stage.StageStyle
 class SettingsModule(private val parentStage: Stage, private val themeModule: ThemeModule) {
     companion object {
         private val logger = LoggerProvider.getLogger("SettingsModule")
+        // Relevance scores for search
+        private const val EXACT_NAME_SCORE = 100
+        private const val NAME_CONTAINS_SCORE = 50
+        private const val DESC_CONTAINS_SCORE = 25
+        private const val CATEGORY_NAME_SCORE = 15
+        private const val CATEGORY_DESC_SCORE = 10
     }
 
     var stage: Stage? = null
     var xOffset = 0.0
     var yOffset = 0.0
+    private var currentQuery: String = ""
 
     fun dragWindow(screenX: Double, screenY: Double) {
         stage?.x = screenX - xOffset
@@ -30,17 +37,23 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
     }
 
     fun search(query: String) {
+        this.currentQuery = query
         if (query.isBlank()) {
-            EventBus.post(SettingsSearchResultsAvailable(emptyList()))
+            EventBus.post(SettingsSearchResultsAvailable(query, emptyList()))
         } else {
             val results = searchSettings(query)
-            EventBus.post(SettingsSearchResultsAvailable(results))
+            EventBus.post(SettingsSearchResultsAvailable(query, results))
         }
     }
 
     fun selectCategory(item: CategoryItem) {
         val sections = mutableListOf<SectionData>()
         val title: String
+        var filterFields: Set<ConfigField>? = null
+
+        if (currentQuery.isNotBlank()) {
+            filterFields = searchSettings(currentQuery).map { it.field }.toSet()
+        }
 
         when (item.type) {
             CategoryType.MAIN_CATEGORY -> {
@@ -65,7 +78,7 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
             else -> return
         }
 
-        EventBus.post(SettingsContentUpdate(title, sections))
+        EventBus.post(SettingsContentUpdate(title, sections, filterFields))
     }
 
     fun selectSearchResult(result: SearchResult) {
@@ -74,7 +87,6 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
 
         if (categoryIndex != -1) {
             EventBus.post(SelectTreeItem(categoryIndex, result.subCategory))
-            EventBus.post(HighlightField(result.field))
         }
     }
 
@@ -91,7 +103,7 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
 
             val view = SettingsView()
             val scene = Scene(view, 900.0, 700.0).apply { fill = Color.TRANSPARENT }
-            CSSManager.applyPopupStyles(scene, "Settings.css")
+            CSSManager.applyPopupStyles(scene, "Settings.css", "SettingsControls.css")
             themeModule.scenes.add(scene)
             stage?.scene = scene
             stage?.centerOnScreen()
@@ -137,19 +149,19 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
         var score = 0
 
         // Exact name match gets the highest score
-        if (field.name.lowercase() == query) score += 100
+        if (field.name.lowercase() == query) score += EXACT_NAME_SCORE
 
         // Name contains query
-        if (field.name.lowercase().contains(query)) score += 50
+        if (field.name.lowercase().contains(query)) score += NAME_CONTAINS_SCORE
 
         // Description contains query
-        if (field.description.lowercase().contains(query)) score += 25
+        if (field.description.lowercase().contains(query)) score += DESC_CONTAINS_SCORE
 
         // Category name contains query
-        if (field.category?.name?.lowercase()?.contains(query) == true) score += 15
+        if (field.category?.name?.lowercase()?.contains(query) == true) score += CATEGORY_NAME_SCORE
 
         // Category description contains query
-        if (field.category?.desc?.lowercase()?.contains(query) == true) score += 10
+        if (field.category?.desc?.lowercase()?.contains(query) == true) score += CATEGORY_DESC_SCORE
 
         return score
     }

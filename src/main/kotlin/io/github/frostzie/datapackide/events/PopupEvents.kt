@@ -1,7 +1,7 @@
 package io.github.frostzie.datapackide.events
 
-import io.github.frostzie.datapackide.settings.data.ConfigField
 import io.github.frostzie.datapackide.settings.data.CategoryItem
+import io.github.frostzie.datapackide.settings.data.ConfigField
 import io.github.frostzie.datapackide.settings.data.SearchResult
 import kotlin.reflect.KClass
 
@@ -11,7 +11,7 @@ class SettingsWindowCloseSave
 // Settings events
 class SettingsSave
 data class SettingsSearchQueryChanged(val query: String)
-data class SettingsSearchResultsAvailable(val results: List<SearchResult>)
+data class SettingsSearchResultsAvailable(val query: String, val results: List<SearchResult>)
 data class SettingsSearchResultSelected(val result: SearchResult)
 
 data class SettingsCategorySelected(val item: CategoryItem)
@@ -25,6 +25,6 @@ data class CategoryData(val name: String, val configClass: KClass<*>, val subCat
 data class SettingsCategoriesAvailable(val categories: List<CategoryData>)
 
 data class SectionData(val name: String, val description: String?, val fields: List<ConfigField>)
-data class SettingsContentUpdate(val title: String, val sections: List<SectionData>)
+data class SettingsContentUpdate(val title: String, val sections: List<SectionData>, val filterFields: Set<ConfigField>? = null)
 
 data class HighlightField(val field: ConfigField)

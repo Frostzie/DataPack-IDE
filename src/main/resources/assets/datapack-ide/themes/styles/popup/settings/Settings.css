@@ -1,6 +1,5 @@
 /* Settings */
 .settings-window {
-    -settings-bg: #2b2b2b;
     -settings-text: #dddddd;
     -settings-title-text: #ffffff;
     -settings-section-bg: #333333;
@@ -20,7 +19,7 @@
     -apply-button-bg: #107c10;
     -apply-button-hover-bg: #0e6e0e;
 
-    -fx-background-color: -settings-bg;
+    -fx-background-color: -datapack-background;
     -fx-text-fill: -settings-text;
     -fx-alignment: top-center;
     -fx-spacing: 0;
@@ -29,7 +28,7 @@
 
 /* Title Section */
 .title-section {
-    -fx-background-color: derive(-settings-bg, 5%);
+    -fx-background-color: derive(datapack-dark, 5%);
     -fx-border-color: -settings-section-border;
     -fx-border-width: 0 0 1 0;
     -fx-padding: 8 8 8 15;
@@ -58,7 +57,7 @@
 
 /* Search Section */
 .search-section {
-    -fx-background-color: derive(-settings-bg, -10%);
+    -fx-background-color: derive(datapack-background, -10%);
     -fx-border-color: -settings-section-border;
     -fx-border-width: 0 0 1 0;
     -fx-padding: 10;
@@ -94,7 +93,7 @@
 
 /* Left Panel (Search + Categories) */
 .left-panel {
-    -fx-background-color: derive(-settings-bg, -10%);
+    -fx-background-color: derive(datapack-background, -10%);
     -fx-border-color: -settings-section-border;
     -fx-border-width: 0 1 0 0;
 }
@@ -119,7 +118,7 @@
 }
 
 .category-tree .tree-cell:hover {
-    -fx-background-color: derive(-settings-bg, 15%);
+    -fx-background-color: derive(datapack-background, 15%);
 }
 
 /* Search Results */
@@ -141,7 +140,7 @@
 }
 
 .search-results .list-cell:filled:hover {
-    -fx-background-color: derive(-settings-bg, 15%);
+    -fx-background-color: derive(datapack-background, 15%);
     -fx-background-radius: 3px;
 }
 
@@ -265,89 +264,9 @@
     -fx-font-size: 11px;
 }
 
-.field-checkbox {
-    -fx-text-fill: -settings-text;
-}
-
-.field-textfield {
-    -fx-background-color: -input-bg;
-    -fx-text-fill: -input-text;
-    -fx-border-color: -input-border;
-    -fx-border-radius: 3px;
-    -fx-background-radius: 3px;
-    -fx-padding: 5 8;
-}
-
-.field-textfield:focused {
-    -fx-border-color: -input-border-focus;
-}
-
-.field-slider {
-    -fx-pref-width: 200;
-}
-
-.slider-value {
-    -fx-text-fill: -settings-text;
-    -fx-font-size: 11px;
-}
-
-.field-combobox {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: -input-text;
-    -fx-border-color: -input-border;
-    -fx-border-radius: 3px;
-    -fx-background-radius: 3px;
-}
-
-.field-button {
-    -fx-background-color: -button-bg;
-    -fx-text-fill: -button-text;
-    -fx-border-color: -input-border;
-    -fx-border-radius: 3px;
-    -fx-background-radius: 3px;
-    -fx-padding: 6 12;
-}
-
-.field-button:hover {
-    -fx-background-color: -button-hover-bg;
-}
-
-.keybind-input-button {
-    -fx-background-color: -input-bg;
-    -fx-text-fill: -input-text;
-    -fx-border-color: -input-border;
-    -fx-border-radius: 3px;
-    -fx-background-radius: 3px;
-    -fx-padding: 6 12;
-    -fx-alignment: center-left;
-}
-
-.keybind-input-button:hover {
-    -fx-border-color: -input-border-focus;
-}
-
-.keybind-input-button.listening {
-    -fx-background-color: -input-border-focus;
-    -fx-text-fill: white;
-}
-
-.keybind-reset-button {
-    -fx-background-color: -button-bg;
-    -fx-text-fill: -button-text;
-    -fx-border-color: -input-border;
-    -fx-border-radius: 3px;
-    -fx-background-radius: 3px;
-    -fx-padding: 6 10;
-    -fx-font-size: 13px;
-}
-
-.keybind-reset-button:hover {
-    -fx-background-color: -button-hover-bg;
-}
-
 /* Button Section */
 .button-section {
-    -fx-background-color: derive(-settings-bg, 3%);
+    -fx-background-color: derive(datapack-background, 3%);
     -fx-border-color: -settings-section-border;
     -fx-border-width: 1 0 0 0;
     -fx-spacing: 10;
