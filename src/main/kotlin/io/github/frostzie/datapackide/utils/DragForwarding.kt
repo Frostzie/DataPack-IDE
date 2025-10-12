@@ -175,7 +175,7 @@ class DragForwarding(
             isMaximized = false
             EventBus.post(MainWindowMaximizedStateChanged(false))
 
-            logger.info("Window restored under cursor at (${clampedX.toInt()}, ${clampedY.toInt()})")
+            logger.debug("Window restored under cursor at (${clampedX}, ${clampedY})")
         }
     }
 

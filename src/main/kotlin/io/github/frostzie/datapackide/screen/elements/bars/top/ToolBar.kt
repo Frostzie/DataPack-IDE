@@ -13,6 +13,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
+import org.kordamp.ikonli.feather.Feather
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.material2.Material2AL
 import org.kordamp.ikonli.material2.Material2MZ
@@ -86,7 +87,7 @@ class ToolBar : ToolBar() {
 
     private fun createHideMenuButton(): Button {
         return Button().apply {
-            graphic = FontIcon(Material2OutlinedMZ.VERTICAL_ALIGN_BOTTOM).apply {
+            graphic = FontIcon(Material2OutlinedMZ.REORDER).apply {
                 iconSize = 20
             }
             tooltip = Tooltip("Toggle Menu Bar")
@@ -99,7 +100,7 @@ class ToolBar : ToolBar() {
 
     private fun createRunDataPackButton(): Button {
         return Button().apply {
-            graphic = FontIcon(Material2OutlinedMZ.PLAY_ARROW).apply {
+            graphic = FontIcon(Feather.PLAY).apply {
                 iconSize = 20
             }
             tooltip = Tooltip("Reload Datapack")
@@ -129,7 +130,7 @@ class ToolBar : ToolBar() {
                 iconSize = 20
             }
             tooltip = Tooltip("Minimize")
-            styleClass.addAll(Styles.BUTTON_ICON, Styles.SUCCESS, Styles.CENTER)
+            styleClass.addAll(Styles.FLAT)
             setOnAction {
                 EventBus.post(MainWindowMinimize())
             }
@@ -138,9 +139,9 @@ class ToolBar : ToolBar() {
 
     private fun createMaximizeButton(): IconButton {
         return IconButton {
-            style = "-fx-font-size: 16px;" // Set font size for the icon character
             updateMaximizeButtonStyle()
             tooltip = Tooltip("Maximize/Restore")
+            styleClass.addAll(Styles.FLAT)
             setOnAction {
                 if (isMaximized) {
                     EventBus.post(MainWindowRestore())
@@ -151,9 +152,10 @@ class ToolBar : ToolBar() {
         }
     }
 
-    private fun Button.updateMaximizeButtonStyle() { //TODO: Fix
-        styleClass.removeAll("maximize-icon", "restore-icon")
-        styleClass.addAll("window-control-button", if (isMaximized) "restore-icon" else "maximize-icon")
+    private fun Button.updateMaximizeButtonStyle() {
+        graphic = FontIcon(if (isMaximized) Material2AL.FILTER_NONE else Material2AL.CROP_SQUARE).apply {
+            iconSize = 20
+        }
     }
 
     private fun createCloseButton(): Button {
@@ -162,7 +164,7 @@ class ToolBar : ToolBar() {
                 iconSize = 20
             }
             tooltip = Tooltip("Close")
-            styleClass.addAll(Styles.BUTTON_ICON, Styles.SUCCESS, Styles.CENTER)
+            styleClass.addAll(Styles.FLAT, Styles.DANGER)
             setOnAction {
                 EventBus.post(MainWindowClose())
             }

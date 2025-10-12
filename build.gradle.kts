@@ -47,9 +47,11 @@ dependencies {
 	modImplementation(libs.modmenu)
 	modRuntimeOnly(libs.devauth)
 
+	// Style and icon packs
 	implementation(libs.atlantafx)
-	implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
-	implementation("org.kordamp.ikonli:ikonli-material2-pack:12.4.0")
+	implementation(libs.ikonli)
+	implementation(libs.material2)
+	implementation(libs.feather)
 
 	implementation(libs.fxborderless)
 	//implementation("uk.co.bithatch:FX-BorderlessScene:5.0.12")
