@@ -9,6 +9,7 @@ import javafx.application.Platform
 import javafx.scene.control.Button
 import javafx.scene.control.ToolBar
 import javafx.scene.control.Tooltip
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
@@ -27,16 +28,16 @@ class ToolBar : ToolBar() {
     private var maximizeButton: IconButton
     private var minimizeButton: Button
     private var closeButton: Button
+    private val spacer: Region
 
     init {
-        // Make this HBox grow to fill available space
         HBox.setHgrow(this, Priority.ALWAYS)
-        // Remove default toolbar padding to prevent overflow.
+        // Remove default toolbar padding to prevent overflow
         style = "-fx-padding: 0;"
 
-        val spacer = Region().apply {
+        spacer = Region().apply {
             HBox.setHgrow(this, Priority.ALWAYS)
-            styleClass.add("title-spacer") // Add class for double-click-to-maximize detection
+            styleClass.add("title-spacer")
         }
 
         minimizeButton = createMinimizeButton()
@@ -53,9 +54,34 @@ class ToolBar : ToolBar() {
             closeButton
         )
 
-        // TODO: Fix window dragging and resizing. The ToolBar consumes mouse events,
-        //  preventing the ResizeHandler from working correctly in this area.
         logger.debug("Window controls initialized")
+    }
+
+    /**
+     * Check if a mouse event is over a draggable area (spacer or empty toolbar space)
+     * This method is used by DragForwarding utility.
+     */
+    fun isOverDraggableArea(event: MouseEvent): Boolean {
+        val target = event.target
+
+        if (target == spacer || (target as? Region)?.styleClass?.contains("title-spacer") == true) {
+            return true
+        }
+
+        if (target == this) {
+            val localPoint = sceneToLocal(event.sceneX, event.sceneY)
+            for (item in items) {
+                if (item is Region && item != spacer) {
+                    val bounds = item.boundsInParent
+                    if (bounds.contains(localPoint)) {
+                        return false
+                    }
+                }
+            }
+            return true
+        }
+
+        return false
     }
 
     private fun createHideMenuButton(): Button {
@@ -90,7 +116,7 @@ class ToolBar : ToolBar() {
                 iconSize = 20
             }
             tooltip = Tooltip("Settings")
-            styleClass.addAll( Styles.FLAT)
+            styleClass.addAll(Styles.FLAT)
             setOnAction {
                 EventBus.post(SettingsWindowOpen())
             }

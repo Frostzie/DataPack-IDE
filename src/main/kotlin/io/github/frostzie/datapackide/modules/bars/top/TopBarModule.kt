@@ -6,17 +6,34 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
 import io.github.frostzie.datapackide.events.MenuControlsVisibilityChanged
 import io.github.frostzie.datapackide.screen.MainApplication
+import io.github.frostzie.datapackide.screen.elements.bars.top.ToolBar
+import io.github.frostzie.datapackide.utils.DragForwarding
 import javafx.geometry.Rectangle2D
 import javafx.stage.Screen
 import javafx.stage.Stage
 import java.net.URI
 
-class TopBarModule(private val stage: Stage?) {
+class TopBarModule(private val stage: Stage?, private val toolBar: ToolBar?) {
 
-    /**
-     * Windows resizing function.
-     */
     private var previousBounds: Rectangle2D? = null
+    private var dragHandler: DragForwarding? = null
+
+    init {
+        setupDragHandler()
+    }
+
+    private fun setupDragHandler() {
+        if (toolBar != null && stage != null) {
+            dragHandler = DragForwarding(
+                targetNode = toolBar,
+                stage = stage,
+                draggableAreaChecker = { event ->
+                    toolBar.isOverDraggableArea(event)
+                }
+            )
+            dragHandler?.install()
+        }
+    }
 
     fun minimize() {
         stage?.isIconified = true
@@ -26,23 +43,28 @@ class TopBarModule(private val stage: Stage?) {
         stage?.let {
             val screen = Screen.getScreensForRectangle(it.x, it.y, it.width, it.height).firstOrNull() ?: Screen.getPrimary()
             val visualBounds = screen.visualBounds
+
             previousBounds = Rectangle2D(it.x, it.y, it.width, it.height)
+            dragHandler?.storePreviousBounds(previousBounds!!)
             it.x = visualBounds.minX
             it.y = visualBounds.minY
             it.width = visualBounds.width
             it.height = visualBounds.height
+
+            dragHandler?.setMaximizedState(true)
             EventBus.post(MainWindowMaximizedStateChanged(true))
         }
     }
 
     fun restore() {
-        stage?.let { stage ->
+        stage?.let { stg ->
             previousBounds?.let {
-                stage.x = it.minX
-                stage.y = it.minY
-                stage.width = it.width
-                stage.height = it.height
+                stg.x = it.minX
+                stg.y = it.minY
+                stg.width = it.width
+                stg.height = it.height
             }
+            dragHandler?.setMaximizedState(false)
             EventBus.post(MainWindowMaximizedStateChanged(false))
         }
     }
@@ -61,9 +83,6 @@ class TopBarModule(private val stage: Stage?) {
         EventBus.post(MenuControlsVisibilityChanged(isMenuControlsVisible))
     }
 
-    /**
-     * Menu button actions
-     */
     fun aboutModLink() {
         Util.getOperatingSystem().open(URI("https://github.com/Frostzie/DataPack-IDE"))
     }

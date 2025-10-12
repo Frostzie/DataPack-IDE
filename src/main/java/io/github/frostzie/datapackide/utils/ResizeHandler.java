@@ -84,6 +84,29 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
         return false;
     }
 
+    private void updateCursor(double sceneX, double sceneY) {
+        if (startDrag != null) {
+            // While dragging, the cursor should not change.
+            return;
+        }
+        final double sW = stage.getWidth();
+        final double sH = stage.getHeight();
+        final boolean isMaximized = isStageMaximized();
+
+        Cursor cursor = Cursor.DEFAULT;
+        if (!isMaximized && sceneX > pad && sceneX < sW - pad && sceneY > pad && sceneY < sH - pad) {
+            if (sceneX < depth && sceneY < depth) cursor = Cursor.NW_RESIZE;
+            else if (sceneX < depth && sceneY > sH - depth) cursor = Cursor.SW_RESIZE;
+            else if (sceneX > sW - depth && sceneY < depth) cursor = Cursor.NE_RESIZE;
+            else if (sceneX > sW - depth && sceneY > sH - depth) cursor = Cursor.SE_RESIZE;
+            else if (sceneX < depth) cursor = Cursor.W_RESIZE;
+            else if (sceneX > sW - depth) cursor = Cursor.E_RESIZE;
+            else if (sceneY < depth) cursor = Cursor.N_RESIZE;
+            else if (sceneY > sH - depth) cursor = Cursor.S_RESIZE;
+        }
+        stage.getScene().setCursor(cursor);
+    }
+
     @Override
     public void handle(MouseEvent mouseEvent) {
         EventType<? extends MouseEvent> mouseEventType = mouseEvent.getEventType();
@@ -94,20 +117,7 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
         final boolean isMaximized = isStageMaximized();
 
         if (MouseEvent.MOUSE_MOVED.equals(mouseEventType)) {
-            if (startDrag == null) {
-                Cursor cursor = Cursor.DEFAULT;
-                if (!isMaximized && lX > pad && lX < sW - pad && lY > pad && lY < sH - pad) {
-                    if (lX < depth && lY < depth) cursor = Cursor.NW_RESIZE;
-                    else if (lX < depth && lY > sH - depth) cursor = Cursor.SW_RESIZE;
-                    else if (lX > sW - depth && lY < depth) cursor = Cursor.NE_RESIZE;
-                    else if (lX > sW - depth && lY > sH - depth) cursor = Cursor.SE_RESIZE;
-                    else if (lX < depth) cursor = Cursor.W_RESIZE;
-                    else if (lX > sW - depth) cursor = Cursor.E_RESIZE;
-                    else if (lY < depth) cursor = Cursor.N_RESIZE;
-                    else if (lY > sH - depth) cursor = Cursor.S_RESIZE;
-                }
-                stage.getScene().setCursor(cursor);
-            }
+            updateCursor(lX, lY);
         } else if (MouseEvent.MOUSE_EXITED.equals(mouseEventType) || MouseEvent.MOUSE_EXITED_TARGET.equals(mouseEventType)) {
             if (startDrag == null) {
                 stage.getScene().setCursor(Cursor.DEFAULT);
@@ -252,9 +262,11 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
             }
 
             updateStagePosition(x, y, x2, y2);
+            startDrag = null;
+            updateCursor(lX, lY);
         } else if (MouseEvent.MOUSE_RELEASED.equals(mouseEventType)) {
             startDrag = null; // End of drag
-            // The cursor will be updated on the next MOUSE_MOVED event
+            updateCursor(lX, lY);
         }
     }
 

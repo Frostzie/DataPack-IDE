@@ -107,7 +107,7 @@ class MainApplication {
             bottomBarModule = BottomBarModule()
             bottomBarHandler = BottomBarHandler(bottomBarModule!!)
 
-            topBarModule = TopBarModule(stage)
+            topBarModule = TopBarModule(stage, topBarView?.toolBar)
             topBarHandler = TopBarHandler(topBarModule!!)
 
             textEditorModule = TextEditorModule(textEditorView!!) //TODO: Change to actual module when moving View -> Module
