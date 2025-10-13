@@ -2,7 +2,6 @@ package io.github.frostzie.datapackide.utils
 
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximize
-import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
 import io.github.frostzie.datapackide.events.MainWindowRestore
 import javafx.geometry.Rectangle2D
 import javafx.scene.Node
@@ -19,7 +18,8 @@ import javafx.stage.Stage
 class DragForwarding(
     private val targetNode: Node,
     private val stage: Stage?,
-    private val draggableAreaChecker: (MouseEvent) -> Boolean
+    private val draggableAreaChecker: (MouseEvent) -> Boolean,
+    private val onRestoredByDrag: () -> Unit
 ) {
 
     companion object {
@@ -173,7 +173,7 @@ class DragForwarding(
             stg.height = restoredHeight
 
             isMaximized = false
-            EventBus.post(MainWindowMaximizedStateChanged(false))
+            onRestoredByDrag()
 
             logger.debug("Window restored under cursor at (${clampedX}, ${clampedY})")
         }

@@ -30,10 +30,17 @@ class TopBarModule(private val stage: Stage?, private val topBarView: TopBarView
                 stage = stage,
                 draggableAreaChecker = { event ->
                     topBarView.isOverDraggableArea(event)
-                }
+                },
+                onRestoredByDrag = this::onDragRestored
             )
             dragHandler?.install()
         }
+    }
+
+    fun onDragRestored() {
+        this.isMaximized = false
+        dragHandler?.setMaximizedState(false)
+        EventBus.post(MainWindowMaximizedStateChanged(false))
     }
 
     fun minimize() {

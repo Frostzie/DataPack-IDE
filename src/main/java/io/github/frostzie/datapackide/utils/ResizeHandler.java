@@ -263,9 +263,11 @@ public class ResizeHandler implements EventHandler<MouseEvent> {
 
             updateStagePosition(x, y, x2, y2);
             startDrag = null;
+            setXYCheck(CHECK.NONE, CHECK.NONE); // Temp fix
             updateCursor(lX, lY);
         } else if (MouseEvent.MOUSE_RELEASED.equals(mouseEventType)) {
             startDrag = null; // End of drag
+            setXYCheck(CHECK.NONE, CHECK.NONE); // Temp fix
             updateCursor(lX, lY);
         }
     }
