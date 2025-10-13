@@ -6,29 +6,30 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
 import io.github.frostzie.datapackide.events.MenuControlsVisibilityChanged
 import io.github.frostzie.datapackide.screen.MainApplication
-import io.github.frostzie.datapackide.screen.elements.bars.top.ToolBar
+import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.utils.DragForwarding
 import javafx.geometry.Rectangle2D
 import javafx.stage.Screen
 import javafx.stage.Stage
 import java.net.URI
 
-class TopBarModule(private val stage: Stage?, private val toolBar: ToolBar?) {
+class TopBarModule(private val stage: Stage?, private val topBarView: TopBarView?) {
 
     private var previousBounds: Rectangle2D? = null
     private var dragHandler: DragForwarding? = null
+    private var isMaximized: Boolean = false
 
     init {
         setupDragHandler()
     }
 
     private fun setupDragHandler() {
-        if (toolBar != null && stage != null) {
+        if (topBarView != null && stage != null) {
             dragHandler = DragForwarding(
-                targetNode = toolBar,
+                targetNode = topBarView,
                 stage = stage,
                 draggableAreaChecker = { event ->
-                    toolBar.isOverDraggableArea(event)
+                    topBarView.isOverDraggableArea(event)
                 }
             )
             dragHandler?.install()
@@ -51,6 +52,7 @@ class TopBarModule(private val stage: Stage?, private val toolBar: ToolBar?) {
             it.width = visualBounds.width
             it.height = visualBounds.height
 
+            isMaximized = true
             dragHandler?.setMaximizedState(true)
             EventBus.post(MainWindowMaximizedStateChanged(true))
         }
@@ -64,8 +66,17 @@ class TopBarModule(private val stage: Stage?, private val toolBar: ToolBar?) {
                 stg.width = it.width
                 stg.height = it.height
             }
+            isMaximized = false
             dragHandler?.setMaximizedState(false)
             EventBus.post(MainWindowMaximizedStateChanged(false))
+        }
+    }
+
+    fun toggleMaximize() {
+        if (isMaximized) {
+            restore()
+        } else {
+            maximize()
         }
     }
 

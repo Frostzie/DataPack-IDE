@@ -6,6 +6,7 @@ import io.github.frostzie.datapackide.events.MainWindowClose
 import io.github.frostzie.datapackide.events.MainWindowMaximize
 import io.github.frostzie.datapackide.events.MainWindowMinimize
 import io.github.frostzie.datapackide.events.MainWindowRestore
+import io.github.frostzie.datapackide.events.MainWindowToggleMaximize
 import io.github.frostzie.datapackide.events.ReloadDatapack
 import io.github.frostzie.datapackide.events.ToggleMenuControls
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
@@ -22,6 +23,11 @@ class TopBarHandler(private val topBarModule: TopBarModule) {
     @SubscribeEvent
     fun onMaximize(event: MainWindowMaximize) {
         topBarModule.maximize()
+    }
+
+    @SubscribeEvent
+    fun onToggleMaximize(event: MainWindowToggleMaximize) {
+        topBarModule.toggleMaximize()
     }
 
     @SubscribeEvent

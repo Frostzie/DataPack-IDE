@@ -2,10 +2,12 @@ package io.github.frostzie.datapackide.screen.elements.bars
 
 import io.github.frostzie.datapackide.events.ChooseDirectory
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.utils.IconButton
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import javafx.scene.control.Button
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.VBox
+import org.kordamp.ikonli.feather.Feather
+import org.kordamp.ikonli.javafx.FontIcon
 
 class LeftBarView : VBox() {
 
@@ -13,8 +15,8 @@ class LeftBarView : VBox() {
         private val logger = LoggerProvider.getLogger("LeftBarView")
     }
 
-    private val directoryChooseButton: IconButton
-    private val searchButton: IconButton
+    private val directoryChooseButton: Button
+    private val searchButton: Button
 
     init {
         setupLeftBar()
@@ -25,13 +27,12 @@ class LeftBarView : VBox() {
     }
 
     private fun setupLeftBar() {
-        styleClass.add("left-bar")
         logger.debug("Left bar initialized")
     }
 
-    private fun directoryChooseButton(): IconButton {
-        return IconButton {
-            styleClass.addAll("left-bar-button", "directory-choose-icon")
+    private fun directoryChooseButton(): Button {
+        return Button().apply {
+            graphic = FontIcon(Feather.FOLDER)
             tooltip = Tooltip("Choose Directory")
             setOnAction {
                 EventBus.post(ChooseDirectory())
@@ -39,9 +40,9 @@ class LeftBarView : VBox() {
         }
     }
 
-    private fun searchButton(): IconButton {
-        return IconButton {
-            styleClass.addAll("left-bar-button", "search-icon")
+    private fun searchButton(): Button {
+        return Button().apply {
+            graphic = FontIcon(Feather.SEARCH)
             tooltip = Tooltip("Search")
             setOnAction {
                 logger.info("Search button clicked") //TODO: Implement search
@@ -50,8 +51,8 @@ class LeftBarView : VBox() {
     }
 
     private fun layoutComponents(
-        directoryChooseButton: IconButton,
-        searchButton: IconButton,
+        directoryChooseButton: Button,
+        searchButton: Button,
     ) {
         children.addAll(directoryChooseButton, searchButton)
     }

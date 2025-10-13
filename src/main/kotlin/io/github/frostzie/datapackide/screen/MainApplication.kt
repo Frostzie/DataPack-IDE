@@ -23,6 +23,8 @@ import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.ResizeHandler
 import atlantafx.base.theme.PrimerDark
+import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
+import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Application
 import javafx.application.Platform
@@ -107,7 +109,7 @@ class MainApplication {
             bottomBarModule = BottomBarModule()
             bottomBarHandler = BottomBarHandler(bottomBarModule!!)
 
-            topBarModule = TopBarModule(stage, topBarView?.toolBar)
+            topBarModule = TopBarModule(stage, topBarView)
             topBarHandler = TopBarHandler(topBarModule!!)
 
             textEditorModule = TextEditorModule(textEditorView!!) //TODO: Change to actual module when moving View -> Module
@@ -142,30 +144,39 @@ class MainApplication {
             root.center = centerContent
             root.bottom = bottomBarView
 
+            //TODO: remove / move
+            AdvancedConfig.debugLayoutBounds.addListener { _, _, newValue ->
+                if (newValue) {
+                    root.styleClass.add("debug-layout")
+                } else {
+                    root.styleClass.remove("debug-layout")
+                }
+            }
+
             setupStageDimensions(stage, root)
 
             return root
         }
 
         private fun setupStageDimensions(stage: Stage, root: BorderPane) {
-            val minContentWidth = 800.0
-            val minContentHeight = 600.0
+            val minContentWidth = UIConstants.MIN_CONTENT_WIDTH
+            val minContentHeight = UIConstants.MIN_CONTENT_HEIGHT
             val maxContentWidth = Double.MAX_VALUE
             val maxContentHeight = Double.MAX_VALUE
 
             val borderWidth = UIConstants.WINDOW_BORDER_WIDTH
-            val topBarHeight = 40.0
-            val statusBarHeight = 24.0
+            val topBarHeight = UIConstants.TOP_BAR_HEIGHT
+            val statusBarHeight = UIConstants.BOTTOM_BAR_HEIGHT
             
             root.minWidth = minContentWidth + borderWidth
             root.maxWidth = maxContentWidth + borderWidth
             root.minHeight = minContentHeight + topBarHeight + statusBarHeight + borderWidth
             root.maxHeight = maxContentHeight + topBarHeight + statusBarHeight + borderWidth
 
-            stage.minWidth = root.minWidth + 4.0
-            stage.minHeight = root.minHeight + 4.0
-            stage.maxWidth = root.maxWidth + 4.0
-            stage.maxHeight = root.maxHeight + 4.0
+            stage.minWidth = root.minWidth + UIConstants.STAGE_BORDER_WIDTH
+            stage.minHeight = root.minHeight + UIConstants.STAGE_BORDER_WIDTH
+            stage.maxWidth = root.maxWidth + UIConstants.STAGE_BORDER_WIDTH
+            stage.maxHeight = root.maxHeight + UIConstants.STAGE_BORDER_WIDTH
 
             logger.debug("Stage dimensions set: min=${stage.minWidth}x${stage.minHeight}, max=${stage.maxWidth}x${stage.maxHeight}")
         }
@@ -187,10 +198,7 @@ class MainApplication {
         private fun setupEventHandlers() {
             // New event bus registrations
             EventBus.register(topBarHandler!!)
-            topBarView?.let {
-                EventBus.register(it)
-                EventBus.register(it.toolBar)
-            }
+            topBarView?.let { EventBus.register(it) }
 
             EventBus.register(textEditorHandler!!)
             textEditorView?.let { EventBus.register(it) }
@@ -232,13 +240,14 @@ class MainApplication {
                 stage.initStyle(StageStyle.UNDECORATED)
 
                 val mainUI = createMainUI(stage)
-                val scene = Scene(mainUI, 1200.0, 800.0)
+                val scene = Scene(mainUI, UIConstants.DEFAULT_WINDOW_WIDTH, UIConstants.DEFAULT_WINDOW_HEIGHT)
 
+                CSSManager.applyAllStyles(scene)
                 themeModule?.scenes?.add(scene)
                 stage.scene = scene
                 stage.title = "DataPack IDE"
-                stage.width = 1200.0
-                stage.height = 800.0
+                stage.width = UIConstants.DEFAULT_WINDOW_WIDTH
+                stage.height = UIConstants.DEFAULT_WINDOW_HEIGHT
                 stage.isResizable = true
                 stage.centerOnScreen()
 

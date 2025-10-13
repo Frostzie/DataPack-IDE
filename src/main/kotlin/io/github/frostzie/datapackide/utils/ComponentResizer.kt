@@ -19,7 +19,7 @@ object ComponentResizer {
      */
     fun install(
         region: Region,
-        handleWidth: Double = 4.0,
+        handleWidth: Double = UIConstants.FILE_TREE_RESIZER_WIDTH,
         minWidth: Double,
         maxWidth: Double
     ) {

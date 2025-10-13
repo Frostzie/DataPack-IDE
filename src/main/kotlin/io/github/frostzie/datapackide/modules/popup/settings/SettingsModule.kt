@@ -8,6 +8,7 @@ import io.github.frostzie.datapackide.settings.data.CategoryType
 import io.github.frostzie.datapackide.settings.data.ConfigField
 import io.github.frostzie.datapackide.settings.data.SearchResult
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.scene.Scene
 import javafx.scene.paint.Color
 import javafx.stage.Modality
@@ -96,12 +97,12 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
                 initModality(Modality.APPLICATION_MODAL)
                 initOwner(parentStage)
                 isResizable = true
-                minWidth = 800.0
-                minHeight = 600.0
+                minWidth = UIConstants.SETTINGS_MIN_WIDTH
+                minHeight = UIConstants.SETTINGS_MIN_HEIGHT
             }
 
             val view = SettingsView()
-            val scene = Scene(view, 900.0, 700.0).apply { fill = Color.TRANSPARENT }
+            val scene = Scene(view, UIConstants.SETTINGS_WIDTH, UIConstants.SETTINGS_HEIGHT).apply { fill = Color.TRANSPARENT }
             themeModule.scenes.add(scene)
             stage?.scene = scene
             stage?.centerOnScreen()

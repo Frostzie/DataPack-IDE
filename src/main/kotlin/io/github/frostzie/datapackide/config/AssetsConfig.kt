@@ -72,18 +72,8 @@ object AssetsConfig {
 
     private fun transferStyles() {
         val styleFiles = mapOf(
-            "MenuBar.css" to "bar/top-bar/",
-            "TopBar.css" to "bar/top-bar/",
-            "WindowControls.css" to "bar/top-bar/",
-            "BottomBar.css" to "bar/",
-            "TextEditor.css" to "main/",
-            "NewFileWindow.css" to "popup/",
-            "Settings.css" to "popup/settings/",
-            "SettingsControls.css" to "popup/settings/",
-            "LeftBar.css" to "bar/",
-            "FileTree.css" to "main/",
-            "Window.css" to "",
-            "Palette.css" to ""
+            "Debug.css" to "",
+            "Override.css" to ""
         )
 
         styleFiles.forEach { (fileName, subPath) ->

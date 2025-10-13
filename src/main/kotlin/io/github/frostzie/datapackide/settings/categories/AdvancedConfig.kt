@@ -31,4 +31,10 @@ object AdvancedConfig {
     @ConfigOption(name = "Show TreeView Hitboxes", desc = "Shows visual borders around File Tree components for debugging layout")
     @ConfigEditorBoolean
     val debugTreeViewHitbox = SimpleBooleanProperty(false)
+
+    @Expose
+    @ConfigCategory(name = "Debug")
+    @ConfigOption(name = "Show Layout Bounds", desc = "Shows visual borders around major UI components for debugging layout")
+    @ConfigEditorBoolean
+    val debugLayoutBounds = SimpleBooleanProperty(false)
 }

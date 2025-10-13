@@ -1,0 +1,28 @@
+.debug-layout .top-bar-view {
+    -fx-border-color: red;
+    -fx-border-width: 1px;
+}
+
+.debug-layout .left-bar {
+    -fx-border-color: blue;
+    -fx-border-width: 1px;
+}
+
+.debug-layout .file-tree-container {
+    -fx-border-color: green;
+    -fx-border-width: 1px;
+}
+
+.debug-layout .text-editor-container {
+    -fx-border-color: yellow;
+    -fx-border-width: 1px;
+}
+
+.debug-layout .status-bar {
+    -fx-border-color: orange;
+    -fx-border-width: 1px;
+}
+
+.close-button .ikonli-font-icon {
+    -fx-icon-size: 30px;
+}

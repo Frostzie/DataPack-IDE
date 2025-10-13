@@ -6,6 +6,7 @@ package io.github.frostzie.datapackide.events
 class MainWindowClose
 class MainWindowMinimize
 class MainWindowMaximize
+class MainWindowToggleMaximize
 class MainWindowRestore
 class MainResizeSides
 

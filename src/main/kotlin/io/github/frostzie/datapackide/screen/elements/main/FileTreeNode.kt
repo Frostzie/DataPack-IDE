@@ -7,6 +7,7 @@ import io.github.frostzie.datapackide.eventsOLD.FileAction
 import io.github.frostzie.datapackide.eventsOLD.FileTreeDragStartEvent
 import io.github.frostzie.datapackide.eventsOLD.FileTreeDragEndEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.geometry.Insets
 import javafx.scene.input.ClipboardContent
 import javafx.scene.control.Label
@@ -34,8 +35,8 @@ class FileTreeNode(
 
     companion object {
         private val logger = LoggerProvider.getLogger("FileTreeNode")
-        private const val ITEM_HEIGHT = 22.0
-        private const val INDENT_SIZE = 22.0
+        private const val ITEM_HEIGHT = UIConstants.FILE_TREE_NODE_HEIGHT
+        private const val INDENT_SIZE = UIConstants.FILE_TREE_NODE_INDENT
     }
 
     private val expandArrowContainer: StackPane?

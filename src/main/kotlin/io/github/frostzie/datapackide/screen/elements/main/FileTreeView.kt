@@ -65,14 +65,14 @@ class FileTreeView : VBox() {
             isWrapText = true
             prefHeight = USE_COMPUTED_SIZE
             maxHeight = Double.MAX_VALUE
-            padding = Insets(20.0)
+            padding = Insets(UIConstants.FILE_TREE_PADDING)
         }
 
         contentContainer.apply {
             styleClass.add("file-tree-content")
             prefHeight = USE_COMPUTED_SIZE
             maxHeight = Double.MAX_VALUE
-            spacing = 1.0
+            spacing = UIConstants.FILE_TREE_SPACING
             prefWidth = UIConstants.FILE_TREE_MAX_WIDTH
         }
 

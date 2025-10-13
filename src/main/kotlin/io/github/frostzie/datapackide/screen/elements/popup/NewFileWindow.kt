@@ -3,6 +3,7 @@ package io.github.frostzie.datapackide.screen.elements.popup
 import io.github.frostzie.datapackide.utils.file.FileUtils
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.CSSManager
+import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.*
@@ -146,7 +147,7 @@ class NewFileWindow(private val parentStage: Stage?) {
             items.addAll(FileUtils.FileType.entries)
             isFocusTraversable = false
 
-            fixedCellSize = 28.0
+            fixedCellSize = UIConstants.NEW_FILE_WINDOW_FIXED_CELL_SIZE
             prefHeight = items.size * fixedCellSize + 2
             maxHeight = prefHeight
 
