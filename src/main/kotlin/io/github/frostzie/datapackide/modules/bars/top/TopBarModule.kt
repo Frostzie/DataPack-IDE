@@ -9,7 +9,6 @@ import io.github.frostzie.datapackide.screen.MainApplication
 import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import javafx.geometry.Rectangle2D
 import javafx.scene.input.MouseButton
-import javafx.scene.input.MouseEvent
 import javafx.stage.Screen
 import javafx.stage.Stage
 import java.net.URI
@@ -20,73 +19,15 @@ class TopBarModule(private val stage: Stage?, private val topBarView: TopBarView
     private var previousBounds: Rectangle2D? = null
     private var isMaximized: Boolean = false
 
-    private var dragStartX = 0.0
-    private var dragStartY = 0.0
-    private var dragStartStageX = 0.0
-    private var dragStartStageY = 0.0
-    private var isDraggingFromMaximized = false
-
     init {
-        installDragHandlers()
+        doubleClickMaximize()
     }
 
-    private fun installDragHandlers() {
-        topBarView?.let { view ->
-            view.setOnMouseClicked { event ->
-                if (event.button == MouseButton.PRIMARY && event.clickCount == 2) {
-                    if (view.isOverDraggableArea(event)) {
-                        toggleMaximize()
-                        event.consume()
-                    }
-                }
+    private fun doubleClickMaximize() {
+        topBarView?.setOnMouseClicked { event ->
+            if (event.button == MouseButton.PRIMARY && event.clickCount == 2) {
+                toggleMaximize()
             }
-
-            view.setOnMousePressed { event ->
-                if (event.button == MouseButton.PRIMARY && view.isOverDraggableArea(event)) {
-                    dragStartX = event.screenX
-                    dragStartY = event.screenY
-                    dragStartStageX = stage?.x ?: 0.0
-                    dragStartStageY = stage?.y ?: 0.0
-                    isDraggingFromMaximized = isMaximized
-                    event.consume()
-                }
-            }
-
-            view.setOnMouseDragged { event ->
-                if (event.button == MouseButton.PRIMARY && view.isOverDraggableArea(event)) {
-                    if (isDraggingFromMaximized) {
-                        handleDragFromMaximized(event)
-                        isDraggingFromMaximized = false
-                    } else {
-                        stage?.x = dragStartStageX + (event.screenX - dragStartX)
-                        stage?.y = dragStartStageY + (event.screenY - dragStartY)
-                    }
-                    event.consume()
-                }
-            }
-        }
-    }
-
-    private fun handleDragFromMaximized(event: MouseEvent) {
-        stage?.let { stg ->
-            val restoredWidth = previousBounds?.width ?: stg.width
-            val mouseXRatio = (event.screenX - stg.x) / stg.width
-
-            stg.width = previousBounds?.width ?: stg.width
-            stg.height = previousBounds?.height ?: stg.height
-            isMaximized = false
-            EventBus.post(MainWindowMaximizedStateChanged(false))
-
-            val newX = event.screenX - (restoredWidth * mouseXRatio)
-            val newY = event.screenY - (event.y)
-
-            stg.x = newX
-            stg.y = newY
-
-            dragStartStageX = stg.x
-            dragStartStageY = stg.y
-            dragStartX = event.screenX
-            dragStartY = event.screenY
         }
     }
 

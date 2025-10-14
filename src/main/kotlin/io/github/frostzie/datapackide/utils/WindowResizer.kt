@@ -1,5 +1,8 @@
 package io.github.frostzie.datapackide.utils
 
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import javafx.event.EventHandler
 import javafx.geometry.Pos
 import javafx.scene.Cursor
@@ -9,6 +12,8 @@ import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 
 object WindowResizer {
+
+    private var resizeRegions: List<Region> = emptyList()
 
     fun install(stage: Stage, contentPane: Pane): StackPane {
         val wrapper = StackPane(contentPane)
@@ -23,6 +28,9 @@ object WindowResizer {
         val sw = createResizeRegion(Cursor.SW_RESIZE, borderThickness, borderThickness)
         val se = createResizeRegion(Cursor.SE_RESIZE, borderThickness, borderThickness)
 
+        resizeRegions = listOf(top, bottom, left, right, nw, ne, sw, se)
+        EventBus.register(this)
+
         val resizeData = ResizeData()
 
         setupResize(top, resizeData, stage, north = true)
@@ -34,7 +42,7 @@ object WindowResizer {
         setupResize(sw, resizeData, stage, south = true, west = true)
         setupResize(se, resizeData, stage, south = true, east = true)
 
-        wrapper.children.addAll(top, bottom, left, right, nw, ne, sw, se)
+        wrapper.children.addAll(resizeRegions)
 
         StackPane.setAlignment(top, Pos.TOP_CENTER)
         StackPane.setAlignment(bottom, Pos.BOTTOM_CENTER)
@@ -46,6 +54,12 @@ object WindowResizer {
         StackPane.setAlignment(se, Pos.BOTTOM_RIGHT)
 
         return wrapper
+    }
+
+    @Suppress("unused")
+    @SubscribeEvent
+    fun onMaximizedStateChanged(event: MainWindowMaximizedStateChanged) {
+        resizeRegions.forEach { it.isVisible = !event.isMaximized }
     }
 
     private fun createResizeRegion(cursor: Cursor, height: Double, width: Double): Region {
