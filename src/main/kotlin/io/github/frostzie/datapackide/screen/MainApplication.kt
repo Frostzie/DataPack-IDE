@@ -21,9 +21,11 @@ import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
 import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import io.github.frostzie.datapackide.utils.ResizeHandler
+import io.github.frostzie.datapackide.utils.WindowResizer
 import atlantafx.base.theme.PrimerDark
 import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
+import javafx.scene.layout.Pane
+import javafx.scene.layout.StackPane
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Application
@@ -97,7 +99,7 @@ class MainApplication {
             }
         }
 
-        private fun createMainUI(stage: Stage): BorderPane {
+        private fun createMainUI(stage: Stage): Pane {
             val root = BorderPane()
             root.styleClass.add("window") // Add CSS class for drop shadow
 
@@ -155,7 +157,7 @@ class MainApplication {
 
             setupStageDimensions(stage, root)
 
-            return root
+            return WindowResizer.install(stage, root)
         }
 
         private fun setupStageDimensions(stage: Stage, root: BorderPane) {
@@ -179,20 +181,6 @@ class MainApplication {
             stage.maxHeight = root.maxHeight + UIConstants.STAGE_BORDER_WIDTH
 
             logger.debug("Stage dimensions set: min=${stage.minWidth}x${stage.minHeight}, max=${stage.maxWidth}x${stage.maxHeight}")
-        }
-
-        private fun setupWindowResizing(stage: Stage) {
-            if (stage.style == StageStyle.UNDECORATED) {
-                ResizeHandler.install(
-                    stage,
-                    UIConstants.TOP_BAR_HEIGHT,
-                    UIConstants.WINDOW_RESIZE_BORDER_DEPTH,
-                    UIConstants.WINDOW_SHADOW_INDENTATION
-                )
-                logger.debug("ResizeHandler installed for undecorated window")
-            } else {
-                logger.debug("ResizeHandler not installed - stage is decorated")
-            }
         }
 
         private fun setupEventHandlers() {
@@ -250,8 +238,6 @@ class MainApplication {
                 stage.height = UIConstants.DEFAULT_WINDOW_HEIGHT
                 stage.isResizable = true
                 stage.centerOnScreen()
-
-                setupWindowResizing(stage)
 
                 stage.setOnCloseRequest { e ->
                     e.consume()

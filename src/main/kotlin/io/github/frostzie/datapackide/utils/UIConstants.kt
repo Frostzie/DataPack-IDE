@@ -10,6 +10,7 @@ object UIConstants {
     // Main Window Layout
     const val TOP_BAR_HEIGHT = 40.0
     const val BOTTOM_BAR_HEIGHT = 24.0
+    const val LEFT_BAR_WIDTH = 40.0
     const val MIN_CONTENT_WIDTH = 800.0
     const val MIN_CONTENT_HEIGHT = 600.0
     const val DEFAULT_WINDOW_WIDTH = 1200.0
