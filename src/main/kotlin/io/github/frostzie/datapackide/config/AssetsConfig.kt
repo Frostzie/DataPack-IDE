@@ -13,7 +13,6 @@ object AssetsConfig {
     private val logger = LoggerProvider.getLogger("AssetsConfig")
 
     val assetsDir: Path = ConfigManager.configDir.resolve("assets")
-    val fontsDir: Path = assetsDir.resolve("fonts")
     val stylesDir: Path = assetsDir.resolve("styles")
 
     fun initialize() {
@@ -26,7 +25,7 @@ object AssetsConfig {
     }
 
     private fun createDirectories() {
-        listOf(assetsDir, fontsDir, stylesDir).forEach { dir ->
+        listOf(assetsDir, stylesDir).forEach { dir ->
             try {
                 if (Files.notExists(dir)) {
                     Files.createDirectories(dir)
@@ -49,10 +48,6 @@ object AssetsConfig {
                 stylesDir.toFile().deleteRecursively()
                 logger.info("Deleted existing styles directory.")
             }
-            if (Files.exists(fontsDir)) {
-                fontsDir.toFile().deleteRecursively()
-                logger.info("Deleted existing fonts directory.")
-            }
             initialize()
             logger.info("Forced asset transfer complete. All assets have been reset to default.")
         } catch (e: Exception) {
@@ -61,13 +56,7 @@ object AssetsConfig {
     }
 
     fun transferAllAssets() {
-        transferFonts()
         transferStyles()
-    }
-
-    private fun transferFonts() {
-        val resourcePath = "/assets/datapack-ide/themes/fonts/DataPack-IDE.ttf"
-        transferAsset(resourcePath, fontsDir.resolve("DataPack-IDE.ttf"), "font file")
     }
 
     private fun transferStyles() {
@@ -81,10 +70,6 @@ object AssetsConfig {
             val targetDir = if (subPath.isNotEmpty()) stylesDir.resolve(subPath.trimEnd('/')) else stylesDir
             transferAsset(resourcePath, targetDir.resolve(fileName), "style file")
         }
-    }
-
-    fun getFontPath(): Path {
-        return fontsDir.resolve("DataPack-IDE.ttf")
     }
 
     internal fun transferAsset(resourcePath: String, targetFile: Path, assetType: String) {

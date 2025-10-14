@@ -83,8 +83,6 @@ class TopBarView : ToolBar() {
             Styles.DANGER
         ) {
             EventBus.post(MainWindowClose())
-        }.apply {
-            styleClass.add("close-button")
         }
 
         updateMaximizeButtonIcon(false)
@@ -152,6 +150,7 @@ class TopBarView : ToolBar() {
         maximizeButton.graphic = FontIcon(if (maximized) Material2AL.FILTER_NONE else Material2AL.CROP_SQUARE)
     }
 
+    @Suppress("unused")
     @SubscribeEvent
     fun onWindowStateChanged(event: MainWindowMaximizedStateChanged) {
         Platform.runLater {

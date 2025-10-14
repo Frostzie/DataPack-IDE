@@ -25,8 +25,8 @@ import io.github.frostzie.datapackide.utils.WindowResizer
 import atlantafx.base.theme.PrimerDark
 import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
 import javafx.scene.layout.Pane
-import javafx.scene.layout.StackPane
 import io.github.frostzie.datapackide.utils.CSSManager
+import io.github.frostzie.datapackide.utils.WindowDrag
 import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Application
 import javafx.application.Platform
@@ -156,6 +156,7 @@ class MainApplication {
             }
 
             setupStageDimensions(stage, root)
+            WindowDrag.makeDraggable(stage, topBarView!!)
 
             return WindowResizer.install(stage, root)
         }

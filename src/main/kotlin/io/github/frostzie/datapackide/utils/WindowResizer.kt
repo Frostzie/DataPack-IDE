@@ -17,7 +17,7 @@ object WindowResizer {
 
     fun install(stage: Stage, contentPane: Pane): StackPane {
         val wrapper = StackPane(contentPane)
-        val borderThickness = 8.0 // A bit thicker for a testing period
+        val borderThickness = 4.0
 
         val top = createResizeRegion(Cursor.N_RESIZE, borderThickness, -1.0)
         val bottom = createResizeRegion(Cursor.S_RESIZE, borderThickness, -1.0)

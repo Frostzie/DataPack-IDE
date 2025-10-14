@@ -118,14 +118,7 @@ object CSSManager {
      * Takes raw CSS content, processes it, and returns a Base64-encoded data URI.
      */
     private fun prepareCssForDataUri(cssContent: String): String {
-        var processedContent = cssContent
-        val fontFile = AssetsConfig.getFontPath()
-        if (Files.isRegularFile(fontFile)) {
-            val fontUrl = fontFile.toUri().toString()
-            processedContent = processedContent.replace(Regex("url\\((['\"])?.*?/DataPack-IDE\\.ttf\\1?\\)"), "url('$fontUrl')")
-        }
-
-        val encodedCss = Base64.getEncoder().encodeToString(processedContent.toByteArray(Charsets.UTF_8))
+        val encodedCss = Base64.getEncoder().encodeToString(cssContent.toByteArray(Charsets.UTF_8))
         return "data:text/css;base64,$encodedCss"
     }
 
