@@ -31,6 +31,7 @@ import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
+import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
@@ -102,6 +103,7 @@ class MainApplication {
         private fun createMainUI(stage: Stage): Pane {
             val root = BorderPane()
             root.styleClass.add("window") // Add CSS class for drop shadow
+            stage.icons.add(Image("assets/datapack-ide/icon.png"))
 
             topBarView = TopBarView()
             leftBarView = LeftBarView()
