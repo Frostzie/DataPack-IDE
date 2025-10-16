@@ -37,4 +37,10 @@ object AdvancedConfig {
     @ConfigOption(name = "Show Layout Bounds", desc = "Shows visual borders around major UI components for debugging layout")
     @ConfigEditorBoolean
     val debugLayoutBounds = SimpleBooleanProperty(false)
+
+    @Expose
+    @ConfigCategory(name = "Debug")
+    @ConfigOption(name = "Show Resize Handles", desc = "Shows visual borders for window resize handles")
+    @ConfigEditorBoolean
+    val debugResizeHandles = SimpleBooleanProperty(false)
 }

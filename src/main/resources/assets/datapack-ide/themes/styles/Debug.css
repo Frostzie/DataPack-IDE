@@ -22,3 +22,7 @@
     -fx-border-color: orange;
     -fx-border-width: 1px;
 }
+
+.debug-resize-handles .resize-handle-region {
+    -fx-background-color: rgba(255, 0, 0, 0.5);
+}

@@ -23,7 +23,7 @@ import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.WindowResizer
 import atlantafx.base.theme.PrimerDark
-import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
+import io.github.frostzie.datapackide.utils.dev.DebugManager
 import javafx.scene.layout.Pane
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.WindowDrag
@@ -148,19 +148,13 @@ class MainApplication {
             root.center = centerContent
             root.bottom = bottomBarView
 
-            //TODO: remove / move
-            AdvancedConfig.debugLayoutBounds.addListener { _, _, newValue ->
-                if (newValue) {
-                    root.styleClass.add("debug-layout")
-                } else {
-                    root.styleClass.remove("debug-layout")
-                }
-            }
-
             setupStageDimensions(stage, root)
             WindowDrag.makeDraggable(stage, topBarView!!)
 
-            return WindowResizer.install(stage, root)
+            val resizableWrapper = WindowResizer.install(stage, root)
+            DebugManager.initialize(resizableWrapper)
+
+            return resizableWrapper
         }
 
         private fun setupStageDimensions(stage: Stage, root: BorderPane) {

@@ -73,7 +73,7 @@ object WindowResizer {
                 prefWidth = width
                 maxWidth = width
             }
-            style = "-fx-background-color: rgba(255, 0, 0, 0.5);" //TODO: add this to dev settings
+            styleClass.add("resize-handle-region")
         }
     }
 
