@@ -1,0 +1,11 @@
+/* Default selection color when the TreeView item is not focused */
+.tree-view .tree-cell:selected {
+    -fx-background-color: #4B4F52;
+    -fx-text-fill: #d4d4d4;
+}
+
+/* Selection color when the TreeView item is focused */
+.tree-view:focused .tree-cell:selected {
+    -fx-background-color: #3879d9;
+    -fx-text-fill: white;
+}

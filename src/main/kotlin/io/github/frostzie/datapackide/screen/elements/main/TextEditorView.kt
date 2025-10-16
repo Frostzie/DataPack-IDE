@@ -3,9 +3,10 @@ package io.github.frostzie.datapackide.screen.elements.main
 import io.github.frostzie.datapackide.config.WebsiteConfig
 import io.github.frostzie.datapackide.events.EditorCursorPosition
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.OpenFile
 import io.github.frostzie.datapackide.eventsOLD.EditorContentChangedEvent
 import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
-import io.github.frostzie.datapackide.eventsOLD.FileOpenEvent
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
@@ -36,8 +37,13 @@ class TextEditorView : VBox() {
 
     init {
         setupWebViewEditor()
-        setupEventListeners()
         logger.info("WebView text editor initialized")
+    }
+
+    @SubscribeEvent
+    fun onOpenFile(event: OpenFile) {
+        openFileInWebView(event.path)
+        requestFocus()
     }
 
     private fun setupWebViewEditor() {
@@ -72,12 +78,6 @@ class TextEditorView : VBox() {
 
         updateLineCount()
         filePathProperty.set("Untitled")
-    }
-
-    private fun setupEventListeners() {
-        EventBusOLD.register<FileOpenEvent> { event ->
-            openFileInWebView(event.filePath)
-        }
     }
 
     private fun setupJavaScriptBridge() {

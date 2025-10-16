@@ -21,7 +21,8 @@ object CSSManager {
 
     private val cssFiles = listOf<String>(
         "Debug.css",
-        "Override.css"
+        "Override.css",
+        "FileTreeView.css"
     )
 
     /**

@@ -62,7 +62,8 @@ object AssetsConfig {
     private fun transferStyles() {
         val styleFiles = mapOf(
             "Debug.css" to "",
-            "Override.css" to ""
+            "Override.css" to "",
+            "FileTreeView.css" to ""
         )
 
         styleFiles.forEach { (fileName, subPath) ->
