@@ -109,6 +109,7 @@ class MainApplication {
             leftBarView = LeftBarView()
             textEditorView = TextEditorView()
             fileTreeView = FileTreeView()
+            bottomBarView = BottomBarView()
 
             bottomBarModule = BottomBarModule()
             bottomBarHandler = BottomBarHandler(bottomBarModule!!)

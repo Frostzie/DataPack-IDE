@@ -17,7 +17,7 @@ class LeftBarModule(private val parentStage: Stage) {
                 if (DirectoryChooseUtils.isSingleplayer() && datapackPath != null) {
                     initialDirectory = datapackPath.toFile()
                 } else {
-                    DirectoryChooseUtils.getInstancePath()
+                    initialDirectory = DirectoryChooseUtils.getInstancePath()?.toFile()
                 }
             } catch (e: Exception) {
                 logger.warn("Could not set initial directory", e)

@@ -128,23 +128,23 @@ class TopBarView : ToolBar() {
         return false
     }
 
-        private fun createTopBarButton(icon: Ikon, tooltipText: String, vararg styleClasses: String, action: () -> Unit): Button {
-            return Button().apply {
-                graphic = FontIcon(icon)
-                tooltip = Tooltip(tooltipText)
-                styleClass.addAll(Styles.FLAT, *styleClasses)
+    private fun createTopBarButton(icon: Ikon, tooltipText: String, vararg styleClasses: String, action: () -> Unit): Button {
+        return Button().apply {
+            graphic = FontIcon(icon)
+            tooltip = Tooltip(tooltipText)
+            styleClass.addAll(Styles.FLAT, *styleClasses)
 
-                val size = UIConstants.TOP_BAR_BUTTON_SIZE
-                prefWidth = size
-                minWidth = size
-                maxWidth = size
-                prefHeight = size
-                minHeight = size
-                maxHeight = size
+            val size = UIConstants.TOP_BAR_BUTTON_SIZE
+            prefWidth = size
+            minWidth = size
+            maxWidth = size
+            prefHeight = size
+            minHeight = size
+            maxHeight = size
 
-                setOnAction { action() }
-            }
+            setOnAction { action() }
         }
+    }
 
     private fun updateMaximizeButtonIcon(maximized: Boolean) {
         maximizeButton.graphic = FontIcon(if (maximized) Material2AL.FILTER_NONE else Material2AL.CROP_SQUARE)

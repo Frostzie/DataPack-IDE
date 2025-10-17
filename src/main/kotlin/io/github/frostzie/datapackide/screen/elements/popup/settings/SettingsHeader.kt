@@ -30,7 +30,7 @@ class SettingsHeader : HBox() {
         children.addAll(titleLabel, spacer, closeButton)
 
         setOnMousePressed { event ->
-            EventBus.post(SettingsWindowDragStarted(event.sceneX, event.sceneY))
+            EventBus.post(SettingsWindowDragStarted(event.screenX, event.screenY))
         }
 
         setOnMouseDragged { event ->

@@ -14,7 +14,7 @@ object EventBus {
 
     fun register(handler: Any) {
         if (handlerMap.containsKey(handler)) {
-            logger.warn("Handler ${handler::class.simpleName} is alr registered")
+            logger.warn("Handler ${handler::class.simpleName} is already registered")
             return
         }
 
@@ -41,7 +41,7 @@ object EventBus {
         }
 
         handlerMap[handler] = registered
-        logger.info("Registered handler ${handler::class.simpleName} with ${methods.size} subscribers")
+        logger.info("Registered handler ${handler::class.simpleName} with ${registered.size} subscribers")
     }
 
     fun unregister(handler: Any) {
@@ -57,9 +57,16 @@ object EventBus {
         logger.debug("Posted Event: ${event::class.simpleName}")
     }
 
-    fun clear(event: Any) {
+    fun clear() {
         listener.clear()
         handlerMap.clear()
         logger.debug("Cleared all event listeners")
+    }
+
+    /**
+     * Call when the component is no longer needed
+     */
+    fun cleanup() {
+        EventBus.unregister(this)
     }
 }

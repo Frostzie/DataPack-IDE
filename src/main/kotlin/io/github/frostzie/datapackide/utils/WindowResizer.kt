@@ -102,22 +102,22 @@ object WindowResizer {
 
             if (east) {
                 val newWidth = data.width + deltaX
-                if (newWidth > stage.minWidth) stage.width = newWidth
+                if (newWidth >= stage.minWidth) stage.width = newWidth
             }
             if (west) {
                 val newWidth = data.width - deltaX
-                if (newWidth > stage.minWidth) {
+                if (newWidth >= stage.minWidth) {
                     stage.width = newWidth
                     stage.x = data.stageX + deltaX
                 }
             }
             if (south) {
                 val newHeight = data.height + deltaY
-                if (newHeight > stage.minHeight) stage.height = newHeight
+                if (newHeight >= stage.minHeight) stage.height = newHeight
             }
             if (north) {
                 val newHeight = data.height - deltaY
-                if (newHeight > stage.minHeight) {
+                if (newHeight >= stage.minHeight) {
                     stage.height = newHeight
                     stage.y = data.stageY + deltaY
                 }

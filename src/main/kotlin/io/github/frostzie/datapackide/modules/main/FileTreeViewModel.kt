@@ -5,6 +5,7 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeItem
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.control.TreeItem
 import java.nio.file.Path
@@ -23,10 +24,15 @@ class FileTreeViewModel {
     @SubscribeEvent
     fun onDirectorySelected(event: DirectorySelected) {
         logger.info("Directory selected: ${event.directoryPath}")
-        val invisibleRoot = TreeItem<FileTreeItem>()
-        invisibleRoot.isExpanded = true
-        invisibleRoot.children.setAll(loadChildren(event.directoryPath))
-        root.set(invisibleRoot)
+        Thread {
+            val children = loadChildren(event.directoryPath)
+            Platform.runLater {
+                val invisibleRoot = TreeItem<FileTreeItem>()
+                invisibleRoot.isExpanded = true
+                invisibleRoot.children.addAll(children)
+                root.set(invisibleRoot)
+            }
+        }.start()
     }
 
     private fun loadChildren(directory: Path): List<TreeItem<FileTreeItem>> {
@@ -60,7 +66,12 @@ class FileTreeViewModel {
         val nameParts = mutableListOf(startPath.fileName.toString())
 
         while (true) {
-            val entries = try { currentPath.listDirectoryEntries() } catch (e: Exception) { emptyList() }
+            val entries = try {
+                currentPath.listDirectoryEntries()
+            } catch (e: Exception) {
+                logger.info("Cannot read directory during compaction: {}", currentPath, e)
+                emptyList()
+            }
             if (entries.size == 1 && entries.first().isDirectory()) {
                 currentPath = entries.first()
                 nameParts.add(currentPath.fileName.toString())
@@ -79,7 +90,12 @@ class FileTreeViewModel {
 
             treeItem.expandedProperty().addListener { _, _, isExpanded ->
                 if (isExpanded && treeItem.children.firstOrNull()?.value == null) {
-                    treeItem.children.setAll(loadChildren(itemData.path))
+                    Thread {
+                        val children = loadChildren(itemData.path)
+                        Platform.runLater {
+                            treeItem.children.setAll(children)
+                        }
+                    }.start()
                 }
             }
         }

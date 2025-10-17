@@ -18,6 +18,12 @@ import javafx.util.Duration
 
 object WindowDrag {
     private var isMaximized = false
+    private var isRegistered = false
+
+    init {
+        EventBus.register(this)
+        isRegistered = true
+    }
 
     @Suppress("unused")
     @SubscribeEvent
@@ -25,13 +31,11 @@ object WindowDrag {
         isMaximized = event.isMaximized
     }
 
-    fun makeDraggable(stage: Stage, byNode: Node) {
+    fun makeDraggable(stage: Stage, byNode: Node): () -> Unit {
         val dragDelta = Delta()
         var isDragging = false
-        val dragDelay = PauseTransition(Duration.millis(150.0)) // 1.5-second delay so normal clicks won't count as dragging
+        val dragDelay = PauseTransition(Duration.millis(150.0)) // 150ms delay so normal clicks won't count as dragging
         var pressEvent: MouseEvent? = null
-
-        EventBus.register(this) // This is just so it resizes the window when dragging from maximized
 
         dragDelay.onFinished = EventHandler { 
             pressEvent?.let { mouseEvent ->
@@ -90,6 +94,12 @@ object WindowDrag {
         byNode.addEventHandler(MouseEvent.MOUSE_PRESSED, pressHandler)
         byNode.addEventHandler(MouseEvent.MOUSE_DRAGGED, dragHandler)
         byNode.addEventHandler(MouseEvent.MOUSE_RELEASED, releaseHandler)
+
+        return {
+            byNode.removeEventHandler(MouseEvent.MOUSE_PRESSED, pressHandler)
+            byNode.removeEventHandler(MouseEvent.MOUSE_DRAGGED, dragHandler)
+            byNode.removeEventHandler(MouseEvent.MOUSE_RELEASED, releaseHandler)
+        }
     }
 
     private class Delta {

@@ -52,15 +52,16 @@ class TopBarModule(private val stage: Stage?, private val topBarView: TopBarView
     }
 
     fun restore() {
-        stage?.let { stg ->
-            previousBounds?.let {
-                stg.x = it.minX
-                stg.y = it.minY
-                stg.width = it.width
-                stg.height = it.height
+        previousBounds?.let { bounds ->
+            stage?.let { stg ->
+                stg.x = bounds.minX
+                stg.y = bounds.minY
+                stg.width = bounds.width
+                stg.height = bounds.height
+
+                isMaximized = false
+                EventBus.post(MainWindowMaximizedStateChanged(false))
             }
-            isMaximized = false
-            EventBus.post(MainWindowMaximizedStateChanged(false))
         }
     }
 

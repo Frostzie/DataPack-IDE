@@ -53,7 +53,8 @@ internal object ConfigFieldManager {
         if (propValue is Property<*> && propValue.value is Number) {
             return SliderConfigField(
                 instance, property as KProperty1<Any, Property<Number>>, option.name, option.desc,
-                property.findAnnotation(), property.findAnnotation()!!
+                property.findAnnotation(),
+                property.findAnnotation()!!
             )
         }
         logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<Number>.")
@@ -63,9 +64,10 @@ internal object ConfigFieldManager {
     @Suppress("UNCHECKED_CAST")
     private fun createDropdownField(instance: Any, property: KProperty1<Any, Any>, option: ConfigOption, propValue: Any): DropdownConfigField? {
         if (propValue is Property<*> && propValue.value is String) {
-             return DropdownConfigField(
+            return DropdownConfigField(
                 instance, property as KProperty1<Any, Property<String>>, option.name, option.desc,
-                property.findAnnotation(), property.findAnnotation()!!
+                property.findAnnotation(),
+                property.findAnnotation()!!
             )
         }
         logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<String>.")
@@ -77,7 +79,8 @@ internal object ConfigFieldManager {
         if (propValue is Function0<*>) {
             return ButtonConfigField(
                 instance, property as KProperty1<Any, () -> Unit>, option.name, option.desc,
-                property.findAnnotation(), property.findAnnotation()!!
+                property.findAnnotation(),
+                property.findAnnotation()!!
             )
         }
         logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected () -> Unit.")

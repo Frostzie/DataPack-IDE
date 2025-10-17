@@ -6,7 +6,11 @@ import javafx.scene.layout.Pane
 
 //TODO: make debug lines not interfere with actual element sizes
 object DebugManager {
+    private var isInitialized = false
+
     fun initialize(root: Pane) {
+        if (isInitialized) return
+        isInitialized = true
         applyStyleOnToggle(root, AdvancedConfig.debugLayoutBounds, "debug-layout")
         applyStyleOnToggle(root, AdvancedConfig.debugResizeHandles, "debug-resize-handles")
     }
