@@ -75,16 +75,18 @@ class FileTreeViewModel {
                 emptySet()
             }
 
-            val children = loadChildren(event.directoryPath)
             Platform.runLater {
-                val invisibleRoot = TreeItem<FileTreeItem>()
-                invisibleRoot.isExpanded = true
-                invisibleRoot.children.addAll(children)
-                root.set(invisibleRoot)
+                val rootNode = TreeItem(FileTreeItem(event.directoryPath, event.directoryPath.fileName.toString()))
+                rootNode.isExpanded = true
+
+                val children = loadChildren(event.directoryPath)
+                rootNode.children.addAll(children)
+
+                root.set(rootNode)
 
                 // Restore expanded state
                 if (expandedPaths.isNotEmpty()) {
-                    restoreExpandedPaths(invisibleRoot, expandedPaths)
+                    restoreExpandedPaths(rootNode, expandedPaths)
                 }
             }
         }
