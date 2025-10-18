@@ -4,6 +4,11 @@
     -fx-text-fill: #d4d4d4;
 }
 
+/* Highlight for valid drop target */
+.tree-view .tree-cell.drag-over {
+    -fx-background-color: rgba(56, 121, 217, 0.5);
+}
+
 /* Selection color when the TreeView item is focused */
 .tree-view:focused .tree-cell:selected {
     -fx-background-color: #3879d9;

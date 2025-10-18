@@ -8,7 +8,7 @@ data class DirectorySelected(val directoryPath: Path)
 class NewFile
 class DeleteFile
 class RenameFile
-class MoveFile
+data class MoveFile(val sourcePath: Path, val targetPath: Path)
 
 class CopyFile
 class CutFile
