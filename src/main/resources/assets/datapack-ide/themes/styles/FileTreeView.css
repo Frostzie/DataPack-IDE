@@ -1,3 +1,9 @@
+/* Tree cell styling */
+.tree-view .tree-cell {
+    -fx-padding: 0 0 0 0;
+    -fx-cell-size: 25px;
+}
+
 /* Default selection color when the TreeView item is not focused */
 .tree-view .tree-cell:selected {
     -fx-background-color: #4B4F52;

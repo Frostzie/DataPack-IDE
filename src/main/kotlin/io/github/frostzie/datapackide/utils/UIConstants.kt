@@ -26,6 +26,7 @@ object UIConstants {
     const val FILE_TREE_NODE_INDENT = 22.0
     const val FILE_TREE_SPACING = 1.0
     const val FILE_TREE_PADDING = 20.0
+    const val FILE_TREE_CELL_SIZE = 25.0
 
     // Undecorated Window Resizing
     const val WINDOW_RESIZE_BORDER_DEPTH = 7.0

@@ -6,6 +6,7 @@ import io.github.frostzie.datapackide.events.MoveFile
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeItem
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.file.FileSystemWatcher
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.control.TreeItem
@@ -20,27 +21,95 @@ class FileTreeViewModel {
     private val logger = LoggerProvider.getLogger("FileTreeViewModel")
     val root = SimpleObjectProperty<TreeItem<FileTreeItem>>()
     var rootDirectory: Path? = null
+    private val fileWatcherLock = Any()
+    private var fileWatcher: FileSystemWatcher? = null
 
     init {
         EventBus.register(this)
         logger.info("FileTreeViewModel initialized and registered with EventBus.")
     }
 
+    fun setWindowFocused(focused: Boolean) {
+        // Acquire the same lock used when replacing the watcher to avoid races.
+        synchronized(fileWatcherLock) {
+            fileWatcher?.setWindowFocused(focused)
+        }
+    }
+
+    fun cleanup() {
+        // Ensure stopping the watcher is synchronized with potential concurrent replacements.
+        synchronized(fileWatcherLock) {
+            fileWatcher?.stop()
+            fileWatcher = null
+        }
+        EventBus.unregister(this)
+    }
+
+    @Suppress("unused")
     @SubscribeEvent
     fun onDirectorySelected(event: DirectorySelected) {
+        val previousRoot = rootDirectory
         rootDirectory = event.directoryPath
         logger.info("Directory selected: ${event.directoryPath}")
+
+        if (previousRoot != event.directoryPath) {
+            // Make stop/create/start atomic so setWindowFocused or cleanup cannot observe an inconsistent state.
+            synchronized(fileWatcherLock) {
+                fileWatcher?.stop()
+                fileWatcher = FileSystemWatcher(event.directoryPath)
+                fileWatcher?.start()
+            }
+        }
+
         Thread {
+            val currentRoot = root.get()
+            val expandedPaths = if (currentRoot != null && previousRoot == event.directoryPath) {
+                collectExpandedPaths(currentRoot)
+            } else {
+                emptySet()
+            }
+
             val children = loadChildren(event.directoryPath)
             Platform.runLater {
                 val invisibleRoot = TreeItem<FileTreeItem>()
                 invisibleRoot.isExpanded = true
                 invisibleRoot.children.addAll(children)
                 root.set(invisibleRoot)
+
+                // Restore expanded state
+                if (expandedPaths.isNotEmpty()) {
+                    restoreExpandedPaths(invisibleRoot, expandedPaths)
+                }
             }
         }.start()
     }
 
+    private fun collectExpandedPaths(node: TreeItem<FileTreeItem>): Set<Path> {
+        val expandedPaths = mutableSetOf<Path>()
+
+        fun traverse(item: TreeItem<FileTreeItem>) {
+            if (item.isExpanded && item.value != null) {
+                expandedPaths.add(item.value.path)
+            }
+            item.children.forEach { traverse(it) }
+        }
+
+        traverse(node)
+        return expandedPaths
+    }
+
+    private fun restoreExpandedPaths(node: TreeItem<FileTreeItem>, expandedPaths: Set<Path>) {
+        fun traverse(item: TreeItem<FileTreeItem>) {
+            if (item.value != null && item.value.path in expandedPaths) {
+                item.isExpanded = true
+            }
+            item.children.forEach { traverse(it) }
+        }
+
+        traverse(node)
+    }
+
+    @Suppress("unused")
     @SubscribeEvent
     fun onFileMoved(event: MoveFile) {
         logger.info("Moving file from ${event.sourcePath} to ${event.targetPath}")
@@ -51,15 +120,8 @@ class FileTreeViewModel {
                 logger.warn("Atomic move not supported, falling back to standard move.")
                 Files.move(event.sourcePath, event.targetPath, StandardCopyOption.REPLACE_EXISTING)
             }
-
-            rootDirectory?.let {
-                // Reload the entire tree to reflect the changes.
-                // This is simpler and more reliable than trying to manipulate the tree nodes directly.
-                onDirectorySelected(DirectorySelected(it))
-            }
         } catch (e: Exception) {
             logger.error("Failed to move file: ${event.sourcePath}", e)
-            // TODO: Show an error message to the user in the UI
         }
     }
 
@@ -72,8 +134,9 @@ class FileTreeViewModel {
             // to avoid adding them as duplicate, separate entries in the tree.
             val processedPaths = mutableSetOf<Path>()
             directory.listDirectoryEntries()
-                // Sorts entries to show directories first, then files, both alphabetically. //TODO: Change from Alphabetical to natural order
-                .sortedWith(compareBy({ !it.isDirectory() }, { it.fileName.toString().lowercase() }))
+                .sortedWith(compareBy<Path>({ !it.isDirectory() }).thenComparator { a, b ->
+                    naturalOrderComparator.compare(a.fileName.toString(), b.fileName.toString())
+                })
                 .mapNotNull { entry ->
                     if (entry in processedPaths) return@mapNotNull null
 
@@ -142,5 +205,43 @@ class FileTreeViewModel {
             }
         }
         return treeItem
+    }
+
+    // TODO: implement better one later on. Useful info:
+    // https://stackoverflow.com/questions/1262239/natural-sort-order-string-comparison-in-java-is-one-built-in
+    // https://stackoverflow.com/questions/104599/sort-on-a-string-that-may-contain-a-number
+    private val naturalOrderComparator = Comparator<String> { a, b ->
+        var i = 0
+        var j = 0
+
+        while (i < a.length && j < b.length) {
+            val ca = a[i]
+            val cb = b[j]
+
+            if (ca.isDigit() && cb.isDigit()) {
+                var na = StringBuilder()
+                var nb = StringBuilder()
+
+                while (i < a.length && a[i].isDigit()) {
+                    na.append(a[i])
+                    i++
+                }
+                while (j < b.length && b[j].isDigit()) {
+                    nb.append(b[j])
+                    j++
+                }
+
+                val lenDiff = na.length - nb.length
+                val diff = if (lenDiff != 0 ) lenDiff else na.toString().compareTo(nb.toString())
+                if (diff != 0) return@Comparator diff
+            } else {
+                val diff = ca.lowercaseChar() - cb.lowercaseChar()
+                if (diff != 0) return@Comparator diff
+                i++
+                j++
+            }
+        }
+
+        a.length - b.length
     }
 }
