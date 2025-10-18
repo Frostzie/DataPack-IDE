@@ -17,7 +17,7 @@ import kotlin.io.path.isDirectory
  * The View for the file tree. This class is responsible for displaying the tree.
  */
 class FileTreeView : VBox() {
-    private val viewModel = FileTreeViewModel()
+    internal val viewModel = FileTreeViewModel()
     private val treeView = TreeView<FileTreeItem>()
 
     // A custom DataFormat used to identify drag-and-drop operations initiated from this file tree.
@@ -38,14 +38,6 @@ class FileTreeView : VBox() {
 
         treeView.isShowRoot = false
         treeView.fixedCellSize = UIConstants.FILE_TREE_CELL_SIZE
-
-        sceneProperty().addListener { _, _, newScene ->
-            newScene?.windowProperty()?.addListener { _, _, newWindow ->
-                newWindow?.focusedProperty()?.addListener { _, _, focused ->
-                    viewModel.setWindowFocused(focused)
-                }
-            }
-        }
 
         // A cell factory is used to customize each cell in the tree. This includes setting up
         // mouse click listeners for opening files and handling all drag-and-drop gestures.

@@ -156,7 +156,9 @@ class FileSystemWatcher(private val watchPath: Path) {
                         }
                     }
 
-                    scheduleUpdate()
+                    if (!isWindowFocused) {
+                        scheduleUpdate()
+                    }
                 }
 
                 if (!key.reset()) {

@@ -243,6 +243,10 @@ class MainApplication {
                     hideMainWindow()
                 }
 
+                stage.focusedProperty().addListener { _, _, focused ->
+                    fileTreeView?.viewModel?.setWindowFocused(focused)
+                }
+
                 primaryStage = stage
                 logger.info("Main IDE Window created with ResizeHandler (hidden)!")
             } catch (e: Exception) {

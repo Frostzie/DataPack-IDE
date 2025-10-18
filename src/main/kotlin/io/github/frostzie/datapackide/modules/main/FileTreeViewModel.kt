@@ -10,6 +10,11 @@ import io.github.frostzie.datapackide.utils.file.FileSystemWatcher
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.control.TreeItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -23,6 +28,7 @@ class FileTreeViewModel {
     var rootDirectory: Path? = null
     private val fileWatcherLock = Any()
     private var fileWatcher: FileSystemWatcher? = null
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     init {
         EventBus.register(this)
@@ -37,7 +43,7 @@ class FileTreeViewModel {
     }
 
     fun cleanup() {
-        // Ensure stopping the watcher is synchronized with potential concurrent replacements.
+        scope.cancel() // Cancel all ongoing operations
         synchronized(fileWatcherLock) {
             fileWatcher?.stop()
             fileWatcher = null
@@ -61,7 +67,7 @@ class FileTreeViewModel {
             }
         }
 
-        Thread {
+        scope.launch {
             val currentRoot = root.get()
             val expandedPaths = if (currentRoot != null && previousRoot == event.directoryPath) {
                 collectExpandedPaths(currentRoot)
@@ -81,7 +87,7 @@ class FileTreeViewModel {
                     restoreExpandedPaths(invisibleRoot, expandedPaths)
                 }
             }
-        }.start()
+        }
     }
 
     private fun collectExpandedPaths(node: TreeItem<FileTreeItem>): Set<Path> {
@@ -120,8 +126,13 @@ class FileTreeViewModel {
                 logger.warn("Atomic move not supported, falling back to standard move.")
                 Files.move(event.sourcePath, event.targetPath, StandardCopyOption.REPLACE_EXISTING)
             }
+
+            rootDirectory?.let {
+                onDirectorySelected(DirectorySelected(it))
+            }
         } catch (e: Exception) {
             logger.error("Failed to move file: ${event.sourcePath}", e)
+            // TODO: Show an error message to the user in the UI
         }
     }
 
@@ -195,12 +206,12 @@ class FileTreeViewModel {
 
             treeItem.expandedProperty().addListener { _, _, isExpanded ->
                 if (isExpanded && treeItem.children.firstOrNull()?.value == null) {
-                    Thread {
+                    scope.launch {
                         val children = loadChildren(itemData.path)
                         Platform.runLater {
                             treeItem.children.setAll(children)
                         }
-                    }.start()
+                    }
                 }
             }
         }
