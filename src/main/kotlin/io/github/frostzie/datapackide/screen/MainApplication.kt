@@ -35,7 +35,7 @@ import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
-import javafx.scene.layout.Region
+import javafx.scene.control.SplitPane
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 
@@ -53,7 +53,7 @@ class MainApplication {
         private var bottomBarView: BottomBarView? = null
         private var settingsView: SettingsView? = null
         private var textEditorView: TextEditorView? = null
-        private var contentArea: HBox? = null
+        private var contentArea: SplitPane? = null
 
         // New Modules and Handlers
         private var topBarModule: TopBarModule? = null
@@ -131,13 +131,14 @@ class MainApplication {
 
             setupEventHandlers()
 
-            contentArea = HBox().apply {
-                children.addAll(fileTreeView, textEditorView)
-                HBox.setHgrow(textEditorView, Priority.ALWAYS)
-                HBox.setHgrow(fileTreeView, Priority.NEVER) // Prevent HBox from resizing FileTree
-                spacing = 0.0
-                prefHeight = Region.USE_COMPUTED_SIZE
-                maxHeight = Double.MAX_VALUE
+            contentArea = SplitPane().apply {
+                items.addAll(fileTreeView, textEditorView)
+
+                val defaultPosition = UIConstants.FILE_TREE_DEFAULT_WIDTH / (UIConstants.DEFAULT_WINDOW_WIDTH - UIConstants.LEFT_BAR_WIDTH)
+                setDividerPosition(0, defaultPosition)
+
+                SplitPane.setResizableWithParent(fileTreeView, false)
+                SplitPane.setResizableWithParent(textEditorView, true)
             }
 
             val centerContent = HBox().apply {

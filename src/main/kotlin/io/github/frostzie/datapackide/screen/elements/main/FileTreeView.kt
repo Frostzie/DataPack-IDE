@@ -30,6 +30,7 @@ class FileTreeView : VBox() {
 
         prefWidth = UIConstants.FILE_TREE_DEFAULT_WIDTH
         minWidth = UIConstants.FILE_TREE_MIN_WIDTH
+        maxWidth = UIConstants.FILE_TREE_MAX_WIDTH
         setVgrow(treeView, Priority.ALWAYS)
         children.add(treeView)
 
