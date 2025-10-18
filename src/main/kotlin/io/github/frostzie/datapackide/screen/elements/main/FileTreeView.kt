@@ -37,7 +37,6 @@ class FileTreeView : VBox() {
         treeView.rootProperty().bind(viewModel.root)
 
         treeView.isShowRoot = false
-        treeView.fixedCellSize = UIConstants.FILE_TREE_CELL_SIZE
 
         // A cell factory is used to customize each cell in the tree. This includes setting up
         // mouse click listeners for opening files and handling all drag-and-drop gestures.
