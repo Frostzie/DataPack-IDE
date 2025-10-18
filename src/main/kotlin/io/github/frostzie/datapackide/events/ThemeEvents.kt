@@ -5,3 +5,4 @@ class ResetDefaultTheme
 class NewThemeCreate
 class SelectTheme
 class DeleteTheme
+class ThemeChangeEvent(val themeName: String)

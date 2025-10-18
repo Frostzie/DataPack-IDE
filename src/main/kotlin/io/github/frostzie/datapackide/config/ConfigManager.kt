@@ -3,6 +3,7 @@ package io.github.frostzie.datapackide.config
 import io.github.frostzie.datapackide.settings.SettingsManager
 import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
 import io.github.frostzie.datapackide.settings.categories.MainConfig
+import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import net.fabricmc.loader.api.FabricLoader
 import java.nio.file.Path
@@ -30,6 +31,7 @@ object ConfigManager {
 
         SettingsManager.register("main", MainConfig::class)
         SettingsManager.register("advanced", AdvancedConfig::class)
+        SettingsManager.register("theme", ThemeConfig::class)
         // TODO: Register other config classes like ThemeConfig, KeybindConfig
 
         SettingsManager.initialize()

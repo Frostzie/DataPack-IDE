@@ -22,13 +22,11 @@ import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsVie
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.WindowResizer
-import atlantafx.base.theme.PrimerDark
 import io.github.frostzie.datapackide.utils.dev.DebugManager
 import javafx.scene.layout.Pane
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.utils.WindowDrag
 import io.github.frostzie.datapackide.utils.UIConstants
-import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
 import javafx.scene.image.Image
@@ -38,6 +36,8 @@ import javafx.scene.layout.Priority
 import javafx.scene.control.SplitPane
 import javafx.stage.Stage
 import javafx.stage.StageStyle
+import io.github.frostzie.datapackide.settings.categories.ThemeConfig
+import io.github.frostzie.datapackide.utils.ThemeUtils
 
 class MainApplication {
 
@@ -81,7 +81,8 @@ class MainApplication {
 
                 try {
                     JavaFXInitializer.startup {
-                        Application.setUserAgentStylesheet(PrimerDark().userAgentStylesheet)
+                        ThemeUtils.applyTheme(ThemeConfig.theme.get())
+                        ThemeConfig.theme.addListener { _, _, newTheme -> ThemeUtils.applyTheme(newTheme) }
                         JavaFXInitializer.setImplicitExit(false)
                         fxInitialized = true
                         createMainWindow()
