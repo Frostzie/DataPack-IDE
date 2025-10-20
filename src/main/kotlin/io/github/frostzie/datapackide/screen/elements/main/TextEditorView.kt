@@ -4,8 +4,6 @@ import io.github.frostzie.datapackide.config.WebsiteConfig
 import io.github.frostzie.datapackide.events.EditorCursorPosition
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.OpenFile
-import io.github.frostzie.datapackide.eventsOLD.EditorContentChangedEvent
-import io.github.frostzie.datapackide.eventsOLD.EventBusOLD
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
@@ -148,7 +146,7 @@ class TextEditorView : VBox() {
                 }
                 updateLineCount(content)
 
-                EventBusOLD.post(EditorContentChangedEvent(content, currentFilePath))
+                //TODO: Event here...
             }
         }
 
