@@ -7,8 +7,9 @@ import io.github.frostzie.datapackide.events.MainWindowMaximize
 import io.github.frostzie.datapackide.events.MainWindowMinimize
 import io.github.frostzie.datapackide.events.MainWindowRestore
 import io.github.frostzie.datapackide.events.MainWindowToggleMaximize
+import io.github.frostzie.datapackide.events.OpenDatapackFolder
 import io.github.frostzie.datapackide.events.ReloadDatapack
-import io.github.frostzie.datapackide.events.ToggleMenuControls
+import io.github.frostzie.datapackide.events.ReportBugLink
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 
@@ -46,8 +47,13 @@ class TopBarHandler(private val topBarModule: TopBarModule) {
     }
 
     @SubscribeEvent
-    fun onToggleMenuControls(event: ToggleMenuControls) {
-        topBarModule.toggleMenuControls()
+    fun openDatapackFolder(event: OpenDatapackFolder) {
+        topBarModule.openDatapackFolder()
+    }
+
+    @SubscribeEvent
+    fun onDiscordLink(event: DiscordLink) {
+        topBarModule.discordLink()
     }
 
     @SubscribeEvent
@@ -56,7 +62,7 @@ class TopBarHandler(private val topBarModule: TopBarModule) {
     }
 
     @SubscribeEvent
-    fun onDiscordLink(event: DiscordLink) {
-        topBarModule.discordLink()
+    fun onReportBugLink(event: ReportBugLink) {
+        topBarModule.reportBugLink()
     }
 }

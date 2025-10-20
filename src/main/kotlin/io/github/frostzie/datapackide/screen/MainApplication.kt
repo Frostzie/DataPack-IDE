@@ -15,6 +15,7 @@ import io.github.frostzie.datapackide.handlers.popup.settings.ThemeHandler
 import io.github.frostzie.datapackide.modules.popup.settings.ThemeModule
 import io.github.frostzie.datapackide.screen.elements.bars.BottomBarView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
+import io.github.frostzie.datapackide.screen.elements.bars.top.ToolBarMenu
 import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
@@ -34,6 +35,7 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.control.SplitPane
+import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import io.github.frostzie.datapackide.settings.categories.ThemeConfig
@@ -56,6 +58,7 @@ class MainApplication {
         private var contentArea: SplitPane? = null
 
         // New Modules and Handlers
+        private var toolBarMenu: ToolBarMenu? = null
         private var topBarModule: TopBarModule? = null
         private var topBarHandler: TopBarHandler? = null
 
@@ -106,7 +109,8 @@ class MainApplication {
             root.styleClass.add("window") // Add CSS class for drop shadow
             stage.icons.add(Image("assets/datapack-ide/icon.png"))
 
-            topBarView = TopBarView()
+            toolBarMenu = ToolBarMenu()
+            topBarView = TopBarView(toolBarMenu!!)
             leftBarView = LeftBarView()
             textEditorView = TextEditorView()
             fileTreeView = FileTreeView()
@@ -151,10 +155,13 @@ class MainApplication {
             root.center = centerContent
             root.bottom = bottomBarView
 
+            val rootStack = StackPane(root, toolBarMenu!!.modalPane)
+
             setupStageDimensions(stage, root)
             WindowDrag.makeDraggable(stage, topBarView!!)
 
-            val resizableWrapper = WindowResizer.install(stage, root)
+            // The resizable wrapper should wrap the StackPane to allow resizing modal panes as well.
+            val resizableWrapper = WindowResizer.install(stage, rootStack)
             DebugManager.initialize(resizableWrapper)
 
             return resizableWrapper

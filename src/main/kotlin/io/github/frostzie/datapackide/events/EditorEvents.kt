@@ -7,5 +7,6 @@ class EditorUndo
 class EditorRedo
 class EditorSelectAll
 class EditorCloseTab
+class EditorFind
 
 data class EditorCursorPosition(val line: Int, val column: Int)

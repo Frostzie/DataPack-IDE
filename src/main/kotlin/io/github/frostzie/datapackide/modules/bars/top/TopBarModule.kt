@@ -4,8 +4,8 @@ import net.minecraft.util.Util
 import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
-import io.github.frostzie.datapackide.events.MenuControlsVisibilityChanged
 import io.github.frostzie.datapackide.screen.MainApplication
+import io.github.frostzie.datapackide.utils.file.DirectoryChooseUtils
 import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import javafx.geometry.Rectangle2D
 import javafx.scene.input.MouseButton
@@ -13,7 +13,6 @@ import javafx.stage.Screen
 import javafx.stage.Stage
 import java.net.URI
 
-//TODO: Dragging not fully finished!
 class TopBarModule(private val stage: Stage?, private val topBarView: TopBarView?) {
 
     private var previousBounds: Rectangle2D? = null
@@ -77,25 +76,29 @@ class TopBarModule(private val stage: Stage?, private val topBarView: TopBarView
         MainApplication.hideMainWindow()
     }
 
-    /**
-     * Toggles the visibility of the menu bar.
-     */
-    private var isMenuControlsVisible = true
+    // Under Build:
+    fun reloadDatapacks() {
+        ReloadDataPacksCommand.executeCommandButton()
+    }
+    
+    //TODO: Compress project to zip
 
-    fun toggleMenuControls() {
-        isMenuControlsVisible = !isMenuControlsVisible
-        EventBus.post(MenuControlsVisibilityChanged(isMenuControlsVisible))
+    fun openDatapackFolder() {
+        DirectoryChooseUtils.getDatapackPath()?.let {
+            Util.getOperatingSystem().open(it.toFile())
+        }
+    }
+
+    // Under Help:
+    fun discordLink() {
+        Util.getOperatingSystem().open(URI("https://discord.gg/qZ885qTvkx"))
     }
 
     fun aboutModLink() {
         Util.getOperatingSystem().open(URI("https://github.com/Frostzie/DataPack-IDE"))
     }
 
-    fun discordLink() {
-        Util.getOperatingSystem().open(URI("https://discord.gg/qZ885qTvkx"))
-    }
-
-    fun reloadDatapacks() {
-        ReloadDataPacksCommand.executeCommandButton()
+    fun reportBugLink() {
+        Util.getOperatingSystem().open(URI("https://github.com/Frostzie/DataPack-IDE/issues"))
     }
 }

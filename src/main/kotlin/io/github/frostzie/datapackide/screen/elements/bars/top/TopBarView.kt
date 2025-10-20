@@ -3,8 +3,6 @@ package io.github.frostzie.datapackide.screen.elements.bars.top
 import atlantafx.base.theme.Styles
 import io.github.frostzie.datapackide.events.*
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
-import io.github.frostzie.datapackide.utils.LoggerProvider
-import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Platform
 import javafx.scene.control.Button
 import javafx.scene.control.ToolBar
@@ -17,14 +15,11 @@ import org.kordamp.ikonli.Ikon
 import org.kordamp.ikonli.feather.Feather
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.material2.Material2AL
+import io.github.frostzie.datapackide.utils.UIConstants
 import org.kordamp.ikonli.material2.Material2MZ
 import org.kordamp.ikonli.material2.Material2OutlinedMZ
 
-class TopBarView : ToolBar() {
-
-    companion object {
-        private val logger = LoggerProvider.getLogger("WindowControls")
-    }
+class TopBarView(private val toolBarMenu: ToolBarMenu) : ToolBar() {
 
     private val maximizeButton: Button
     private val spacer: Region
@@ -46,7 +41,7 @@ class TopBarView : ToolBar() {
             "Toggle Menu Bar",
             Styles.BUTTON_OUTLINED
         ) {
-            //EventBus.post(ToggleMenuControls())
+            toolBarMenu.show()
         }
 
         val runDataPackButton = createTopBarButton(
@@ -96,8 +91,6 @@ class TopBarView : ToolBar() {
             maximizeButton,
             closeButton
         )
-
-        logger.debug("Window controls initialized")
     }
 
 

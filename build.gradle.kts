@@ -1,4 +1,3 @@
-import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.tasks.bundling.Jar
 import kotlin.String
 
