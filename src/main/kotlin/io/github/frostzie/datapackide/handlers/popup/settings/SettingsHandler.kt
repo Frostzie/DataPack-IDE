@@ -13,17 +13,6 @@ class SettingsHandler(private val settingsModule: SettingsModule) {
     }
 
     @SubscribeEvent
-    fun onSettingsWindowDragStarted(event: SettingsWindowDragStarted) {
-        settingsModule.xOffset = event.sceneX
-        settingsModule.yOffset = event.sceneY
-    }
-
-    @SubscribeEvent
-    fun onSettingsWindowDragged(event: SettingsWindowDragged) {
-        settingsModule.dragWindow(event.screenX, event.screenY)
-    }
-
-    @SubscribeEvent
     fun onSettingsSearchQueryChanged(event: SettingsSearchQueryChanged) {
         settingsModule.search(event.query)
     }
@@ -36,12 +25,6 @@ class SettingsHandler(private val settingsModule: SettingsModule) {
     @SubscribeEvent
     fun onSettingsSearchResultSelected(event: SettingsSearchResultSelected) {
         settingsModule.selectSearchResult(event.result)
-    }
-
-    @SubscribeEvent
-    fun onSettingsWindowCloseAndSave(event: SettingsWindowCloseSave) {
-        settingsModule.saveSettings()
-        settingsModule.closeSettings()
     }
 
     @SubscribeEvent

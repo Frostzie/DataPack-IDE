@@ -96,7 +96,7 @@ class MainApplication {
                     JavaFXInitializer.runLater {
                         JavaFXInitializer.setImplicitExit(false)
                         createMainWindow()
-                        logger.info("JavaFX Platform was already initialized, main window pre-created!")
+                        logger.info("JavaFX Platform was already initialized, main window pre-created!", e)
                     }
                 } catch (e: Exception) {
                     logger.error("Failed to initialize JavaFX", e)
@@ -131,7 +131,7 @@ class MainApplication {
             themeModule = ThemeModule()
             themeHandler = ThemeHandler(themeModule!!)
 
-            settingsModule = SettingsModule(stage, themeModule!!)
+            settingsModule = SettingsModule(stage)
             settingsHandler = SettingsHandler(settingsModule!!)
 
             setupEventHandlers()

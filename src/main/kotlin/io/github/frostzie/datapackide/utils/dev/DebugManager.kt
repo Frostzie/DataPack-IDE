@@ -4,7 +4,6 @@ import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
 import javafx.beans.property.BooleanProperty
 import javafx.scene.layout.Pane
 
-//TODO: make debug lines not interfere with actual element sizes
 object DebugManager {
     private var isInitialized = false
 

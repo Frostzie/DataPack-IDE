@@ -8,14 +8,15 @@ import io.github.frostzie.datapackide.settings.data.CategoryType
 import io.github.frostzie.datapackide.settings.data.ConfigField
 import io.github.frostzie.datapackide.settings.data.SearchResult
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import javafx.scene.control.Dialog
 import io.github.frostzie.datapackide.utils.UIConstants
-import javafx.scene.Scene
-import javafx.scene.paint.Color
-import javafx.stage.Modality
+import javafx.event.ActionEvent
+import javafx.scene.control.Button
+import javafx.scene.control.ButtonBar
+import javafx.scene.control.ButtonType
 import javafx.stage.Stage
-import javafx.stage.StageStyle
 
-class SettingsModule(private val parentStage: Stage, private val themeModule: ThemeModule) {
+class SettingsModule(private val parentStage: Stage) {
     companion object {
         private val logger = LoggerProvider.getLogger("SettingsModule")
         // Relevance scores for search
@@ -26,15 +27,7 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
         private const val CATEGORY_DESC_SCORE = 10
     }
 
-    var stage: Stage? = null
-    var xOffset = 0.0
-    var yOffset = 0.0
     private var currentQuery: String = ""
-
-    fun dragWindow(screenX: Double, screenY: Double) {
-        stage?.x = screenX - xOffset
-        stage?.y = screenY - yOffset
-    }
 
     fun search(query: String) {
         this.currentQuery = query
@@ -91,23 +84,32 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
     }
 
     fun showSettingsWindow() {
-        if (stage == null) {
-            stage = Stage().apply {
-                initStyle(StageStyle.UNDECORATED)
-                initModality(Modality.APPLICATION_MODAL)
-                initOwner(parentStage)
-                isResizable = true
-                minWidth = UIConstants.SETTINGS_MIN_WIDTH
-                minHeight = UIConstants.SETTINGS_MIN_HEIGHT
-            }
+        val view = SettingsView()
 
-            val view = SettingsView()
-            val scene = Scene(view, UIConstants.SETTINGS_WIDTH, UIConstants.SETTINGS_HEIGHT).apply { fill = Color.TRANSPARENT }
-            themeModule.scenes.add(scene)
-            stage?.scene = scene
-            stage?.centerOnScreen()
+        val dialog = Dialog<ButtonType>()
+        dialog.title = "Settings"
+        dialog.dialogPane.content = view
+
+        dialog.initOwner(parentStage)
+        dialog.dialogPane.minWidth = UIConstants.SETTINGS_MIN_WIDTH
+        dialog.dialogPane.minHeight = UIConstants.SETTINGS_MIN_HEIGHT
+        dialog.dialogPane.prefWidth = UIConstants.SETTINGS_WIDTH
+        dialog.dialogPane.prefHeight = UIConstants.SETTINGS_HEIGHT
+
+        val applyBtn = ButtonType("Apply", ButtonBar.ButtonData.APPLY)
+        val closeBtn = ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE)
+        dialog.dialogPane.buttonTypes.addAll(applyBtn, closeBtn)
+
+        val applyButton = dialog.dialogPane.lookupButton(applyBtn) as Button
+        applyButton.isDefaultButton = false
+        applyButton.addEventFilter(ActionEvent.ACTION) { event ->
+            saveSettings()
+            event.consume() // Prevents the dialog from closing
         }
-        stage?.showAndWait()
+
+        dialog.showAndWait()
+
+        saveSettings()
     }
 
     fun loadAndSendCategories() {
@@ -121,10 +123,6 @@ class SettingsModule(private val parentStage: Stage, private val themeModule: Th
     fun saveSettings() {
         SettingsManager.saveSettings()
         logger.debug("Settings saved.")
-    }
-
-    fun closeSettings() {
-        stage?.close()
     }
 
     private fun searchSettings(query: String): List<SearchResult> {

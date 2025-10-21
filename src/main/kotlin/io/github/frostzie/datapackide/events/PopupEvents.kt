@@ -6,7 +6,6 @@ import io.github.frostzie.datapackide.settings.data.SearchResult
 import kotlin.reflect.KClass
 
 class SettingsWindowOpen
-class SettingsWindowCloseSave
 
 // Settings events
 class SettingsSave
@@ -16,9 +15,6 @@ data class SettingsSearchResultSelected(val result: SearchResult)
 
 data class SettingsCategorySelected(val item: CategoryItem)
 data class SelectTreeItem(val categoryIndex: Int, val subCategory: String?)
-
-data class SettingsWindowDragged(val screenX: Double, val screenY: Double)
-data class SettingsWindowDragStarted(val sceneX: Double, val sceneY: Double)
 
 class RequestSettingsCategories
 data class CategoryData(val name: String, val configClass: KClass<*>, val subCategories: List<String>)
