@@ -1,24 +1,45 @@
 package io.github.frostzie.datapackide.screen
 
-import io.github.frostzie.datapackide.events.EventHandlerSystem
-import io.github.frostzie.datapackide.screen.elements.main.TextEditor
+import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.handlers.bars.BottomBarHandler
+import io.github.frostzie.datapackide.handlers.bars.LeftBarHandler
+import io.github.frostzie.datapackide.handlers.bars.top.TopBarHandler
+import io.github.frostzie.datapackide.handlers.main.TextEditorHandler
+import io.github.frostzie.datapackide.handlers.popup.settings.SettingsHandler
+import io.github.frostzie.datapackide.modules.bars.BottomBarModule
+import io.github.frostzie.datapackide.modules.bars.LeftBarModule
+import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
+import io.github.frostzie.datapackide.modules.main.TextEditorModule
+import io.github.frostzie.datapackide.modules.popup.settings.SettingsModule
+import io.github.frostzie.datapackide.handlers.popup.settings.ThemeHandler
+import io.github.frostzie.datapackide.modules.popup.settings.ThemeModule
+import io.github.frostzie.datapackide.screen.elements.bars.BottomBarView
+import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
+import io.github.frostzie.datapackide.screen.elements.bars.top.ToolBarMenu
+import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
-import io.github.frostzie.datapackide.screen.elements.bars.LeftSidebar
-import io.github.frostzie.datapackide.screen.elements.bars.StatusBar
-import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
+import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
-import io.github.frostzie.datapackide.screen.elements.bars.top.TopBar
-import io.github.frostzie.datapackide.utils.UIConstants
+import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.WindowResizer
+import io.github.frostzie.datapackide.utils.dev.DebugManager
+import javafx.scene.layout.Pane
 import io.github.frostzie.datapackide.utils.CSSManager
-import io.github.frostzie.datapackide.utils.ResizeHandler
+import io.github.frostzie.datapackide.utils.WindowDrag
+import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Platform
+import javafx.scene.Scene
+import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
-import javafx.scene.Scene
-import javafx.scene.layout.Region
+import javafx.scene.control.SplitPane
+import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.stage.StageStyle
+import io.github.frostzie.datapackide.settings.categories.ThemeConfig
+import io.github.frostzie.datapackide.utils.ThemeUtils
 
 class MainApplication {
 
@@ -28,15 +49,33 @@ class MainApplication {
         private var fxInitialized = false
 
         // UI Components
-        private var topBar: TopBar? = null
-        private var leftSidebar: LeftSidebar? = null
+        private var topBarView: TopBarView? = null
+        private var leftBarView: LeftBarView? = null
         private var fileTreeView: FileTreeView? = null
-        private var statusBar: StatusBar? = null
-        private var textEditor: TextEditor? = null
-        private var contentArea: HBox? = null
+        private var bottomBarView: BottomBarView? = null
+        private var settingsView: SettingsView? = null
+        private var textEditorView: TextEditorView? = null
+        private var contentArea: SplitPane? = null
 
-        // Action handler
-        private var eventHandlerSystem: EventHandlerSystem? = null
+        // New Modules and Handlers
+        private var toolBarMenu: ToolBarMenu? = null
+        private var topBarModule: TopBarModule? = null
+        private var topBarHandler: TopBarHandler? = null
+
+        private var textEditorModule: TextEditorModule? = null
+        private var textEditorHandler: TextEditorHandler? = null
+
+        private var leftBarModule: LeftBarModule? = null
+        private var leftBarHandler: LeftBarHandler? = null
+
+        private var bottomBarModule: BottomBarModule? = null
+        private var bottomBarHandler: BottomBarHandler? = null
+
+        private var settingsModule: SettingsModule? = null
+        private var settingsHandler: SettingsHandler? = null
+
+        private var themeModule: ThemeModule? = null
+        private var themeHandler: ThemeHandler? = null
 
         fun initializeJavaFX() {
             if (!fxInitialized) {
@@ -45,6 +84,8 @@ class MainApplication {
 
                 try {
                     JavaFXInitializer.startup {
+                        ThemeUtils.applyTheme(ThemeConfig.theme.get())
+                        ThemeConfig.theme.addListener { _, _, newTheme -> ThemeUtils.applyTheme(newTheme) }
                         JavaFXInitializer.setImplicitExit(false)
                         fxInitialized = true
                         createMainWindow()
@@ -55,7 +96,7 @@ class MainApplication {
                     JavaFXInitializer.runLater {
                         JavaFXInitializer.setImplicitExit(false)
                         createMainWindow()
-                        logger.info("JavaFX Platform was already initialized, main window pre-created!")
+                        logger.info("JavaFX Platform was already initialized, main window pre-created!", e)
                     }
                 } catch (e: Exception) {
                     logger.error("Failed to initialize JavaFX", e)
@@ -63,96 +104,111 @@ class MainApplication {
             }
         }
 
-        private fun createMainUI(stage: Stage): BorderPane {
+        private fun createMainUI(stage: Stage): Pane {
             val root = BorderPane()
             root.styleClass.add("window") // Add CSS class for drop shadow
+            stage.icons.add(Image("assets/datapack-ide/icon.png"))
 
-        topBar = TopBar()
-            leftSidebar = LeftSidebar()
+            toolBarMenu = ToolBarMenu()
+            topBarView = TopBarView(toolBarMenu!!)
+            leftBarView = LeftBarView()
+            textEditorView = TextEditorView()
             fileTreeView = FileTreeView()
-            statusBar = StatusBar()
-            textEditor = TextEditor()
+            bottomBarView = BottomBarView()
 
-            eventHandlerSystem = EventHandlerSystem(textEditor, statusBar, stage)
+            bottomBarModule = BottomBarModule()
+            bottomBarHandler = BottomBarHandler(bottomBarModule!!)
+
+            topBarModule = TopBarModule(stage, topBarView)
+            topBarHandler = TopBarHandler(topBarModule!!)
+
+            textEditorModule = TextEditorModule(textEditorView!!) //TODO: Change to actual module when moving View -> Module
+            textEditorHandler = TextEditorHandler(textEditorModule!!)
+
+            leftBarModule = LeftBarModule(stage)
+            leftBarHandler = LeftBarHandler(leftBarModule!!)
+
+            themeModule = ThemeModule()
+            themeHandler = ThemeHandler(themeModule!!)
+
+            settingsModule = SettingsModule(stage)
+            settingsHandler = SettingsHandler(settingsModule!!)
 
             setupEventHandlers()
-            setupTextEditorBindings()
 
-            contentArea = HBox().apply {
-                children.addAll(fileTreeView, textEditor)
-                HBox.setHgrow(textEditor, Priority.ALWAYS)
-                HBox.setHgrow(fileTreeView, Priority.NEVER) // Prevent HBox from resizing FileTree
-                spacing = 0.0
-                prefHeight = Region.USE_COMPUTED_SIZE
-                maxHeight = Double.MAX_VALUE
+            contentArea = SplitPane().apply {
+                items.addAll(fileTreeView, textEditorView)
+
+                val defaultPosition = UIConstants.FILE_TREE_DEFAULT_WIDTH / (UIConstants.DEFAULT_WINDOW_WIDTH - UIConstants.LEFT_BAR_WIDTH)
+                setDividerPosition(0, defaultPosition)
+
+                SplitPane.setResizableWithParent(fileTreeView, false)
+                SplitPane.setResizableWithParent(textEditorView, true)
             }
 
             val centerContent = HBox().apply {
-                children.addAll(leftSidebar, contentArea)
+                children.addAll(leftBarView, contentArea)
                 HBox.setHgrow(contentArea, Priority.ALWAYS)
             }
 
-            root.top = topBar
+            root.top = topBarView
             root.center = centerContent
-            root.bottom = statusBar
+            root.bottom = bottomBarView
+
+            val rootStack = StackPane(root, toolBarMenu!!.modalPane)
 
             setupStageDimensions(stage, root)
+            WindowDrag.makeDraggable(stage, topBarView!!)
 
-            return root
+            // The resizable wrapper should wrap the StackPane to allow resizing modal panes as well.
+            val resizableWrapper = WindowResizer.install(stage, rootStack)
+            DebugManager.initialize(resizableWrapper)
+
+            return resizableWrapper
         }
 
         private fun setupStageDimensions(stage: Stage, root: BorderPane) {
-            val minContentWidth = 800.0
-            val minContentHeight = 600.0
+            val minContentWidth = UIConstants.MIN_CONTENT_WIDTH
+            val minContentHeight = UIConstants.MIN_CONTENT_HEIGHT
             val maxContentWidth = Double.MAX_VALUE
             val maxContentHeight = Double.MAX_VALUE
 
             val borderWidth = UIConstants.WINDOW_BORDER_WIDTH
             val topBarHeight = UIConstants.TOP_BAR_HEIGHT
-            val statusBarHeight = UIConstants.STATUS_BAR_HEIGHT
-            val leftSidebarWidth = UIConstants.LEFT_SIDEBAR_WIDTH
+            val statusBarHeight = UIConstants.BOTTOM_BAR_HEIGHT
             
             root.minWidth = minContentWidth + borderWidth
             root.maxWidth = maxContentWidth + borderWidth
             root.minHeight = minContentHeight + topBarHeight + statusBarHeight + borderWidth
             root.maxHeight = maxContentHeight + topBarHeight + statusBarHeight + borderWidth
 
-            stage.minWidth = root.minWidth + 4.0
-            stage.minHeight = root.minHeight + 4.0
-            stage.maxWidth = root.maxWidth + 4.0
-            stage.maxHeight = root.maxHeight + 4.0
+            stage.minWidth = root.minWidth + UIConstants.STAGE_BORDER_WIDTH
+            stage.minHeight = root.minHeight + UIConstants.STAGE_BORDER_WIDTH
+            stage.maxWidth = root.maxWidth + UIConstants.STAGE_BORDER_WIDTH
+            stage.maxHeight = root.maxHeight + UIConstants.STAGE_BORDER_WIDTH
 
             logger.debug("Stage dimensions set: min=${stage.minWidth}x${stage.minHeight}, max=${stage.maxWidth}x${stage.maxHeight}")
         }
 
-        private fun setupWindowResizing(stage: Stage) {
-            if (stage.style == StageStyle.UNDECORATED) {
-                ResizeHandler.install(
-                    stage,
-                    UIConstants.TOP_BAR_HEIGHT,
-                    UIConstants.WINDOW_RESIZE_BORDER_DEPTH,
-                    UIConstants.WINDOW_SHADOW_INDENTATION
-                )
-                logger.debug("ResizeHandler installed for undecorated window")
-            } else {
-                logger.debug("ResizeHandler not installed - stage is decorated")
-            }
-        }
-
         private fun setupEventHandlers() {
-            eventHandlerSystem?.initialize()
-            logger.debug("Event handlers initialized")
-        }
+            // New event bus registrations
+            EventBus.register(topBarHandler!!)
+            topBarView?.let { EventBus.register(it) }
 
-        private fun setupTextEditorBindings() {
-            textEditor?.let { editor ->
-                statusBar?.let { status ->
-                    editor.onCursorPositionChanged = { line, column ->
-                        status.updateCursorPosition(line, column)
-                    }
-                    logger.debug("Text editor bindings set up with status bar")
-                }
-            }
+            EventBus.register(textEditorHandler!!)
+            textEditorView?.let { EventBus.register(it) }
+
+            EventBus.register(leftBarHandler!!)
+            leftBarView?.let { EventBus.register(it) }
+
+            EventBus.register(bottomBarHandler!!)
+            bottomBarView?.let { EventBus.register(it) }
+
+            EventBus.register(settingsHandler!!)
+            settingsView?.let { EventBus.register(it) }
+            EventBus.register(themeHandler!!)
+
+            logger.debug("Event handlers initialized")
         }
 
         fun showMainWindow() {
@@ -166,7 +222,7 @@ class MainApplication {
                 }
                 primaryStage?.show()
                 primaryStage?.toFront()
-                textEditor?.requestFocus()
+                textEditorView?.requestFocus()
                 logger.info("Main IDE Window shown!")
             }
         }
@@ -179,21 +235,24 @@ class MainApplication {
                 stage.initStyle(StageStyle.UNDECORATED)
 
                 val mainUI = createMainUI(stage)
-                val scene = Scene(mainUI, 1200.0, 800.0)
-
-                stage.scene = scene
-                stage.title = "DataPack IDE"
-                stage.width = 1200.0
-                stage.height = 800.0
-                stage.isResizable = true
-                stage.centerOnScreen()
+                val scene = Scene(mainUI, UIConstants.DEFAULT_WINDOW_WIDTH, UIConstants.DEFAULT_WINDOW_HEIGHT)
 
                 CSSManager.applyAllStyles(scene)
-                setupWindowResizing(stage)
+                themeModule?.scenes?.add(scene)
+                stage.scene = scene
+                stage.title = "DataPack IDE"
+                stage.width = UIConstants.DEFAULT_WINDOW_WIDTH
+                stage.height = UIConstants.DEFAULT_WINDOW_HEIGHT
+                stage.isResizable = true
+                stage.centerOnScreen()
 
                 stage.setOnCloseRequest { e ->
                     e.consume()
                     hideMainWindow()
+                }
+
+                stage.focusedProperty().addListener { _, _, focused ->
+                    fileTreeView?.viewModel?.setWindowFocused(focused)
                 }
 
                 primaryStage = stage
@@ -207,7 +266,7 @@ class MainApplication {
             JavaFXInitializer.runLater {
                 primaryStage?.takeIf { it.isShowing }?.let {
                     it.hide()
-                    logger.info("Main IDE Window hidden via hideMainWindow()!")
+                    logger.debug("Main IDE Window hidden via hideMainWindow()!")
                 }
             }
         }
@@ -230,7 +289,7 @@ class MainApplication {
                     } else {
                         stage.show()
                         stage.toFront()
-                        textEditor?.requestFocus()
+                        textEditorView?.requestFocus()
                         logger.info("Main IDE Window shown!")
                     }
                 }

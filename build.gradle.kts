@@ -36,8 +36,9 @@ repositories {
 }
 
 dependencies {
-	minecraft(libs.minecraft)
-	mappings(libs.yarn)
+	"minecraft"(libs.minecraft)
+	"mappings"("net.fabricmc:yarn:${libs.versions.yarn.get()}:v2")
+
 	modCompileOnly(libs.fabric.api)
 	modImplementation(libs.fabric.loader)
 	modImplementation(libs.fabric.kotlin)
@@ -45,21 +46,32 @@ dependencies {
 	modImplementation(libs.modmenu)
 	modRuntimeOnly(libs.devauth)
 
-	implementation(libs.fxborderless)
-	//implementation("uk.co.bithatch:FX-BorderlessScene:5.0.12")
-	//implementation(libs.fx_borderless)
-	//include(libs.fx_borderless)
+	// Style and icon packs
+	implementation(libs.atlantafx)
+	implementation(libs.ikonliJavaFX)
+	implementation(libs.ikonliCore)
+	implementation(libs.material2)
+	implementation(libs.feather)
 
+	include(libs.atlantafx)
+	include(libs.ikonliJavaFX)
+	include(libs.ikonliCore)
+	include(libs.material2)
+	include(libs.feather)
+
+	// JavaFX
 	for (classifier in javafxClassifiers) {
 		implementation(javafxDep("base", classifier))
 		implementation(javafxDep("graphics", classifier))
 		implementation(javafxDep("web", classifier))
 		implementation(javafxDep("media", classifier))
+		implementation(javafxDep("controls", classifier))
 
 		include(javafxDep("base", classifier))
 		include(javafxDep("graphics", classifier))
 		include(javafxDep("web", classifier))
 		include(javafxDep("media", classifier))
+		include(javafxDep("controls", classifier))
 	}
 }
 
@@ -78,6 +90,9 @@ tasks.withType<JavaCompile> {
 tasks.named<Jar>("jar") {
 	from("LICENSE") {
 		rename { "${it}_${project.findProperty("archives_base_name")}" }
+	}
+	from("docs") {
+		into("docs")
 	}
 	exclude("module-info.class")
 	exclude("**/module-info.class")

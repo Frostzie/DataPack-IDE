@@ -1,178 +1,122 @@
 package io.github.frostzie.datapackide.utils.ui
 
-import io.github.frostzie.datapackide.settings.KeyCombination
-import io.github.frostzie.datapackide.settings.SettingsManager
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorSlider
+import io.github.frostzie.datapackide.settings.data.*
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import atlantafx.base.controls.ToggleSwitch
 import io.github.frostzie.datapackide.utils.ui.controls.KeybindInputButton
-import javafx.scene.Node
-import javafx.scene.control.CheckBox
-import javafx.scene.control.Button
-import javafx.scene.control.ComboBox
-import javafx.scene.control.Label
-import javafx.scene.control.Slider
-import javafx.scene.control.TextField
+import javafx.geometry.Pos
+import javafx.scene.control.*
 import javafx.scene.layout.HBox
-import javafx.scene.input.KeyCode
-import javafx.scene.layout.VBox
-import kotlin.reflect.KMutableProperty1
-import kotlin.reflect.full.memberProperties
 
 /**
  * Builder for creating JavaFX controls for different setting types.
  */
 object SettingsControlBuilder {
-
     private val logger = LoggerProvider.getLogger("SettingsControlBuilder")
 
-    fun createControl(field: SettingsManager.ConfigField): Node {
-        val mutableProperty = field.objectInstance::class.memberProperties
-            .filterIsInstance<KMutableProperty1<Any, Any>>()
-            .find { it.name == field.property.name }
-
-        val initialValue = field.property.get(field.objectInstance)
-
-        return when (field.editorType) {
-            SettingsManager.EditorType.BOOLEAN -> {
-                CheckBox().apply {
-                    styleClass.add("field-checkbox")
-                    isSelected = initialValue as? Boolean ?: false
-                    setOnAction {
-                        try {
-                            mutableProperty?.setter?.call(field.objectInstance, isSelected)
-                            logger.debug("Boolean field '${field.name}' changed to: $isSelected")
-                        } catch (e: Exception) {
-                            logger.error("Failed to set boolean property ${field.name}", e)
-                        }
-                    }
-                }
-            }
-
-            SettingsManager.EditorType.TEXT -> {
-                TextField().apply {
-                    styleClass.add("field-textfield")
-                    promptText = "Enter ${field.name.lowercase()}"
-                    text = initialValue as? String ?: ""
-                    textProperty().addListener { _, _, newValue ->
-                        try {
-                            mutableProperty?.setter?.call(field.objectInstance, newValue)
-                            logger.debug("Text field '${field.name}' changed to: $newValue")
-                        } catch (e: Exception) {
-                            logger.error("Failed to set text property ${field.name}", e)
-                        }
-                    }
-                }
-            }
-
-            SettingsManager.EditorType.SLIDER -> {
-                val sliderAnnotation = field.sliderAnnotation
-                VBox().apply {
-                    spacing = 5.0
-
-                    val slider = Slider().apply {
-                        styleClass.add("field-slider")
-                        min = sliderAnnotation?.minValue ?: 0.0
-                        max = sliderAnnotation?.maxValue ?: 100.0
-                        value = (initialValue as? Number)?.toDouble() ?: min
-                        blockIncrement = sliderAnnotation?.stepSize ?: 1.0
-                    }
-
-                    val valueLabel = Label(formatSliderLabel(slider.value, sliderAnnotation)).apply {
-                        styleClass.add("slider-value")
-                    }
-
-                    slider.valueProperty().addListener { _, _, newValue ->
-                        valueLabel.text = formatSliderLabel(newValue.toDouble(), sliderAnnotation)
-                    }
-
-                    slider.valueChangingProperty().addListener { _, _, isChanging ->
-                        if (!isChanging) {
-                            try {
-                                mutableProperty?.setter?.call(field.objectInstance, slider.value)
-                                logger.debug("Slider field '${field.name}' changed to: ${slider.value}")
-                            } catch (e: Exception) {
-                                logger.error("Failed to set slider property ${field.name}", e)
-                            }
-                        }
-                    }
-
-                    children.addAll(slider, valueLabel)
-                }
-            }
-
-            SettingsManager.EditorType.DROPDOWN -> {
-                ComboBox<String>().apply {
-                    styleClass.add("field-combobox")
-                    val values = field.dropdownAnnotation?.values ?: emptyArray()
-                    items.addAll(*values)
-                    value = initialValue as? String
-
-                    selectionModel.selectedItemProperty().addListener { _, _, newValue ->
-                        if (newValue != null) {
-                            try {
-                                mutableProperty?.setter?.call(field.objectInstance, newValue)
-                                logger.debug("Dropdown field '${field.name}' changed to: $newValue")
-                            } catch (e: Exception) {
-                                logger.error("Failed to set dropdown property ${field.name}", e)
-                            }
-                        }
-                    }
-                }
-            }
-
-            SettingsManager.EditorType.BUTTON -> {
-                val buttonAnnotation = field.buttonAnnotation
-                val action = field.property.get(field.objectInstance) as? () -> Unit
-
-                Button(buttonAnnotation?.text ?: field.name).apply {
-                    styleClass.add("field-button")
-                    setOnAction {
-                        if (action != null) {
-                            try {
-                                action.invoke()
-                                logger.debug("Action button '${field.name}' executed.")
-                            } catch (e: Exception) {
-                                logger.error("Error executing action for button '${field.name}'", e)
-                            }
-                        } else {
-                            logger.warn("No action defined for button field '${field.name}'. Should be of type () -> Unit.")
-                        }
-                    }
-                }
-            }
-
-            SettingsManager.EditorType.KEYBIND -> {
-                val initialKeybind = initialValue as? KeyCombination ?: KeyCombination(KeyCode.UNDEFINED)
-                val keybindButton = KeybindInputButton(initialKeybind) { newKeybind ->
-                    mutableProperty?.setter?.call(field.objectInstance, newKeybind)
-                    logger.debug("Keybind field '{}' changed to: {}", field.name, newKeybind)
-                }
-
-                val resetButton = Button("⟳").apply {
-                    styleClass.add("keybind-reset-button")
-                    setOnAction {
-                        val defaultValue = SettingsManager.getDefaultValue(field.property) as? KeyCombination
-                        defaultValue?.let { it ->
-                            keybindButton.currentKeybind = it
-                            mutableProperty?.setter?.call(field.objectInstance, defaultValue)
-                            logger.debug("Keybind field '{}' reset to default: {}", field.name, defaultValue)
-                        }
-                    }
-                }
-
-                HBox(5.0).apply {
-                    children.addAll(keybindButton, resetButton)
-                }
+    fun createSliderValueLabel(field: SliderConfigField): Label {
+        val prop = field.property.get(field.objectInstance)
+        val sliderAnnotation = field.sliderAnnotation
+        return Label().apply {
+            styleClass.add("slider-value")
+            text = formatSliderLabel(prop.value.toDouble(), sliderAnnotation)
+            prop.addListener { _, _, newValue ->
+                text = formatSliderLabel(newValue.toDouble(), sliderAnnotation)
             }
         }
     }
 
-    private fun formatSliderLabel(value: Double, annotation: ConfigEditorSlider?): String {
-        val hasDecimals = annotation?.stepSize?.let { it < 1.0 } ?: false
+    private fun formatSliderLabel(value: Double, annotation: ConfigEditorSlider): String {
+        val hasDecimals = annotation.stepSize < 1.0
         return if (hasDecimals) {
             "Value: %.2f".format(value)
-        } else {
-            "Value: %d".format(value.toInt())
+        }
+        else {
+            "Value: %d".format(value.toInt()) 
+        }
+    }
+
+    /**
+     * Creates a setting tile UI component based on the provided [ConfigField].
+     *
+     * This function inspects the type of the [ConfigField] and constructs an appropriate
+     * JavaFX control (e.g., a toggle switch for a boolean, a slider for a number)
+     * wrapped in a standardized tile layout.
+     *
+     * @param field The configuration field for which to create a UI tile.
+     * @return An [HBox] containing the complete UI for the setting.
+     */
+    fun createSettingTile(field: ConfigField): HBox {
+        return when (field) {
+            is BooleanConfigField -> {
+                val prop = field.property.get(field.objectInstance)
+                val toggleSwitch = ToggleSwitch().apply {
+                    selectedProperty().bindBidirectional(prop)
+                }
+                Tiles.DefaultTile(field.name, field.description.takeIf { it.isNotEmpty() }, toggleSwitch)
+            }
+
+            is KeybindConfigField -> {
+                val prop = field.property.get(field.objectInstance)
+                val keybindInputButton = KeybindInputButton().apply {
+                    keybindProperty.bindBidirectional(prop)
+                }
+                Tiles.LargeTile(field.name, field.description.takeIf { it.isNotEmpty() }, keybindInputButton)
+            }
+
+            is DropdownConfigField -> {
+                val prop = field.property.get(field.objectInstance)
+                val comboBox = ComboBox<String>().apply {
+                    items.addAll(*field.dropdownAnnotation.values)
+                    valueProperty().bindBidirectional(prop)
+                }
+                Tiles.LargeTile(field.name, field.description.takeIf { it.isNotEmpty() }, comboBox)
+            }
+
+            is TextConfigField -> {
+                val prop = field.property.get(field.objectInstance)
+                val textArea = TextArea().apply {
+                    textProperty().bindBidirectional(prop)
+                    isWrapText = true
+                }
+                Tiles.LowTile(field.name, field.description.takeIf { it.isNotEmpty() }, textArea)
+            }
+
+            is SliderConfigField -> {
+                val prop = field.property.get(field.objectInstance)
+                val sliderAnnotation = field.sliderAnnotation
+                val slider = Slider().apply {
+                    min = sliderAnnotation.minValue
+                    max = sliderAnnotation.maxValue
+                    blockIncrement = sliderAnnotation.stepSize
+                    valueProperty().bindBidirectional(prop)
+                    prefWidth = 400.0
+                }
+                val valueLabel = createSliderValueLabel(field)
+
+                val sliderControl = HBox(slider, valueLabel).apply {
+                    spacing = 5.0
+                    alignment = Pos.CENTER_LEFT
+                }
+                Tiles.LowTile(field.name, field.description.takeIf { it.isNotEmpty() }, sliderControl)
+            }
+
+            is ButtonConfigField -> {
+                val action = field.property.get(field.objectInstance)
+                val button = Button(field.buttonAnnotation.text).apply {
+                    styleClass.add("field-button")
+                    setOnAction {
+                        try {
+                            action.invoke()
+                            logger.debug("Action button '{}' executed.", field.name)
+                        } catch (e: Exception) {
+                            logger.error("Error executing action for button '{}'", field.name, e)
+                        }
+                    }
+                }
+                Tiles.LargeTile(field.name, field.description.takeIf { it.isNotEmpty() }, button)
+            }
         }
     }
 }

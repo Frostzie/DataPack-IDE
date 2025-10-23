@@ -4,39 +4,38 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import io.github.frostzie.datapackide.config.ConfigManager
-import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.UIAction
-import io.github.frostzie.datapackide.events.UIActionEvent
 import io.github.frostzie.datapackide.settings.annotations.*
-import io.github.frostzie.datapackide.settings.categories.AdvancedConfig
-import io.github.frostzie.datapackide.settings.categories.MainConfig
+import io.github.frostzie.datapackide.settings.data.BooleanConfigField
+import io.github.frostzie.datapackide.settings.data.ButtonConfigField
+import io.github.frostzie.datapackide.settings.data.ConfigField
+import io.github.frostzie.datapackide.settings.data.DropdownConfigField
+import io.github.frostzie.datapackide.settings.data.KeybindConfigField
+import io.github.frostzie.datapackide.settings.data.SliderConfigField
+import io.github.frostzie.datapackide.settings.data.TextConfigField
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import java.io.FileReader
 import java.io.FileWriter
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.jvm.isAccessible
 
 object SettingsManager {
     private val logger = LoggerProvider.getLogger("SettingsManager")
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-    private val settingsFile = ConfigManager.configDir.resolve("Settings.json").toFile()
+    private val settingsFile = ConfigManager.configDir.resolve("settings.json").toFile()
     private val defaultValues = mutableMapOf<KProperty1<*, *>, Any?>()
 
-    private val configClasses = listOf(
-        "main" to MainConfig::class, //TODO: Remove Example settings
-        //"theme" to ThemeConfig::class, TODO: Add theme settings
-        //"keybinds" to KeybindConfig::class, TODO: Add keybind settings
-        "advanced" to AdvancedConfig::class
-    )
+    private val configClasses = mutableListOf<Pair<String, KClass<*>>>()
+
+    fun register(categoryName: String, configClass: KClass<*>) {
+        configClasses.add(categoryName to configClass)
+        logger.debug("Registered settings category '$categoryName' with ${configClass.simpleName}")
+    }
 
     fun initialize() {
         logger.info("Initializing SettingsManager...")
         cacheDefaultValues()
-        registerEventHandlers()
         loadSettings()
         logger.info("SettingsManager initialization complete")
     }
@@ -44,29 +43,25 @@ object SettingsManager {
     private fun cacheDefaultValues() {
         logger.debug("Caching default setting values...")
         configClasses.forEach { (_, configClass) ->
-            val objectInstance = configClass.objectInstance
-            if (objectInstance != null) {
-                configClass.declaredMemberProperties.forEach { prop ->
-                    if (prop.findAnnotation<Expose>() != null) {
-                        @Suppress("UNCHECKED_CAST")
-                        defaultValues[prop] = (prop as KProperty1<Any, *>).get(objectInstance)
-                    }
+            getConfigFields(configClass).forEach { field ->
+                when (field) {
+                    is ButtonConfigField -> { /* Buttons don't have a value to cache */ }
+                    is BooleanConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
+                    is DropdownConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
+                    is KeybindConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
+                    is SliderConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
+                    is TextConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                 }
             }
         }
         logger.debug("Cached ${defaultValues.size} default values.")
     }
 
-    private fun registerEventHandlers() {
-        EventBus.register<UIActionEvent> { event ->
-            if (event.action == UIAction.SAVE_SETTINGS) saveSettings()
-        }
-    }
-
     fun getDefaultValue(property: KProperty1<*, *>): Any? = defaultValues[property]
 
     fun getConfigCategories(): List<Pair<String, KClass<*>>> = configClasses
 
+    @Suppress("UNCHECKED_CAST") // Only to not show warning in IntelliJ
     fun getConfigFields(configClass: KClass<*>): List<ConfigField> {
         val objectInstance = configClass.objectInstance ?: return emptyList()
         val propertiesByName = configClass.declaredMemberProperties.associateBy { it.name }
@@ -77,29 +72,8 @@ object SettingsManager {
                 val option = property.findAnnotation<ConfigOption>()
 
                 if (expose != null && option != null) {
-                    property.isAccessible = true
-
-                    val editorType = when {
-                        property.findAnnotation<ConfigEditorBoolean>() != null -> EditorType.BOOLEAN
-                        property.findAnnotation<ConfigEditorText>() != null -> EditorType.TEXT
-                        property.findAnnotation<ConfigEditorSlider>() != null -> EditorType.SLIDER
-                        property.findAnnotation<ConfigEditorDropdown>() != null -> EditorType.DROPDOWN
-                        property.findAnnotation<ConfigEditorButton>() != null -> EditorType.BUTTON
-                        property.findAnnotation<ConfigEditorKeybind>() != null -> EditorType.KEYBIND
-                        else -> EditorType.TEXT
-                    }
-
-                    ConfigField(
-                        objectInstance = objectInstance,
-                        property = property as KProperty1<Any, Any>,
-                        name = option.name,
-                        description = option.desc,
-                        editorType = editorType,
-                        category = property.findAnnotation<ConfigCategory>(),
-                        sliderAnnotation = property.findAnnotation<ConfigEditorSlider>(),
-                        dropdownAnnotation = property.findAnnotation<ConfigEditorDropdown>(),
-                        buttonAnnotation = property.findAnnotation<ConfigEditorButton>()
-                    )
+                    val p = property as KProperty1<Any, Any>
+                    ConfigFieldManager.create(objectInstance, p, option)
                 } else null
             }
     }
@@ -109,55 +83,6 @@ object SettingsManager {
         return fields.groupBy { field ->
             field.category?.name ?: "General"
         }
-    }
-
-    fun searchSettings(query: String): List<SearchResult> {
-        val results = mutableListOf<SearchResult>()
-
-        if (query.isBlank()) return results
-
-        val lowerQuery = query.lowercase()
-
-        configClasses.forEach { (categoryName, configClass) ->
-            val fields = getConfigFields(configClass)
-
-            fields.forEach { field ->
-                val relevanceScore = calculateRelevance(field, lowerQuery)
-                if (relevanceScore > 0) {
-                    results.add(
-                        SearchResult(
-                            mainCategory = categoryName,
-                            subCategory = field.category?.name ?: "General",
-                            field = field,
-                            relevanceScore = relevanceScore
-                        )
-                    )
-                }
-            }
-        }
-
-        return results.sortedByDescending { it.relevanceScore }
-    }
-
-    private fun calculateRelevance(field: ConfigField, query: String): Int {
-        var score = 0
-
-        // Exact name match gets highest score
-        if (field.name.lowercase() == query) score += 100
-
-        // Name contains query
-        if (field.name.lowercase().contains(query)) score += 50
-
-        // Description contains query
-        if (field.description.lowercase().contains(query)) score += 25
-
-        // Category name contains query
-        if (field.category?.name?.lowercase()?.contains(query) == true) score += 15
-
-        // Category description contains query
-        if (field.category?.desc?.lowercase()?.contains(query) == true) score += 10
-
-        return score
     }
 
     fun saveSettings() {
@@ -170,13 +95,13 @@ object SettingsManager {
 
                 if (objectInstance != null) {
                     getConfigFields(configClass).forEach { field ->
-                        val value = field.property.get(objectInstance)
-                        when (value) {
-                            is Boolean -> categoryObject.addProperty(field.property.name, value)
-                            is String -> categoryObject.addProperty(field.property.name, value)
-                            is Double -> categoryObject.addProperty(field.property.name, value)
-                            is Int -> categoryObject.addProperty(field.property.name, value)
-                            is KeyCombination -> categoryObject.add(field.property.name, gson.toJsonTree(value))
+                        when (field) {
+                            is ButtonConfigField -> { /* Skip buttons */ }
+                            is BooleanConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
+                            is DropdownConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
+                            is KeybindConfigField -> categoryObject.add(field.property.name, gson.toJsonTree(field.property.get(objectInstance).value))
+                            is SliderConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
+                            is TextConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                         }
                     }
                 }
@@ -188,7 +113,7 @@ object SettingsManager {
                 gson.toJson(jsonObject, writer)
             }
 
-            logger.info("Settings saved to ${settingsFile.absolutePath}")
+                        logger.info("Settings saved to ${settingsFile.absolutePath}")
         } catch (e: Exception) {
             logger.error("Failed to save settings", e)
         }
@@ -196,7 +121,7 @@ object SettingsManager {
 
     fun loadSettings() {
         if (!settingsFile.exists()) {
-            logger.info("Settings file doesn't exist, creating with defaults")
+                        logger.info("Settings file doesn't exist, creating with defaults")
             return
         }
 
@@ -213,21 +138,15 @@ object SettingsManager {
                             val jsonElement = categoryObject.get(field.property.name)
                             if (jsonElement != null && !jsonElement.isJsonNull) {
                                 try {
-                                    val value = when (field.editorType) {
-                                        EditorType.BOOLEAN -> jsonElement.asBoolean
-                                        EditorType.TEXT, EditorType.DROPDOWN -> jsonElement.asString
-                                        EditorType.SLIDER -> jsonElement.asDouble
-                                        EditorType.BUTTON -> null
-                                        EditorType.KEYBIND -> gson.fromJson(jsonElement, KeyCombination::class.java)
+                                    when (field) {
+                                        is ButtonConfigField -> { /* Skip buttons */ }
+                                        is BooleanConfigField -> field.property.get(objectInstance).value = jsonElement.asBoolean
+                                        is DropdownConfigField -> field.property.get(objectInstance).value = jsonElement.asString
+                                        is KeybindConfigField -> field.property.get(objectInstance).value = gson.fromJson(jsonElement, KeyCombination::class.java)
+                                        is SliderConfigField -> field.property.get(objectInstance).value = jsonElement.asDouble
+                                        is TextConfigField -> field.property.get(objectInstance).value = jsonElement.asString
                                     }
-
-                                    if (value != null) {
-                                        val mutableProperty = field.property as? KMutableProperty1<Any, Any>
-                                        mutableProperty?.setter?.call(field.objectInstance, value)
-                                        logger.debug("Loaded setting: {} = {}", field.name, value)
-                                    } else {
-                                        logger.debug("Skipping setting for button: ${field.name}")
-                                    }
+                                    logger.debug("Loaded setting: {} = {}", field.name, jsonElement)
                                 } catch (e: Exception) {
                                     logger.warn("Failed to load setting ${field.name}: ${e.message}")
                                 }
@@ -237,32 +156,9 @@ object SettingsManager {
                 }
             }
 
-            logger.info("Settings loaded from ${settingsFile.absolutePath}")
+                        logger.info("Settings loaded from ${settingsFile.absolutePath}")
         } catch (e: Exception) {
             logger.error("Failed to load settings", e)
         }
-    }
-
-    data class ConfigField(
-        val objectInstance: Any,
-        val property: KProperty1<Any, Any>,
-        val name: String,
-        val description: String,
-        val editorType: EditorType,
-        val category: ConfigCategory? = null,
-        val sliderAnnotation: ConfigEditorSlider? = null,
-        val dropdownAnnotation: ConfigEditorDropdown? = null,
-        val buttonAnnotation: ConfigEditorButton? = null
-    )
-
-    data class SearchResult(
-        val mainCategory: String,
-        val subCategory: String,
-        val field: ConfigField,
-        val relevanceScore: Int
-    )
-
-    enum class EditorType {
-        BOOLEAN, TEXT, SLIDER, DROPDOWN, BUTTON, KEYBIND
     }
 }

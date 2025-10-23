@@ -16,26 +16,13 @@ object CSSManager {
     private val CSS_CONFIG_PATH = FabricLoader.getInstance().configDir.resolve("datapack-ide/assets/styles/")
 
     private val resourceSearchPaths = listOf(
-        "styles/top-bar/",
-        "styles/",
         ""
     )
 
-    private val configSearchPaths = listOf(
-        "top-bar/",
-        "")
-
-    private val cssFiles = listOf(
-        "MenuBar.css",
-        "TopBar.css",
-        "WindowControls.css",
-        "StatusBar.css",
-        "TextEditor.css",
-        "NewFileWindow.css",
-        "Settings.css",
-        "LeftBar.css",
-        "FileTree.css",
-        "Window.css"
+    private val cssFiles = listOf<String>(
+        "Debug.css",
+        "Override.css",
+        "FileTreeView.css"
     )
 
     /**
@@ -132,14 +119,7 @@ object CSSManager {
      * Takes raw CSS content, processes it, and returns a Base64-encoded data URI.
      */
     private fun prepareCssForDataUri(cssContent: String): String {
-        var processedContent = cssContent
-        val fontFile = AssetsConfig.getFontPath()
-        if (Files.isRegularFile(fontFile)) {
-            val fontUrl = fontFile.toUri().toString()
-            processedContent = processedContent.replace(Regex("url\\((['\"])?.*?/DataPack-IDE\\.ttf\\1?\\)"), "url('$fontUrl')")
-        }
-
-        val encodedCss = Base64.getEncoder().encodeToString(processedContent.toByteArray(Charsets.UTF_8))
+        val encodedCss = Base64.getEncoder().encodeToString(cssContent.toByteArray(Charsets.UTF_8))
         return "data:text/css;base64,$encodedCss"
     }
 
@@ -147,7 +127,7 @@ object CSSManager {
      * Find CSS file in subdirectories, checking all search paths
      */
     private fun findCssInSubdirectory(cssFile: String): String {
-        for (path in configSearchPaths) {
+        for (path in resourceSearchPaths) {
             val fullPath = if (path.isEmpty()) cssFile else "$path$cssFile"
             if (Files.isRegularFile(CSS_CONFIG_PATH.resolve(fullPath))) {
                 return fullPath
