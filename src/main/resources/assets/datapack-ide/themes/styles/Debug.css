@@ -37,7 +37,7 @@
 .debug-layout .toggle-switch { -fx-background-color: -color-bg-default; -fx-effect: innershadow(one-pass-box, seagreen, 4, 1, 0, 0); } /* Boolean Toggle */
 .debug-layout .tile .text-container { -fx-background-color: -color-bg-default; -fx-effect: innershadow(one-pass-box, lime, 4, 1, 0, 0); } /* Settings Text area INDIVIDUAL */
 .debug-layout .tile .title { -fx-background-color: -color-bg-default; -fx-effect: innershadow(one-pass-box, yellow, 4, 1, 0, 0); } /* Settings Title INDIVIDUAL */
-.debug-layout .tile .description { -fx-background-color: -color-bg-default; -fx-effect: innershadow(one-pass-box, green, 4, 1, 0, 0); } ?/* Settings Description INDIVIDUAL */
+.debug-layout .tile .description { -fx-background-color: -color-bg-default; -fx-effect: innershadow(one-pass-box, green, 4, 1, 0, 0); } /* Settings Description INDIVIDUAL */
 
 
 

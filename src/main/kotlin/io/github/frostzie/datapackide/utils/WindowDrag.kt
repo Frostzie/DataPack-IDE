@@ -8,7 +8,6 @@ import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import javafx.animation.PauseTransition
 import javafx.application.Platform
 import javafx.event.EventHandler
-import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.stage.Stage
 import javafx.util.Duration
@@ -31,7 +30,7 @@ object WindowDrag {
         isMaximized = event.isMaximized
     }
 
-    fun makeDraggable(stage: Stage, byNode: Node): () -> Unit {
+    fun makeDraggable(stage: Stage, byNode: TopBarView): () -> Unit {
         val dragDelta = Delta()
         var isDragging = false
         val dragDelay = PauseTransition(Duration.millis(150.0)) // 150ms delay so normal clicks won't count as dragging
@@ -63,10 +62,8 @@ object WindowDrag {
         }
 
         val pressHandler = EventHandler<MouseEvent> { mouseEvent ->
-            if (byNode is TopBarView) {
-                if (!byNode.isOverDraggableArea(mouseEvent)) {
-                    return@EventHandler
-                }
+            if (!byNode.isOverDraggableArea(mouseEvent)) {
+                return@EventHandler
             }
 
             if (isMaximized) {

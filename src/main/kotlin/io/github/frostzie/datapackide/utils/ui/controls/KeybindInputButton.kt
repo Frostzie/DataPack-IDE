@@ -61,7 +61,6 @@ class KeybindInputButton : Button() {
 
                 val newKeybind = KeyCombination.fromEvent(event)
                 keybindProperty.set(newKeybind)
-                text = newKeybind.toString()
                 stopListening(true)
             }
         }

@@ -2,6 +2,8 @@ package io.github.frostzie.datapackide.events
 
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberFunctions
@@ -9,8 +11,8 @@ import kotlin.reflect.jvm.isAccessible
 
 object EventBus {
     val logger = LoggerProvider.getLogger("EventBus")
-    private val listener = mutableMapOf<Class<*>, MutableList<(Any) -> Unit>>()
-    private val handlerMap = mutableMapOf<Any, MutableList<Pair<Class<*>, (Any) -> Unit>>>()
+    private val listeners = ConcurrentHashMap<Class<*>, CopyOnWriteArrayList<(Any) -> Unit>>()
+    private val handlerMap = ConcurrentHashMap<Any, MutableList<Pair<Class<*>, (Any) -> Unit>>>()
 
     fun register(handler: Any) {
         if (handlerMap.containsKey(handler)) {
@@ -34,7 +36,7 @@ object EventBus {
             method.isAccessible = true
             val fn: (Any) -> Unit = { event -> method.call(handler, event) }
 
-            listener.getOrPut(eventClass) { mutableListOf() }.add(fn)
+            listeners.getOrPut(eventClass) { CopyOnWriteArrayList() }.add(fn)
             registered += eventClass to fn
 
             logger.debug("Registered listener ${method.name} for event ${eventClass.simpleName}")
@@ -47,18 +49,25 @@ object EventBus {
     fun unregister(handler: Any) {
         val registered = handlerMap.remove(handler) ?: return
         for ((eventClass, fn) in registered) {
-            listener[eventClass]?.remove(fn)
+            listeners[eventClass]?.remove(fn)
+            if (listeners[eventClass]?.isEmpty() == true) listeners.remove(eventClass)
         }
         logger.info("Unregistered handler ${handler::class.simpleName}")
     }
 
     fun post(event: Any) {
-        listener[event::class.java]?.forEach {it(event)}
+        listeners[event::class.java]?.forEach { l ->
+            try {
+                l(event)
+            } catch (t: Throwable) {
+                logger.error("Error delivering ${event::class.simpleName} to a subscriber", t)
+            }
+        }
         logger.debug("Posted Event: ${event::class.simpleName}")
     }
 
     fun clear() {
-        listener.clear()
+        listeners.clear()
         handlerMap.clear()
         logger.debug("Cleared all event listeners")
     }
@@ -67,6 +76,6 @@ object EventBus {
      * Call when the component is no longer needed
      */
     fun cleanup() {
-        EventBus.unregister(this)
+        clear()
     }
 }

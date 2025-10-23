@@ -68,23 +68,19 @@ class FileTreeViewModel {
         }
 
         scope.launch {
-            val currentRoot = root.get()
-            val expandedPaths = if (currentRoot != null && previousRoot == event.directoryPath) {
-                collectExpandedPaths(currentRoot)
-            } else {
-                emptySet()
-            }
-
+            val children = loadChildren(event.directoryPath)
             Platform.runLater {
+                // Read prior UI state on the FX thread
+                val currentRoot = root.get()
+                val expandedPaths =
+                    if (currentRoot != null && previousRoot == event.directoryPath) {
+                        collectExpandedPaths(currentRoot)
+                    } else emptySet()
+
                 val rootNode = TreeItem(FileTreeItem(event.directoryPath, event.directoryPath.fileName.toString()))
                 rootNode.isExpanded = true
-
-                val children = loadChildren(event.directoryPath)
-                rootNode.children.addAll(children)
-
+                rootNode.children.setAll(children)
                 root.set(rootNode)
-
-                // Restore expanded state
                 if (expandedPaths.isNotEmpty()) {
                     restoreExpandedPaths(rootNode, expandedPaths)
                 }
@@ -147,7 +143,7 @@ class FileTreeViewModel {
             // to avoid adding them as duplicate, separate entries in the tree.
             val processedPaths = mutableSetOf<Path>()
             directory.listDirectoryEntries()
-                .sortedWith(compareBy<Path>({ !it.isDirectory() }).thenComparator { a, b ->
+                .sortedWith(compareBy<Path> { !it.isDirectory() }.thenComparator { a, b ->
                     naturalOrderComparator.compare(a.fileName.toString(), b.fileName.toString())
                 })
                 .mapNotNull { entry ->
