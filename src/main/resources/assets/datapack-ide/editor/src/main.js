@@ -5,6 +5,7 @@ import { searchKeymap, highlightSelectionMatches } from "@codemirror/search"
 import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete"
 import { EditorState, Compartment } from "@codemirror/state"
 import { lintGutter } from "@codemirror/lint"
+import { barf } from 'thememirror'; // TEMP
 
 const initialContent = 'execute as @a run say'
 
@@ -14,6 +15,7 @@ function initializeEditor() {
     const spyglassCompartment = new Compartment()
 
     const extensions = [
+        barf, // TEMP
         drawSelection(),
         lineNumbers(),
         foldGutter(),

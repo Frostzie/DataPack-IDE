@@ -20,7 +20,8 @@
     "@spyglassmc/java-edition": "^0.3.49",
     "@spyglassmc/json": "^0.3.41",
     "@spyglassmc/mcfunction": "^0.2.40",
-    "@spyglassmc/mcdoc": "^0.3.41"
+    "@spyglassmc/mcdoc": "^0.3.41",
+    "thememirror": "^2.0.1"
   },
   "devDependencies": {
     "esbuild": "^0.25.2"
