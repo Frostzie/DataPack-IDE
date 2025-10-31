@@ -9,7 +9,21 @@ import * as mcdoc from '@spyglassmc/mcdoc'
 
 async function getSpyglassExtensions(initialContentPerma) {
     console.log('Initializing Spyglass...')
-
+    //TODO: remove all cache from here since WebView only saves to memory
+    // The Cache API is not available in JavaFX WebView.
+    if (typeof window.caches === 'undefined') {
+        console.log("Polyfilling Cache API for non-browser environment.");
+        window.caches = {
+            open: async () => ({
+                match: async () => undefined,
+                put: async () => {},
+            }),
+            delete: async () => true,
+            has: async () => false,
+            keys: async () => [],
+            match: async () => undefined,
+        };
+    }
     // use the incoming initial content (from the main editor)
     const initialContent = typeof initialContentPerma === 'string' ? initialContentPerma : 'execute as @a run say hello world'
 
