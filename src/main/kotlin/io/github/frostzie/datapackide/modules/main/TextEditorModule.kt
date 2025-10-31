@@ -1,48 +1,50 @@
 package io.github.frostzie.datapackide.modules.main
 
 import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
+import io.github.frostzie.datapackide.utils.LoggerProvider
 
+/**
+ * Module for text editor operations.
+ * Currently, placeholder for future JS bridge implementation.
+ *
+ * Note: Editor operations are now handled through the MVVM architecture.
+ * This module will be updated once the JS bridge is implemented.
+ */
 class TextEditorModule(private val textEditorView: TextEditorView) {
 
+    private val logger = LoggerProvider.getLogger("TextEditorModule")
+
+    init {
+        logger.info("TextEditorModule initialized (placeholder for JS bridge)")
+    }
+
+    //TODO: JS Bridge - Implement undo
     fun undo() {
-        textEditorView.requestFocus()
-        textEditorView.run {
-            webView.engine.executeScript("window.editorUndo && window.editorUndo();")
-        }
+        logger.debug("Undo requested - awaiting JS bridge implementation")
     }
 
+    //TODO: JS Bridge - Implement redo
     fun redo() {
-        textEditorView.requestFocus()
-        textEditorView.run {
-            webView.engine.executeScript("window.editorRedo && window.editorRedo();")
-        }
+        logger.debug("Redo requested - awaiting JS bridge implementation")
     }
 
+    //TODO: JS Bridge - Implement cut
     fun cut() {
-        textEditorView.requestFocus()
-        textEditorView.run {
-            webView.engine.executeScript("window.editorCut && window.editorCut();")
-        }
+        logger.debug("Cut requested - awaiting JS bridge implementation")
     }
 
+    //TODO: JS Bridge - Implement copy
     fun copy() {
-        textEditorView.requestFocus()
-        textEditorView.run {
-            webView.engine.executeScript("window.editorCopy && window.editorCopy();")
-        }
+        logger.debug("Copy requested - awaiting JS bridge implementation")
     }
 
+    //TODO: JS Bridge - Implement paste
     fun paste() {
-        textEditorView.requestFocus()
-        textEditorView.run {
-            webView.engine.executeScript("window.editorPaste && window.editorPaste();")
-        }
+        logger.debug("Paste requested - awaiting JS bridge implementation")
     }
 
+    //TODO: JS Bridge - Implement select all
     fun selectAll() {
-        textEditorView.requestFocus()
-        textEditorView.run {
-            webView.engine.executeScript("window.editorSelectAll && window.editorSelectAll();")
-        }
+        logger.debug("Select all requested - awaiting JS bridge implementation")
     }
 }

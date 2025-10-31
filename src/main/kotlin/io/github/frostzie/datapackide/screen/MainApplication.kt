@@ -4,12 +4,10 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.handlers.bars.BottomBarHandler
 import io.github.frostzie.datapackide.handlers.bars.LeftBarHandler
 import io.github.frostzie.datapackide.handlers.bars.top.TopBarHandler
-import io.github.frostzie.datapackide.handlers.main.TextEditorHandler
 import io.github.frostzie.datapackide.handlers.popup.settings.SettingsHandler
 import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.modules.bars.LeftBarModule
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
-import io.github.frostzie.datapackide.modules.main.TextEditorModule
 import io.github.frostzie.datapackide.modules.popup.settings.SettingsModule
 import io.github.frostzie.datapackide.handlers.popup.settings.ThemeHandler
 import io.github.frostzie.datapackide.modules.popup.settings.ThemeModule
@@ -57,13 +55,10 @@ class MainApplication {
         private var textEditorView: TextEditorView? = null
         private var contentArea: SplitPane? = null
 
-        // New Modules and Handlers
+        // Modules and Handlers
         private var toolBarMenu: ToolBarMenu? = null
         private var topBarModule: TopBarModule? = null
         private var topBarHandler: TopBarHandler? = null
-
-        private var textEditorModule: TextEditorModule? = null
-        private var textEditorHandler: TextEditorHandler? = null
 
         private var leftBarModule: LeftBarModule? = null
         private var leftBarHandler: LeftBarHandler? = null
@@ -121,9 +116,6 @@ class MainApplication {
 
             topBarModule = TopBarModule(stage, topBarView)
             topBarHandler = TopBarHandler(topBarModule!!)
-
-            textEditorModule = TextEditorModule(textEditorView!!) //TODO: Change to actual module when moving View -> Module
-            textEditorHandler = TextEditorHandler(textEditorModule!!)
 
             leftBarModule = LeftBarModule(stage)
             leftBarHandler = LeftBarHandler(leftBarModule!!)
@@ -191,12 +183,9 @@ class MainApplication {
         }
 
         private fun setupEventHandlers() {
-            // New event bus registrations
+            // EventBus registrations - only for handlers, not views
             EventBus.register(topBarHandler!!)
             topBarView?.let { EventBus.register(it) }
-
-            EventBus.register(textEditorHandler!!)
-            textEditorView?.let { EventBus.register(it) }
 
             EventBus.register(leftBarHandler!!)
             leftBarView?.let { EventBus.register(it) }
@@ -206,6 +195,7 @@ class MainApplication {
 
             EventBus.register(settingsHandler!!)
             settingsView?.let { EventBus.register(it) }
+
             EventBus.register(themeHandler!!)
 
             logger.debug("Event handlers initialized")
@@ -290,7 +280,7 @@ class MainApplication {
                         stage.show()
                         stage.toFront()
                         textEditorView?.requestFocus()
-                        logger.info("Main IDE Window shown!")
+                        logger.info("Main IDE Window shown from hidden!")
                     }
                 }
             }
