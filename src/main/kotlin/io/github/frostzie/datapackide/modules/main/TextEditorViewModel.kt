@@ -28,7 +28,7 @@ class TextEditorViewModel {
         val filePath: Path,
         val displayName: String,
         val webView: WebView,
-        var isModified: Boolean = false
+        val bridge: EditorBridge
     )
 
     // Observable list of all open tabs
@@ -66,20 +66,36 @@ class TextEditorViewModel {
      */
     private fun createNewTab(filePath: Path) {
         try {
-            val content = filePath.readText() //TODO: Improve this since not meant for large text.
+            // Read file content
+            val content = filePath.readText()
+            logger.debug("Read file content: {} ({} characters)", filePath.fileName, content.length)
+
+            // Create WebView and load editor HTML
             val webView = createWebView()
+
+            // Create bridge with initial content
+            val bridge = EditorBridge(
+                webView = webView,
+                filePath = filePath,
+                initialContent = content,
+                onContentSaved = {
+                    logger.debug("Content saved callback for: {}", filePath.fileName)
+                }
+            )
+
+            // Initialize bridge - this will load content when WebView is ready
+            bridge.initialize()
 
             val tabData = TabData(
                 filePath = filePath,
                 displayName = filePath.fileName.toString(),
-                webView = webView
+                webView = webView,
+                bridge = bridge
             )
 
             tabs.add(tabData)
             activeTab.set(tabData)
 
-            // Load content into WebView
-            //TODO: JS Bridge - Load file content into editor
             logger.debug("Tab created for file: {}", filePath.fileName)
 
         } catch (e: Exception) {
@@ -103,19 +119,23 @@ class TextEditorViewModel {
             webView.engine.loadContent("<html><body><h3>Error: Editor not found, report on github</h3></body></html>")
         }
 
-        //TODO: JS Bridge - Setup JavaScript bridge for this WebView
-
         return webView
     }
 
     /**
-     * Closes the specified tab
+     * Closes the specified tab and auto-saves before closing
      */
     fun closeTab(tabData: TabData) {
-        //TODO: JS Bridge
-        //TODO: auto save on close
-
         logger.info("Closing tab: ${tabData.displayName}")
+
+        // Auto-save before closing
+        try {
+            tabData.bridge.saveFile()
+            logger.debug("Auto-saved file before closing: ${tabData.displayName}")
+        } catch (e: Exception) {
+            logger.error("Failed to auto-save before closing: ${tabData.displayName}", e)
+        }
+
         tabs.remove(tabData)
 
         // If the closed tab was active, switch to another tab
@@ -129,14 +149,24 @@ class TextEditorViewModel {
      */
     fun saveActiveTab() {
         val tab = activeTab.get() ?: return
-        //TODO: Implement when JS bridge
-        logger.info("Saving file: ${tab.displayName}")
+        tab.bridge.saveFile()
+        logger.info("Manually saved file: ${tab.displayName}")
     }
 
     /**
      * Cleanup method to be called when the editor is closed
      */
     fun cleanup() {
+        // Auto-save all tabs before cleanup
+        tabs.forEach { tab ->
+            try {
+                tab.bridge.saveFile()
+                logger.debug("Auto-saved during cleanup: ${tab.displayName}")
+            } catch (e: Exception) {
+                logger.error("Failed to auto-save during cleanup: ${tab.displayName}", e)
+            }
+        }
+
         tabs.clear()
         activeTab.set(null)
         EventBus.unregister(this)

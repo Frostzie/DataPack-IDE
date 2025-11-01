@@ -7,7 +7,7 @@ import { EditorState, Compartment } from "@codemirror/state"
 import { lintGutter } from "@codemirror/lint"
 import { barf } from 'thememirror'; // TEMP
 
-const initialContent = 'execute as @a run say'
+const initialContent = ''
 
 function initializeEditor() {
     const container = document.getElementById('editor-container')
@@ -51,6 +51,17 @@ function initializeEditor() {
 
     // Expose the editor instance and compartment to the window so that editor.js can find it
     window.datapackEditor = { view, spyglassCompartment }
+
+    console.log('Editor initialized successfully')
+
+    // Notify Kotlin that editor is ready
+    if (window.kotlinBridge) {
+        try {
+            window.kotlinBridge.editorReady()
+        } catch (error) {
+            console.error('Failed to notify Kotlin of editor ready:', error)
+        }
+    }
 }
 
 try {
