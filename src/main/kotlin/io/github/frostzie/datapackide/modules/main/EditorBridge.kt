@@ -59,37 +59,14 @@ class EditorBridge(
     }
 
     /**
-     * Loads file content into the CodeMirror editor.
+     * Loads file content into the CodeMirror editor by creating a fresh state.
      * @param content The text content to load
      */
     private fun loadContent(content: String) {
         try {
-            val escapedContent = content
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t")
+            val window = webView.engine.executeScript("window") as JSObject
+            val result = window.call("loadFileContent", content) as Boolean
 
-            val script = """
-                if (window.datapackEditor && window.datapackEditor.view) {
-                    const view = window.datapackEditor.view;
-                    view.dispatch({
-                        changes: {
-                            from: 0,
-                            to: view.state.doc.length,
-                            insert: "$escapedContent"
-                        }
-                    });
-                    console.log('Content loaded: ' + view.state.doc.length + ' characters');
-                    true;
-                } else {
-                    console.error('Editor not available');
-                    false;
-                }
-            """.trimIndent()
-
-            val result = webView.engine.executeScript(script) as Boolean
             if (result) {
                 logger.debug("Content loaded successfully: {} ({} characters)", filePath.fileName, content.length)
             } else {

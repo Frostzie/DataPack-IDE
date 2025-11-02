@@ -38,7 +38,7 @@ function initializeEditor() {
         spyglassCompartment.of([autocompletion()])
     ];
 
-    const view = new EditorView({
+    let view = new EditorView({
         parent: container,
         state: EditorState.create({
             doc: initialContent,
@@ -51,6 +51,27 @@ function initializeEditor() {
 
     // Expose the editor instance and compartment to the window so that editor.js can find it
     window.datapackEditor = { view, spyglassCompartment }
+
+    // Function to load content with fresh state
+    window.loadFileContent = function(content) {
+        if (!view) {
+            console.error('Editor view not available');
+            return false;
+        }
+        if (typeof content !== 'string') {
+            console.error('Invalid content: must be a string');
+            return false;
+        }
+
+        const newState = EditorState.create({
+            doc: content,
+            extensions: extensions
+        });
+
+        view.setState(newState);
+        console.log('File content loaded with fresh state:', content.length, 'characters');
+        return true;
+    };
 
     console.log('Editor initialized successfully')
 
