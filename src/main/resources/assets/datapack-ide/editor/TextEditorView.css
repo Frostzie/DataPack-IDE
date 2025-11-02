@@ -1,0 +1,20 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #2d2d2d;
+}
+
+#editor-container {
+    height: 100%;
+    width: 100%;
+}
+
+.cm-editor {
+    height: 100%;
+}
+
+.cm-editor .cm-gutters {
+    background-color: #2d2d2d;
+}

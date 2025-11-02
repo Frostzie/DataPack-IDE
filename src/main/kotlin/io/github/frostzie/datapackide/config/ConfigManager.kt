@@ -28,7 +28,6 @@ object ConfigManager {
         }
 
         AssetsConfig.initialize()
-        WebsiteConfig.initialize()
 
         SettingsManager.register("main", MainConfig::class)
         SettingsManager.register("advanced", AdvancedConfig::class)
