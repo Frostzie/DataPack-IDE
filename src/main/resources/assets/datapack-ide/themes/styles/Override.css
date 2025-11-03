@@ -24,3 +24,12 @@
     -fx-font-size: 1.3em;
     -fx-font-weight: bold;
 }
+
+/* MoveConfirmationView */
+.move-confirmation-dialog .content {
+    -fx-padding: 10px;
+}
+
+.move-confirmation-dialog .label {
+    -fx-font-weight: bold;
+}

@@ -4,10 +4,12 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.handlers.bars.BottomBarHandler
 import io.github.frostzie.datapackide.handlers.bars.LeftBarHandler
 import io.github.frostzie.datapackide.handlers.bars.top.TopBarHandler
+import io.github.frostzie.datapackide.handlers.popup.file.FilePopupHandler
 import io.github.frostzie.datapackide.handlers.popup.settings.SettingsHandler
 import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.modules.bars.LeftBarModule
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
+import io.github.frostzie.datapackide.modules.popup.file.FilePopupModule
 import io.github.frostzie.datapackide.modules.popup.settings.SettingsModule
 import io.github.frostzie.datapackide.handlers.popup.settings.ThemeHandler
 import io.github.frostzie.datapackide.modules.popup.settings.ThemeModule
@@ -69,6 +71,9 @@ class MainApplication {
         private var settingsModule: SettingsModule? = null
         private var settingsHandler: SettingsHandler? = null
 
+        private var filePopupModule: FilePopupModule? = null
+        private var filePopupHandler: FilePopupHandler? = null
+
         private var themeModule: ThemeModule? = null
         private var themeHandler: ThemeHandler? = null
 
@@ -125,6 +130,9 @@ class MainApplication {
 
             settingsModule = SettingsModule(stage)
             settingsHandler = SettingsHandler(settingsModule!!)
+
+            filePopupModule = FilePopupModule(stage)
+            filePopupHandler = FilePopupHandler(filePopupModule!!)
 
             setupEventHandlers()
 
@@ -195,6 +203,8 @@ class MainApplication {
 
             EventBus.register(settingsHandler!!)
             settingsView?.let { EventBus.register(it) }
+
+            EventBus.register(filePopupHandler!!)
 
             EventBus.register(themeHandler!!)
 

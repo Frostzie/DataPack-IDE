@@ -9,6 +9,7 @@ class NewFile
 class DeleteFile
 class RenameFile
 data class MoveFile(val sourcePath: Path, val targetPath: Path)
+data class RequestMoveConfirmation(val sourcePath: Path, val targetPath: Path)
 
 class CopyFile
 class CutFile

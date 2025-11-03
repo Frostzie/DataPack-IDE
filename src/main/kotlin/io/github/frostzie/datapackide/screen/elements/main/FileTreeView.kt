@@ -3,6 +3,7 @@ package io.github.frostzie.datapackide.screen.elements.main
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MoveFile
 import io.github.frostzie.datapackide.events.OpenFile
+import io.github.frostzie.datapackide.events.RequestMoveConfirmation
 import io.github.frostzie.datapackide.modules.main.FileTreeViewModel
 import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.scene.control.TreeCell
@@ -87,7 +88,7 @@ class FileTreeView : VBox() {
                             val sourcePath = Path.of(db.getContent(dragDataFormat) as String)
                             val targetPath = targetItem.path.resolve(sourcePath.fileName)
 
-                            EventBus.post(MoveFile(sourcePath, targetPath))
+                            EventBus.post(RequestMoveConfirmation(sourcePath, targetPath))
                             success = true
                         }
                         event.isDropCompleted = success

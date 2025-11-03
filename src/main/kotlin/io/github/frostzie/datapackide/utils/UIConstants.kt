@@ -44,6 +44,10 @@ object UIConstants {
     // New File Window
     const val NEW_FILE_WINDOW_FIXED_CELL_SIZE = 28.0
 
+    // Move Confirmation Dialog
+    const val MOVE_CONFIRMATION_WIDTH = 700.0
+    const val MOVE_CONFIRMATION_HEIGHT = 200.0
+
     // Top Bar
     const val TOP_BAR_BUTTON_SIZE = 30.0
 }
