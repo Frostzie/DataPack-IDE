@@ -35,7 +35,7 @@ object LayoutManager {
                     if (loadedConfig != null) {
                         config = loadedConfig
                     }
-                    logger.info("Loaded layout from $layoutFile")
+                    logger.debug("Loaded layout from {}", layoutFile)
                 }
             } catch (e: Exception) {
                 logger.error("Failed to load layout file, using defaults.", e)
@@ -51,7 +51,7 @@ object LayoutManager {
         try {
             FileWriter(layoutFile.toFile()).use { writer ->
                 gson.toJson(config, writer)
-                logger.info("Saved layout to $layoutFile")
+                logger.debug("Saved layout to {}", layoutFile)
             }
         } catch (e: Exception) {
             logger.error("Failed to save layout file.", e)
