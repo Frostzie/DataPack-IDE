@@ -40,6 +40,7 @@ import javafx.stage.Stage
 import javafx.stage.StageStyle
 import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 import io.github.frostzie.datapackide.utils.ThemeUtils
+import io.github.frostzie.datapackide.config.LayoutManager
 
 class MainApplication {
 
@@ -158,10 +159,23 @@ class MainApplication {
             val rootStack = StackPane(root, toolBarMenu!!.modalPane)
 
             setupStageDimensions(stage, root)
-            WindowDrag.makeDraggable(stage, topBarView!!)
+
+            val saveLayoutAction = {
+                if (stage.isIconified || topBarModule?.isMaximized == true) {
+                    // do nothing
+                } else {
+                    LayoutManager.config.x = stage.x
+                    LayoutManager.config.y = stage.y
+                    LayoutManager.config.width = stage.width
+                    LayoutManager.config.height = stage.height
+                    LayoutManager.save()
+                }
+            }
+
+            WindowDrag.makeDraggable(stage, topBarView!!, saveLayoutAction)
 
             // The resizable wrapper should wrap the StackPane to allow resizing modal panes as well.
-            val resizableWrapper = WindowResizer.install(stage, rootStack)
+            val resizableWrapper = WindowResizer.install(stage, rootStack, saveLayoutAction)
             DebugManager.initialize(resizableWrapper)
 
             return resizableWrapper
@@ -238,16 +252,22 @@ class MainApplication {
                 stage.initStyle(StageStyle.UNDECORATED)
 
                 val mainUI = createMainUI(stage)
-                val scene = Scene(mainUI, UIConstants.DEFAULT_WINDOW_WIDTH, UIConstants.DEFAULT_WINDOW_HEIGHT)
+                val scene = Scene(mainUI, LayoutManager.config.width, LayoutManager.config.height)
 
                 CSSManager.applyAllStyles(scene)
                 themeModule?.scenes?.add(scene)
                 stage.scene = scene
                 stage.title = "DataPack IDE"
-                stage.width = UIConstants.DEFAULT_WINDOW_WIDTH
-                stage.height = UIConstants.DEFAULT_WINDOW_HEIGHT
+                stage.width = LayoutManager.config.width
+                stage.height = LayoutManager.config.height
                 stage.isResizable = true
-                stage.centerOnScreen()
+
+                if (LayoutManager.config.x > 0 && LayoutManager.config.y > 0) {
+                    stage.x = LayoutManager.config.x
+                    stage.y = LayoutManager.config.y
+                } else {
+                    stage.centerOnScreen()
+                }
 
                 stage.setOnCloseRequest { e ->
                     e.consume()
@@ -267,8 +287,15 @@ class MainApplication {
 
         fun hideMainWindow() {
             JavaFXInitializer.runLater {
-                primaryStage?.takeIf { it.isShowing }?.let {
-                    it.hide()
+                primaryStage?.takeIf { it.isShowing }?.let { stage ->
+                    if (!stage.isIconified && topBarModule?.isMaximized == false) {
+                        LayoutManager.config.width = stage.width
+                        LayoutManager.config.height = stage.height
+                        LayoutManager.config.x = stage.x
+                        LayoutManager.config.y = stage.y
+                    }
+                    LayoutManager.save()
+                    stage.hide()
                     logger.debug("Main IDE Window hidden via hideMainWindow()!")
                 }
             }

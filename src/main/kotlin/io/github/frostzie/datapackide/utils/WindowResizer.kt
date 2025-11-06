@@ -15,7 +15,7 @@ object WindowResizer {
 
     private var resizeRegions: List<Region> = emptyList()
 
-    fun install(stage: Stage, contentPane: Pane): StackPane {
+    fun install(stage: Stage, contentPane: Pane, onResizeFinished: () -> Unit): StackPane {
         val wrapper = StackPane(contentPane)
         val borderThickness = 4.0
 
@@ -33,14 +33,14 @@ object WindowResizer {
 
         val resizeData = ResizeData()
 
-        setupResize(top, resizeData, stage, north = true)
-        setupResize(bottom, resizeData, stage, south = true)
-        setupResize(left, resizeData, stage, west = true)
-        setupResize(right, resizeData, stage, east = true)
-        setupResize(nw, resizeData, stage, north = true, west = true)
-        setupResize(ne, resizeData, stage, north = true, east = true)
-        setupResize(sw, resizeData, stage, south = true, west = true)
-        setupResize(se, resizeData, stage, south = true, east = true)
+        setupResize(top, resizeData, stage, onResizeFinished, north = true)
+        setupResize(bottom, resizeData, stage, onResizeFinished, south = true)
+        setupResize(left, resizeData, stage, onResizeFinished, west = true)
+        setupResize(right, resizeData, stage, onResizeFinished, east = true)
+        setupResize(nw, resizeData, stage, onResizeFinished, north = true, west = true)
+        setupResize(ne, resizeData, stage, onResizeFinished, north = true, east = true)
+        setupResize(sw, resizeData, stage, onResizeFinished, south = true, west = true)
+        setupResize(se, resizeData, stage, onResizeFinished, south = true, east = true)
 
         wrapper.children.addAll(resizeRegions)
 
@@ -81,11 +81,13 @@ object WindowResizer {
         region: Region,
         data: ResizeData,
         stage: Stage,
+        onResizeFinished: () -> Unit,
         north: Boolean = false,
         south: Boolean = false,
         west: Boolean = false,
         east: Boolean = false
     ) {
+        var dragHappened = false
         region.onMousePressed = EventHandler { e ->
             data.x = e.screenX
             data.y = e.screenY
@@ -93,10 +95,12 @@ object WindowResizer {
             data.height = stage.height
             data.stageX = stage.x
             data.stageY = stage.y
+            dragHappened = false
             e.consume()
         }
 
         region.onMouseDragged = EventHandler { e ->
+            dragHappened = true
             val deltaX = e.screenX - data.x
             val deltaY = e.screenY - data.y
 
@@ -121,6 +125,13 @@ object WindowResizer {
                     stage.height = newHeight
                     stage.y = data.stageY + deltaY
                 }
+            }
+            e.consume()
+        }
+
+        region.onMouseReleased = EventHandler { e ->
+            if (dragHappened) {
+                onResizeFinished()
             }
             e.consume()
         }

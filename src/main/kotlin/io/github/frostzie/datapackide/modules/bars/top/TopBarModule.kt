@@ -16,7 +16,7 @@ import java.net.URI
 class TopBarModule(private val stage: Stage?, private val topBarView: TopBarView?) {
 
     private var previousBounds: Rectangle2D? = null
-    private var isMaximized: Boolean = false
+    var isMaximized: Boolean = false
 
     init {
         doubleClickMaximize()

@@ -17,7 +17,7 @@ object ConfigManager {
 
     private val logger = LoggerProvider.getLogger("ConfigManager")
 
-    val configDir: Path = FabricLoader.getInstance().configDir.resolve("datapack-ide")
+    val configDir: Path = FabricLoader.getInstance().configDir.resolve("datapack-ide") //TODO: Move to Loader specific
 
     fun initialize() {
         logger.info("Initializing ConfigManager...")
@@ -28,6 +28,7 @@ object ConfigManager {
         }
 
         AssetsConfig.initialize()
+        LayoutManager.initialize()
 
         SettingsManager.register("main", MainConfig::class)
         SettingsManager.register("advanced", AdvancedConfig::class)
