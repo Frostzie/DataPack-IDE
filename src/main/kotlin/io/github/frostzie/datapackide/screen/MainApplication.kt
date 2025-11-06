@@ -220,6 +220,9 @@ class MainApplication {
                 if (primaryStage == null) {
                     createMainWindow()
                 }
+                if (primaryStage?.isIconified == true) {
+                    primaryStage?.isIconified = false
+                }
                 primaryStage?.show()
                 primaryStage?.toFront()
                 textEditorView?.requestFocus()

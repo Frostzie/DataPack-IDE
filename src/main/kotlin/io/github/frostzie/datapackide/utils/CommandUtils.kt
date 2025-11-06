@@ -1,7 +1,7 @@
 package io.github.frostzie.datapackide.utils
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import io.github.frostzie.datapackide.commands.CaseInsensitiveLiteralCommandNode
+import io.github.frostzie.datapackide.utils.minecraft.CaseInsensitiveLiteralCommandNode
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 
 object CommandUtils {
