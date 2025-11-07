@@ -2,6 +2,7 @@
     -fx-icon-size: 25px;
 }
 
+/* Settings */
 .tile .title {
     -fx-font-size: 1.1em;
     -fx-font-weight: bold;

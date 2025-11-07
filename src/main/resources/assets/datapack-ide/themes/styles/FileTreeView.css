@@ -6,17 +6,16 @@
 
 /* Default selection color when the TreeView item is not focused */
 .file-tree-container .tree-cell:selected {
-    -fx-background-color: #4B4F52;
-    -fx-text-fill: #d4d4d4;
+    -fx-background-color: -color-neutral-subtle;
+    -fx-text-fill: -color-fg-default;
 }
 
 /* Highlight for valid drop target */
 .file-tree-container .tree-cell.drag-over {
-    -fx-background-color: rgba(56, 121, 217, 0.5);
+    -fx-background-color: -color-accent-subtle;
 }
 
 /* Selection color when the TreeView item is focused */
 .file-tree-container .tree-view:focused .tree-cell:selected {
-    -fx-background-color: #3879d9;
-    -fx-text-fill: white;
+    -fx-background-color: -color-accent-emphasis;
 }
