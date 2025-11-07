@@ -13,6 +13,7 @@ javafxapp = "21.0.8"
 javafx_plugin = "0.1.0"
 atlantafx-base = "2.1.0"
 ikonli = "12.4.0"
+richTextFXv = "0.11.6"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -22,7 +23,8 @@ fabric_kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = 
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 devauth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
 
-atlantafx = { module = "io.github.mkpaz:atlantafx-base", version.ref = "atlantafx-base" }
+richTextFX = { module = "org.fxmisc.richtext:richtextfx", version.ref = "richTextFXv"}
+atlantaFX = { module = "io.github.mkpaz:atlantafx-base", version.ref = "atlantafx-base" }
 ikonliJavaFX = { module = "org.kordamp.ikonli:ikonli-javafx", version.ref = "ikonli"}
 ikonliCore = { module = "org.kordamp.ikonli:ikonli-core", version.ref = "ikonli"}
 material2 = { module = "org.kordamp.ikonli:ikonli-material2-pack", version.ref = "ikonli"}

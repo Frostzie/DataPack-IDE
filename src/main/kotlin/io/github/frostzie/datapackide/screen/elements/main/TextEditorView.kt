@@ -10,12 +10,13 @@ import javafx.scene.control.Tooltip
 import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
+import org.fxmisc.flowless.VirtualizedScrollPane
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.material2.Material2AL
 
 /**
  * View for the text editor that displays multiple tabs using AtlantaFX TabLine.
- * Each tab contains a WebView with the code editor.
+ * Each tab contains a CodeArea with the text editor.
  */
 class TextEditorView : VBox() {
 
@@ -101,10 +102,11 @@ class TextEditorView : VBox() {
     private fun addTab(tabData: TextEditorViewModel.TabData) {
         // AtlantaFX Tab constructor: Tab(id, text, graphic)
         val tab = Tab(tabData.id, tabData.displayName, FontIcon(Material2AL.FOLDER))
-        tab.setTooltip(Tooltip(tabData.filePath.toString()))
+        tab.tooltip = Tooltip(tabData.filePath.toString())
 
-        tab.setOnCloseRequest {
+        tab.setOnCloseRequest { event ->
             viewModel.closeTab(tabData)
+            event.consume()
         }
 
         tabLine.tabs.add(tab)
@@ -126,11 +128,11 @@ class TextEditorView : VBox() {
     }
 
     /**
-     * Switches the content area to display the WebView for the given tab
+     * Switches the content area to display the CodeArea for the given tab
      */
     private fun switchToTab(tabData: TextEditorViewModel.TabData) {
         contentArea.children.clear()
-        contentArea.children.add(tabData.webView)
+        contentArea.children.add(VirtualizedScrollPane(tabData.codeArea))
 
         // Select the corresponding tab in the TabLine
         val tab = tabLine.tabs.find { it.id == tabData.id }
@@ -142,12 +144,11 @@ class TextEditorView : VBox() {
     }
 
     /**
-     * Request focus for the active tab's WebView
+     * Request focus for the active tab's CodeArea
      */
     override fun requestFocus() {
         super.requestFocus()
-        viewModel.activeTab.get()?.webView?.requestFocus()
-        //TODO: JS Bridge - Focus the editor in the WebView
+        viewModel.activeTab.get()?.codeArea?.requestFocus()
     }
 
     /**

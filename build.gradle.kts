@@ -47,17 +47,20 @@ dependencies {
 	modRuntimeOnly(libs.devauth)
 
 	// Style and icon packs
-	implementation(libs.atlantafx)
+	implementation(libs.atlantaFX)
 	implementation(libs.ikonliJavaFX)
 	implementation(libs.ikonliCore)
 	implementation(libs.material2)
 	implementation(libs.feather)
 
-	include(libs.atlantafx)
+	include(libs.atlantaFX)
 	include(libs.ikonliJavaFX)
 	include(libs.ikonliCore)
 	include(libs.material2)
 	include(libs.feather)
+
+	implementation(libs.richTextFX)
+	include(libs.richTextFX)
 
 	// JavaFX
 	for (classifier in javafxClassifiers) {
