@@ -2,7 +2,6 @@ package io.github.frostzie.datapackide.utils
 
 import javafx.scene.Scene
 import net.fabricmc.loader.api.FabricLoader
-import io.github.frostzie.datapackide.config.AssetsConfig
 import java.net.URL
 import java.nio.file.Files
 import java.util.Base64
@@ -19,10 +18,11 @@ object CSSManager {
         ""
     )
 
-    private val cssFiles = listOf<String>(
+    private val cssFiles = listOf(
         "Debug.css",
         "Override.css",
-        "FileTreeView.css"
+        "FileTreeView.css",
+        "TextEditorView.css"
     )
 
     /**

@@ -74,6 +74,7 @@ class TextEditorViewModel {
             // Create CodeArea
             val codeArea = CodeArea(content)
             codeArea.paragraphGraphicFactory = LineNumberFactory.get(codeArea)
+            codeArea.styleClass.add("code-area")
 
             val tabData = TabData(
                 filePath = filePath,

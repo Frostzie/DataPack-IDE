@@ -63,7 +63,8 @@ object AssetsConfig {
         val styleFiles = mapOf(
             "Debug.css" to "",
             "Override.css" to "",
-            "FileTreeView.css" to ""
+            "FileTreeView.css" to "",
+            "TextEditorView.css" to ""
         )
 
         styleFiles.forEach { (fileName, subPath) ->
