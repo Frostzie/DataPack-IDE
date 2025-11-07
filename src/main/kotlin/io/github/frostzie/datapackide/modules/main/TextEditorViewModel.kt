@@ -1,6 +1,5 @@
 package io.github.frostzie.datapackide.modules.main
 
-import io.github.frostzie.datapackide.events.EditorCursorPosition
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.OpenFile
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
@@ -10,6 +9,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import org.fxmisc.richtext.CodeArea
+import org.fxmisc.richtext.LineNumberFactory
 import java.nio.file.Path
 import java.util.UUID
 import kotlin.io.path.readText
@@ -73,6 +73,7 @@ class TextEditorViewModel {
 
             // Create CodeArea
             val codeArea = CodeArea(content)
+            codeArea.paragraphGraphicFactory = LineNumberFactory.get(codeArea)
 
             val tabData = TabData(
                 filePath = filePath,
