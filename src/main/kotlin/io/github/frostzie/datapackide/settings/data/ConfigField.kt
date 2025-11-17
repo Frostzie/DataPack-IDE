@@ -80,6 +80,16 @@ data class ButtonConfigField(
     override val editorType: EditorType = EditorType.BUTTON
 }
 
+data class InfoConfigField(
+    override val objectInstance: Any,
+    override val property: KProperty1<Any, *>,
+    override val name: String,
+    override val description: String,
+    override val category: ConfigCategory?
+) : ConfigField {
+    override val editorType: EditorType = EditorType.INFO
+}
+
 enum class EditorType {
-    BOOLEAN, TEXT, SLIDER, DROPDOWN, BUTTON, KEYBIND
+    BOOLEAN, TEXT, SLIDER, DROPDOWN, BUTTON, KEYBIND, INFO
 }

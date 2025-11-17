@@ -20,6 +20,7 @@ internal object ConfigFieldManager {
             property.findAnnotation<ConfigEditorDropdown>() != null -> createDropdownField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorButton>() != null -> createButtonField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorKeybind>() != null -> createKeybindField(instance, property, option, propValue)
+            property.findAnnotation<ConfigEditorInfo>() != null -> createInfoField(instance, property, option)
             else -> null
         }
     }
@@ -100,5 +101,12 @@ internal object ConfigFieldManager {
         }
         logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<KeyCombination>.")
         return null
+    }
+
+    private fun createInfoField(instance: Any, property: KProperty1<Any, Any>, option: ConfigOption): InfoConfigField {
+        return InfoConfigField(
+            instance, property, option.name, option.desc,
+            property.findAnnotation()
+        )
     }
 }

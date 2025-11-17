@@ -9,6 +9,7 @@ import io.github.frostzie.datapackide.settings.data.BooleanConfigField
 import io.github.frostzie.datapackide.settings.data.ButtonConfigField
 import io.github.frostzie.datapackide.settings.data.ConfigField
 import io.github.frostzie.datapackide.settings.data.DropdownConfigField
+import io.github.frostzie.datapackide.settings.data.InfoConfigField
 import io.github.frostzie.datapackide.settings.data.KeybindConfigField
 import io.github.frostzie.datapackide.settings.data.SliderConfigField
 import io.github.frostzie.datapackide.settings.data.TextConfigField
@@ -46,6 +47,7 @@ object SettingsManager {
             getConfigFields(configClass).forEach { field ->
                 when (field) {
                     is ButtonConfigField -> { /* Buttons don't have a value to cache */ }
+                    is InfoConfigField -> { /* Info fields don't have a value to cache */ }
                     is BooleanConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                     is DropdownConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                     is KeybindConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
@@ -97,6 +99,7 @@ object SettingsManager {
                     getConfigFields(configClass).forEach { field ->
                         when (field) {
                             is ButtonConfigField -> { /* Skip buttons */ }
+                            is InfoConfigField -> { /* Skip info */ }
                             is BooleanConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                             is DropdownConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                             is KeybindConfigField -> categoryObject.add(field.property.name, gson.toJsonTree(field.property.get(objectInstance).value))
@@ -140,6 +143,7 @@ object SettingsManager {
                                 try {
                                     when (field) {
                                         is ButtonConfigField -> { /* Skip buttons */ }
+                                        is InfoConfigField -> { /* Skip info */ }
                                         is BooleanConfigField -> field.property.get(objectInstance).value = jsonElement.asBoolean
                                         is DropdownConfigField -> field.property.get(objectInstance).value = jsonElement.asString
                                         is KeybindConfigField -> field.property.get(objectInstance).value = gson.fromJson(jsonElement, KeyCombination::class.java)

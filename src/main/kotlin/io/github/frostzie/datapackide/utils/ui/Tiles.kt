@@ -16,6 +16,7 @@ import javafx.scene.layout.CornerRadii
 import javafx.geometry.Insets
 import javafx.scene.layout.Background
 import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
 //TODO: cleanup eventually and add new config toggles and tiles
 class Tiles {
     class DefaultTile(title: String, description: String?, toggleSwitch: ToggleSwitch) : HBox() {
@@ -83,9 +84,11 @@ class Tiles {
             spacing = 10.0
             padding = Insets(10.0)
 
-            textContainer.prefWidth = 400.0
+            // Made button alight to right.
+            val spacer = Region()
+            setHgrow(spacer, Priority.ALWAYS)
 
-            children.addAll(textContainer, controlNode)
+            children.addAll(textContainer, spacer, controlNode)
 
             if (controlNode is ComboBox<*>) {
                 controlNode.prefWidth = 150.0
@@ -139,6 +142,45 @@ class Tiles {
             }
 
             children.addAll(stackedContent)
+
+            addEventHandler(MouseEvent.MOUSE_ENTERED) {
+                background = hoveredBackground
+            }
+            addEventHandler(MouseEvent.MOUSE_EXITED) {
+                background = EMPTY
+            }
+        }
+    }
+
+    class InfoTile(title: String, description: String?) : HBox() {
+
+        private val titleLabel = Label(title).apply {
+            isWrapText = true
+            styleClass.add("title")
+        }
+        private val descriptionLabel = Label(description).apply {
+            isWrapText = true
+            isVisible = !description.isNullOrBlank()
+            isManaged = !description.isNullOrBlank()
+            styleClass.add("description")
+        }
+
+        private val textContainer = VBox(titleLabel, descriptionLabel).apply {
+            alignment = Pos.CENTER_LEFT
+            styleClass.add("text-container")
+        }
+
+        private val hoveredBackground = Background(BackgroundFill(Color.gray(0.5, 0.1), CornerRadii(4.0), Insets.EMPTY))
+
+        init {
+            styleClass.add("tile")
+            alignment = Pos.CENTER_LEFT
+            spacing = 10.0
+            padding = Insets(10.0)
+
+            setHgrow(textContainer, Priority.ALWAYS)
+
+            children.addAll(textContainer)
 
             addEventHandler(MouseEvent.MOUSE_ENTERED) {
                 background = hoveredBackground

@@ -117,6 +117,10 @@ object SettingsControlBuilder {
                 }
                 Tiles.LargeTile(field.name, field.description.takeIf { it.isNotEmpty() }, button)
             }
+
+            is InfoConfigField -> {
+                Tiles.InfoTile(field.name, field.description.takeIf { it.isNotEmpty() })
+            }
         }
     }
 }

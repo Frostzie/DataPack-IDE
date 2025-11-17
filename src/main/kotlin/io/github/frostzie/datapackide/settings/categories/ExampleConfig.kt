@@ -10,6 +10,7 @@ import io.github.frostzie.datapackide.settings.annotations.ConfigEditorSlider
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorText
 import io.github.frostzie.datapackide.settings.annotations.ConfigOption
 import io.github.frostzie.datapackide.settings.annotations.Expose
+import io.github.frostzie.datapackide.settings.annotations.ConfigEditorInfo
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
@@ -20,6 +21,12 @@ object ExampleConfig {
 
     @Expose
     @ConfigCategory(name = "Example", desc = "Example description")
+    @ConfigOption(name = "Info", desc = "Pray observe, dear user, this most distinguished informational tile. Though it performs no remarkable feats nor commands the slightest hint of wizardry, it stands proudly as a beacon of gentle guidance. One might employ this panel to impart notes, advisories, or particularly polite warnings to future travellers of the settings menu. Should you choose to bestow upon it a purpose of genuine importance, it shall accept such responsibility with quiet dignity. Until then, let it loiter here in graceful idleness, murmuring softly of its own exemplary usefulness.")
+    @ConfigEditorInfo
+    val info = ""
+
+    @Expose
+    @ConfigCategory(name = "Example")
     @ConfigOption(name = "Boolean", desc = "Description")
     @ConfigEditorBoolean
     val bool = SimpleBooleanProperty(true)
