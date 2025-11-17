@@ -5,14 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.settings.annotations.*
-import io.github.frostzie.datapackide.settings.data.BooleanConfigField
-import io.github.frostzie.datapackide.settings.data.ButtonConfigField
-import io.github.frostzie.datapackide.settings.data.ConfigField
-import io.github.frostzie.datapackide.settings.data.DropdownConfigField
-import io.github.frostzie.datapackide.settings.data.InfoConfigField
-import io.github.frostzie.datapackide.settings.data.KeybindConfigField
-import io.github.frostzie.datapackide.settings.data.SliderConfigField
-import io.github.frostzie.datapackide.settings.data.TextConfigField
+import io.github.frostzie.datapackide.settings.data.*
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import java.io.FileReader
 import java.io.FileWriter
@@ -53,6 +46,7 @@ object SettingsManager {
                     is KeybindConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                     is SliderConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                     is TextConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
+                    is SpinnerConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                 }
             }
         }
@@ -105,6 +99,7 @@ object SettingsManager {
                             is KeybindConfigField -> categoryObject.add(field.property.name, gson.toJsonTree(field.property.get(objectInstance).value))
                             is SliderConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                             is TextConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
+                            is SpinnerConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                         }
                     }
                 }
@@ -149,6 +144,7 @@ object SettingsManager {
                                         is KeybindConfigField -> field.property.get(objectInstance).value = gson.fromJson(jsonElement, KeyCombination::class.java)
                                         is SliderConfigField -> field.property.get(objectInstance).value = jsonElement.asDouble
                                         is TextConfigField -> field.property.get(objectInstance).value = jsonElement.asString
+                                        is SpinnerConfigField -> field.property.get(objectInstance).value = jsonElement.asInt
                                     }
                                     logger.debug("Loaded setting: {} = {}", field.name, jsonElement)
                                 } catch (e: Exception) {

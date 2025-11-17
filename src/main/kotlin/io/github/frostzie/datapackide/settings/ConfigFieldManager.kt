@@ -21,6 +21,7 @@ internal object ConfigFieldManager {
             property.findAnnotation<ConfigEditorButton>() != null -> createButtonField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorKeybind>() != null -> createKeybindField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorInfo>() != null -> createInfoField(instance, property, option)
+            property.findAnnotation<ConfigEditorSpinner>() != null -> createSpinnerField(instance, property, option, propValue)
             else -> null
         }
     }
@@ -108,5 +109,18 @@ internal object ConfigFieldManager {
             instance, property, option.name, option.desc,
             property.findAnnotation()
         )
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun createSpinnerField(instance: Any, property: KProperty1<Any, Any>, option: ConfigOption, propValue: Any): SpinnerConfigField? {
+        if (propValue is Property<*> && propValue.value is Int) {
+            return SpinnerConfigField(
+                instance, property as KProperty1<Any, Property<Int>>, option.name, option.desc,
+                property.findAnnotation(),
+                property.findAnnotation()!!
+            )
+        }
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<Int>.")
+        return null
     }
 }

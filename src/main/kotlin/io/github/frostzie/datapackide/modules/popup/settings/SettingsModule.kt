@@ -10,11 +10,13 @@ import io.github.frostzie.datapackide.settings.data.SearchResult
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.scene.control.Dialog
 import io.github.frostzie.datapackide.utils.UIConstants
+import javafx.beans.value.ChangeListener
 import javafx.event.ActionEvent
 import javafx.scene.control.Button
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.stage.Stage
+import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 
 class SettingsModule(private val parentStage: Stage) {
     companion object {
@@ -90,6 +92,7 @@ class SettingsModule(private val parentStage: Stage) {
         dialog.title = "Settings"
         dialog.isResizable = true
         dialog.dialogPane.content = view
+        dialog.dialogPane.style = "-fx-font-size: ${ThemeConfig.fontSize.get()}px;"
 
         dialog.initOwner(parentStage)
         dialog.dialogPane.minWidth = UIConstants.SETTINGS_MIN_WIDTH
@@ -108,8 +111,14 @@ class SettingsModule(private val parentStage: Stage) {
             event.consume() // Prevents the dialog from closing
         }
 
+        val fontSizeListener = ChangeListener<Number> { _, _, _ ->
+            dialog.dialogPane.style = "-fx-font-size: ${ThemeConfig.fontSize.get()}px;"
+        }
+        ThemeConfig.fontSize.addListener(fontSizeListener)
+
         dialog.showAndWait()
 
+        ThemeConfig.fontSize.removeListener(fontSizeListener)
         saveSettings()
     }
 

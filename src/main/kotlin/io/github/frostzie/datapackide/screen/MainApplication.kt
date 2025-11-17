@@ -87,6 +87,9 @@ class MainApplication {
                     JavaFXInitializer.startup {
                         ThemeUtils.applyTheme(ThemeConfig.theme.get())
                         ThemeConfig.theme.addListener { _, _, newTheme -> ThemeUtils.applyTheme(newTheme) }
+                        ThemeConfig.fontSize.addListener { _, _, _ ->
+                            primaryStage?.scene?.root?.style = "-fx-font-size: ${ThemeConfig.fontSize.get()}px;"
+                        }
                         JavaFXInitializer.setImplicitExit(false)
                         fxInitialized = true
                         createMainWindow()
@@ -252,6 +255,7 @@ class MainApplication {
                 stage.initStyle(StageStyle.UNDECORATED)
 
                 val mainUI = createMainUI(stage)
+                mainUI.style = "-fx-font-size: ${ThemeConfig.fontSize.get()}px;"
                 val scene = Scene(mainUI, LayoutManager.config.width, LayoutManager.config.height)
 
                 CSSManager.applyAllStyles(scene)

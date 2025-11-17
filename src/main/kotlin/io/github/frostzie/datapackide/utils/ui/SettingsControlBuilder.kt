@@ -3,11 +3,15 @@ package io.github.frostzie.datapackide.utils.ui
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorSlider
 import io.github.frostzie.datapackide.settings.data.*
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import atlantafx.base.controls.ProgressSliderSkin
 import atlantafx.base.controls.ToggleSwitch
 import io.github.frostzie.datapackide.utils.ui.controls.KeybindInputButton
+import javafx.beans.property.Property
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
+import javafx.util.converter.IntegerStringConverter
+import kotlin.math.roundToInt
 
 /**
  * Builder for creating JavaFX controls for different setting types.
@@ -120,6 +124,27 @@ object SettingsControlBuilder {
 
             is InfoConfigField -> {
                 Tiles.InfoTile(field.name, field.description.takeIf { it.isNotEmpty() })
+            }
+
+            is SpinnerConfigField -> {
+                val prop = field.property.get(field.objectInstance)
+                val spinnerAnnotation = field.spinnerAnnotation
+                val spinner = Spinner<Int>(spinnerAnnotation.minValue, spinnerAnnotation.maxValue, prop.value).apply {
+                    isEditable = true
+                    prefWidth = 120.0
+                }
+
+                spinner.valueProperty().addListener { _, _, newValue ->
+                    if (prop.value != newValue) {
+                        prop.value = newValue
+                    }
+                }
+                prop.addListener { _, _, newValue ->
+                    if (spinner.value != newValue) {
+                        spinner.valueFactory.value = newValue
+                    }
+                }
+                Tiles.LargeTile(field.name, field.description.takeIf { it.isNotEmpty() }, spinner)
             }
         }
     }

@@ -1,9 +1,7 @@
 package io.github.frostzie.datapackide.settings.categories
 
-import io.github.frostzie.datapackide.settings.annotations.ConfigCategory
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorDropdown
-import io.github.frostzie.datapackide.settings.annotations.ConfigOption
-import io.github.frostzie.datapackide.settings.annotations.Expose
+import io.github.frostzie.datapackide.settings.annotations.*
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 
 object ThemeConfig {
@@ -23,4 +21,10 @@ object ThemeConfig {
             ]
         )
         val theme = SimpleStringProperty("Primer Dark")
+
+        @Expose
+        @ConfigCategory(name = "Theme")
+        @ConfigOption(name = "Font Size", desc = "Adjust the base font size for the UI. (Default: 13)")
+        @ConfigEditorSpinner(minValue = 8, maxValue = 24)
+        val fontSize = SimpleIntegerProperty(13)
 }

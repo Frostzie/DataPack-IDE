@@ -1,18 +1,10 @@
 package io.github.frostzie.datapackide.settings.categories
 
 import io.github.frostzie.datapackide.settings.KeyCombination
-import io.github.frostzie.datapackide.settings.annotations.ConfigCategory
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorBoolean
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorButton
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorDropdown
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorKeybind
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorSlider
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorText
-import io.github.frostzie.datapackide.settings.annotations.ConfigOption
-import io.github.frostzie.datapackide.settings.annotations.Expose
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorInfo
+import io.github.frostzie.datapackide.settings.annotations.*
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.input.KeyCode
@@ -54,6 +46,12 @@ object ExampleConfig {
     @ConfigOption(name = "Slider", desc = "Description")
     @ConfigEditorSlider(minValue = 5.0, maxValue = 300.0, stepSize = 5.0)
     val slider = SimpleDoubleProperty(30.0)
+
+    @Expose
+    @ConfigCategory(name = "Example")
+    @ConfigOption(name = "Spinner", desc = "Description")
+    @ConfigEditorSpinner(minValue = 1, maxValue = 10)
+    val spinner = SimpleIntegerProperty(5)
 
     @Expose
     @ConfigCategory(name = "Example")

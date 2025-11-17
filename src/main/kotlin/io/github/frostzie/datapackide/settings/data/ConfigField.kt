@@ -1,10 +1,7 @@
 package io.github.frostzie.datapackide.settings.data
 
 import io.github.frostzie.datapackide.settings.KeyCombination
-import io.github.frostzie.datapackide.settings.annotations.ConfigCategory
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorButton
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorDropdown
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorSlider
+import io.github.frostzie.datapackide.settings.annotations.*
 import javafx.beans.property.Property
 import kotlin.reflect.KProperty1
 
@@ -90,6 +87,17 @@ data class InfoConfigField(
     override val editorType: EditorType = EditorType.INFO
 }
 
+data class SpinnerConfigField(
+    override val objectInstance: Any,
+    override val property: KProperty1<Any, Property<Int>>,
+    override val name: String,
+    override val description: String,
+    override val category: ConfigCategory?,
+    val spinnerAnnotation: ConfigEditorSpinner
+) : ConfigField {
+    override val editorType: EditorType = EditorType.SPINNER
+}
+
 enum class EditorType {
-    BOOLEAN, TEXT, SLIDER, DROPDOWN, BUTTON, KEYBIND, INFO
+    BOOLEAN, TEXT, SLIDER, DROPDOWN, BUTTON, KEYBIND, INFO, SPINNER
 }
