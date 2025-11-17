@@ -1,7 +1,7 @@
 package io.github.frostzie.datapackide.handlers.bars.top
 
-import io.github.frostzie.datapackide.events.AboutModLink
 import io.github.frostzie.datapackide.events.DiscordLink
+import io.github.frostzie.datapackide.events.GitHubLink
 import io.github.frostzie.datapackide.events.MainWindowClose
 import io.github.frostzie.datapackide.events.MainWindowMaximize
 import io.github.frostzie.datapackide.events.MainWindowMinimize
@@ -12,6 +12,7 @@ import io.github.frostzie.datapackide.events.ReloadDatapack
 import io.github.frostzie.datapackide.events.ReportBugLink
 import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
+import io.github.frostzie.datapackide.utils.OpenLinks
 
 @Suppress("unused")
 class TopBarHandler(private val topBarModule: TopBarModule) {
@@ -53,16 +54,16 @@ class TopBarHandler(private val topBarModule: TopBarModule) {
 
     @SubscribeEvent
     fun onDiscordLink(event: DiscordLink) {
-        topBarModule.discordLink()
+        OpenLinks.discordLink()
     }
 
     @SubscribeEvent
-    fun onAboutModLink(event: AboutModLink) {
-        topBarModule.aboutModLink()
+    fun onGitHubLink(event: GitHubLink) {
+        OpenLinks.gitHubLink()
     }
 
     @SubscribeEvent
     fun onReportBugLink(event: ReportBugLink) {
-        topBarModule.reportBugLink()
+        OpenLinks.reportBugLink()
     }
 }

@@ -31,8 +31,8 @@ object ConfigManager {
         LayoutManager.initialize()
 
         SettingsManager.register("main", MainConfig::class)
-        SettingsManager.register("advanced", AdvancedConfig::class)
         SettingsManager.register("theme", ThemeConfig::class)
+        SettingsManager.register("advanced", AdvancedConfig::class)
         SettingsManager.register("example", ExampleConfig::class)
         // TODO: Register other config classes like ThemeConfig, KeybindConfig
 

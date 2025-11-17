@@ -9,7 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty
 object AdvancedConfig {
 
     @Expose
-    @ConfigCategory(name = "Dev", desc = "Debug and development options")
+    @ConfigCategory(name = "Dev")
     @ConfigOption(name = "Reload Styles", desc = "Reloads all css styles from configs")
     @ConfigEditorButton(text = "Reload All Styles")
     val reloadStyles: () -> Unit = { EventBus.post(ReloadTheme()) }
@@ -19,12 +19,6 @@ object AdvancedConfig {
     @ConfigOption(name = "Reset All Styles", desc = "Resets all styles to their default state")
     @ConfigEditorButton(text = "Reset Styles")
     val resetStylesToDefault: () -> Unit = { EventBus.post(ResetDefaultTheme()) }
-
-    @Expose
-    @ConfigCategory(name = "Debug")
-    @ConfigOption(name = "Enable Debug Mode", desc = "Enables all debugging features")
-    @ConfigEditorBoolean
-    val enableDebugMode = SimpleBooleanProperty(false)
 
     @Expose
     @ConfigCategory(name = "Debug")

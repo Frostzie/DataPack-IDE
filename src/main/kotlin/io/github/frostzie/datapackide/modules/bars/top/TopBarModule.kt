@@ -90,15 +90,5 @@ class TopBarModule(private val stage: Stage?, private val topBarView: TopBarView
     }
 
     // Under Help:
-    fun discordLink() {
-        Util.getOperatingSystem().open(URI("https://discord.gg/qZ885qTvkx"))
-    }
-
-    fun aboutModLink() {
-        Util.getOperatingSystem().open(URI("https://github.com/Frostzie/DataPack-IDE"))
-    }
-
-    fun reportBugLink() {
-        Util.getOperatingSystem().open(URI("https://github.com/Frostzie/DataPack-IDE/issues"))
-    }
+    // Now handled by OpenLinks util
 }

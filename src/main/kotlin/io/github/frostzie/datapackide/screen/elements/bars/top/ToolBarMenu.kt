@@ -1,7 +1,6 @@
 package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import atlantafx.base.controls.ModalPane
-import io.github.frostzie.datapackide.events.AboutModLink
 import io.github.frostzie.datapackide.events.ChooseDirectory
 import io.github.frostzie.datapackide.events.DiscordLink
 import io.github.frostzie.datapackide.events.EditorCopy
@@ -11,6 +10,7 @@ import io.github.frostzie.datapackide.events.EditorRedo
 import io.github.frostzie.datapackide.events.EditorSelectAll
 import io.github.frostzie.datapackide.events.EditorUndo
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.GitHubLink
 import io.github.frostzie.datapackide.events.OpenDatapackFolder
 import io.github.frostzie.datapackide.events.ReloadDatapack
 import io.github.frostzie.datapackide.events.ReportBugLink
@@ -72,7 +72,7 @@ class ToolBarMenu {
 
             Menu("Help", null,
                 MenuItem("Discord").apply { setOnAction { EventBus.post(DiscordLink()) } },
-                MenuItem("Github").apply { setOnAction { EventBus.post(AboutModLink()) } },
+                MenuItem("Github").apply { setOnAction { EventBus.post(GitHubLink()) } },
                 MenuItem("Report a Bug").apply { setOnAction { EventBus.post(ReportBugLink()) } }
             )
         )
