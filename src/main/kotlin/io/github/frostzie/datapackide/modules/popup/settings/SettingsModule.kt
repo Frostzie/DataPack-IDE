@@ -88,6 +88,7 @@ class SettingsModule(private val parentStage: Stage) {
 
         val dialog = Dialog<ButtonType>()
         dialog.title = "Settings"
+        dialog.isResizable = true
         dialog.dialogPane.content = view
 
         dialog.initOwner(parentStage)
