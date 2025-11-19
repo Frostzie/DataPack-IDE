@@ -2,7 +2,7 @@ package io.github.frostzie.datapackide.settings.categories
 
 import io.github.frostzie.datapackide.settings.annotations.ConfigCategory
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorButton
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorText
+import io.github.frostzie.datapackide.settings.annotations.ConfigEditorTextArea
 import io.github.frostzie.datapackide.settings.annotations.ConfigOption
 import io.github.frostzie.datapackide.settings.annotations.Expose
 import io.github.frostzie.datapackide.utils.OpenLinks
@@ -16,7 +16,7 @@ object MainConfig {
         name = "Modified Indicator",
         desc = "Suffix added on a file in tab when it has unsaved changes."
     )
-    @ConfigEditorText
+    @ConfigEditorTextArea
     val dirtyIndicator = SimpleStringProperty(" ●")
 
     @Expose

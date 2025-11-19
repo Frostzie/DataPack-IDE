@@ -24,7 +24,7 @@ data class BooleanConfigField(
     override val editorType: EditorType = EditorType.BOOLEAN
 }
 
-data class TextConfigField(
+data class TextAreaConfigField(
     override val objectInstance: Any,
     override val property: KProperty1<Any, Property<String>>,
     override val name: String,
@@ -98,6 +98,26 @@ data class SpinnerConfigField(
     override val editorType: EditorType = EditorType.SPINNER
 }
 
+data class ColorPickerConfigField(
+    override val objectInstance: Any,
+    override val property: KProperty1<Any, Property<String>>,
+    override val name: String,
+    override val description: String,
+    override val category: ConfigCategory?
+) : ConfigField {
+    override val editorType: EditorType = EditorType.COLOR_PICKER
+}
+
+data class TextFieldConfigField(
+    override val objectInstance: Any,
+    override val property: KProperty1<Any, Property<String>>,
+    override val name: String,
+    override val description: String,
+    override val category: ConfigCategory?
+) : ConfigField {
+    override val editorType: EditorType = EditorType.TEXT_FIELD
+}
+
 enum class EditorType {
-    BOOLEAN, TEXT, SLIDER, DROPDOWN, BUTTON, KEYBIND, INFO, SPINNER
+    BOOLEAN, TEXT, SLIDER, DROPDOWN, BUTTON, KEYBIND, INFO, SPINNER, COLOR_PICKER, TEXT_FIELD
 }

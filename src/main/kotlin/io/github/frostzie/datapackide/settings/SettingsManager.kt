@@ -45,8 +45,10 @@ object SettingsManager {
                     is DropdownConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                     is KeybindConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                     is SliderConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
-                    is TextConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
+                    is TextAreaConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                     is SpinnerConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
+                    is ColorPickerConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
+                    is TextFieldConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                 }
             }
         }
@@ -98,8 +100,10 @@ object SettingsManager {
                             is DropdownConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                             is KeybindConfigField -> categoryObject.add(field.property.name, gson.toJsonTree(field.property.get(objectInstance).value))
                             is SliderConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
-                            is TextConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
+                            is TextAreaConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                             is SpinnerConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
+                            is ColorPickerConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
+                            is TextFieldConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                         }
                     }
                 }
@@ -143,8 +147,10 @@ object SettingsManager {
                                         is DropdownConfigField -> field.property.get(objectInstance).value = jsonElement.asString
                                         is KeybindConfigField -> field.property.get(objectInstance).value = gson.fromJson(jsonElement, KeyCombination::class.java)
                                         is SliderConfigField -> field.property.get(objectInstance).value = jsonElement.asDouble
-                                        is TextConfigField -> field.property.get(objectInstance).value = jsonElement.asString
+                                        is TextAreaConfigField -> field.property.get(objectInstance).value = jsonElement.asString
                                         is SpinnerConfigField -> field.property.get(objectInstance).value = jsonElement.asInt
+                                        is ColorPickerConfigField -> field.property.get(objectInstance).value = jsonElement.asString
+                                        is TextFieldConfigField -> field.property.get(objectInstance).value = jsonElement.asString
                                     }
                                     logger.debug("Loaded setting: {} = {}", field.name, jsonElement)
                                 } catch (e: Exception) {

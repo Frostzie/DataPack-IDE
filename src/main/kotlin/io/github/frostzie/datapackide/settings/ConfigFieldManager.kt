@@ -15,13 +15,15 @@ internal object ConfigFieldManager {
 
         return when {
             property.findAnnotation<ConfigEditorBoolean>() != null -> createBooleanField(instance, property, option, propValue)
-            property.findAnnotation<ConfigEditorText>() != null -> createTextField(instance, property, option, propValue)
+            property.findAnnotation<ConfigEditorTextArea>() != null -> createTextAreaField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorSlider>() != null -> createSliderField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorDropdown>() != null -> createDropdownField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorButton>() != null -> createButtonField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorKeybind>() != null -> createKeybindField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorInfo>() != null -> createInfoField(instance, property, option)
             property.findAnnotation<ConfigEditorSpinner>() != null -> createSpinnerField(instance, property, option, propValue)
+            property.findAnnotation<ConfigEditorColorPicker>() != null -> createColorPickerField(instance, property, option, propValue)
+            property.findAnnotation<ConfigEditorTextField>() != null -> createTextField(instance, property, option, propValue)
             else -> null
         }
     }
@@ -34,19 +36,19 @@ internal object ConfigFieldManager {
                 property.findAnnotation()
             )
         }
-        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<Boolean>.")
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<Boolean> for Boolean.")
         return null
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun createTextField(instance: Any, property: KProperty1<Any, Any>, option: ConfigOption, propValue: Any): TextConfigField? {
+    private fun createTextAreaField(instance: Any, property: KProperty1<Any, Any>, option: ConfigOption, propValue: Any): TextAreaConfigField? {
         if (propValue is Property<*> && propValue.value is String) {
-            return TextConfigField(
+            return TextAreaConfigField(
                 instance, property as KProperty1<Any, Property<String>>, option.name, option.desc,
                 property.findAnnotation()
             )
         }
-        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<String>.")
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<String> for TextArea.")
         return null
     }
 
@@ -59,7 +61,7 @@ internal object ConfigFieldManager {
                 property.findAnnotation()!!
             )
         }
-        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<Number>.")
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<Number> for Slider.")
         return null
     }
 
@@ -72,7 +74,7 @@ internal object ConfigFieldManager {
                 property.findAnnotation()!!
             )
         }
-        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<String>.")
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<String> for Dropdown.")
         return null
     }
 
@@ -100,7 +102,7 @@ internal object ConfigFieldManager {
                 property.findAnnotation()
             )
         }
-        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<KeyCombination>.")
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<KeyCombination> for Keybind.")
         return null
     }
 
@@ -120,7 +122,31 @@ internal object ConfigFieldManager {
                 property.findAnnotation()!!
             )
         }
-        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<Int>.")
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<Int> for Spinner.")
+        return null
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun createColorPickerField(instance: Any, property: KProperty1<Any, Any>, option: ConfigOption, propValue: Any): ColorPickerConfigField? {
+        if (propValue is Property<*> && propValue.value is String) {
+            return ColorPickerConfigField(
+                instance, property as KProperty1<Any, Property<String>>, option.name, option.desc,
+                property.findAnnotation()
+            )
+        }
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<String> for ColorPicker.")
+        return null
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun createTextField(instance: Any, property: KProperty1<Any, Any>, option: ConfigOption, propValue: Any): TextFieldConfigField? {
+        if (propValue is Property<*> && propValue.value is String) {
+            return TextFieldConfigField(
+                instance, property as KProperty1<Any, Property<String>>, option.name, option.desc,
+                property.findAnnotation()
+            )
+        }
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<String> for TextField.")
         return null
     }
 }

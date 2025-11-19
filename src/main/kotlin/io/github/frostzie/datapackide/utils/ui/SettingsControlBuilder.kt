@@ -3,15 +3,12 @@ package io.github.frostzie.datapackide.utils.ui
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorSlider
 import io.github.frostzie.datapackide.settings.data.*
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import atlantafx.base.controls.ProgressSliderSkin
 import atlantafx.base.controls.ToggleSwitch
 import io.github.frostzie.datapackide.utils.ui.controls.KeybindInputButton
-import javafx.beans.property.Property
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
-import javafx.util.converter.IntegerStringConverter
-import kotlin.math.roundToInt
+import javafx.scene.paint.Color
 
 /**
  * Builder for creating JavaFX controls for different setting types.
@@ -78,7 +75,7 @@ object SettingsControlBuilder {
                 Tiles.LargeTile(field.name, field.description.takeIf { it.isNotEmpty() }, comboBox)
             }
 
-            is TextConfigField -> {
+            is TextAreaConfigField -> {
                 val prop = field.property.get(field.objectInstance)
                 val textArea = TextArea().apply {
                     textProperty().bindBidirectional(prop)
@@ -145,6 +142,50 @@ object SettingsControlBuilder {
                     }
                 }
                 Tiles.LargeTile(field.name, field.description.takeIf { it.isNotEmpty() }, spinner)
+            }
+
+            is ColorPickerConfigField -> {
+                val prop = field.property.get(field.objectInstance)
+                val initialColor = try {
+                    Color.valueOf(prop.value)
+                } catch (e: Exception) {
+                    logger.warn("Invalid initial color string in settings: ${prop.value}", e)
+                    Color.WHITE
+                }
+                val colorPicker = ColorPicker(initialColor)
+
+                // Bind the ColorPicker to the StringProperty
+                colorPicker.valueProperty().addListener { _, _, newColor ->
+                    val hex = "#%02X%02X%02X".format(
+                        (newColor.red * 255).toInt(),
+                        (newColor.green * 255).toInt(),
+                        (newColor.blue * 255).toInt()
+                    )
+                    if (prop.value != hex) {
+                        prop.value = hex
+                    }
+                }
+
+                // Bind the StringProperty to the ColorPicker
+                prop.addListener { _, _, newHex ->
+                    try {
+                        val newColor = Color.valueOf(newHex)
+                        if (colorPicker.value != newColor) {
+                            colorPicker.value = newColor
+                        }
+                    } catch (e: Exception) {
+                        logger.warn("Invalid color string in settings: $newHex", e)
+                    }
+                }
+                Tiles.LargeTile(field.name, field.description.takeIf { it.isNotEmpty() }, colorPicker)
+            }
+
+            is TextFieldConfigField -> {
+                val prop = field.property.get(field.objectInstance)
+                val textField = TextField().apply {
+                    textProperty().bindBidirectional(prop)
+                }
+                Tiles.LowTile(field.name, field.description.takeIf { it.isNotEmpty() }, textField)
             }
         }
     }

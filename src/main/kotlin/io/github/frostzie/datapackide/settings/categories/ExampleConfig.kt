@@ -38,8 +38,8 @@ object ExampleConfig {
     @Expose
     @ConfigCategory(name = "Example")
     @ConfigOption(name = "Text field", desc = "Description")
-    @ConfigEditorText
-    val text = SimpleStringProperty("Example text...")
+    @ConfigEditorTextArea
+    val text = SimpleStringProperty("Text Area...")
 
     @Expose
     @ConfigCategory(name = "Example")
@@ -58,4 +58,16 @@ object ExampleConfig {
     @ConfigOption(name = "Button", desc = "Description")
     @ConfigEditorButton(text = "Button")
     val button: () -> Unit = {}
+
+    @Expose
+    @ConfigCategory(name = "Example")
+    @ConfigOption(name = "Color Picker", desc = "Description")
+    @ConfigEditorColorPicker
+    val color = SimpleStringProperty("#FF0000")
+
+    @Expose
+    @ConfigCategory(name = "Example")
+    @ConfigOption(name = "Text Field", desc = "Description")
+    @ConfigEditorTextField
+    val textField = SimpleStringProperty("Text Field...")
 }
