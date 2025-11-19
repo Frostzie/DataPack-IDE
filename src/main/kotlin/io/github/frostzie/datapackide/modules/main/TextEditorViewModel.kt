@@ -5,6 +5,8 @@ import io.github.frostzie.datapackide.events.OpenFile
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
+import javafx.beans.property.BooleanProperty
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -29,7 +31,8 @@ class TextEditorViewModel {
         val id: String = UUID.randomUUID().toString(),
         val filePath: Path,
         val displayName: String,
-        val codeArea: CodeArea
+        val codeArea: CodeArea,
+        val isDirty: BooleanProperty = SimpleBooleanProperty(false)
     )
 
     // Observable list of all open tabs
@@ -82,6 +85,12 @@ class TextEditorViewModel {
                 codeArea = codeArea
             )
 
+            codeArea.textProperty().addListener { _, _, _ ->
+                if (!tabData.isDirty.get()) {
+                    tabData.isDirty.set(true)
+                }
+            }
+
             tabs.add(tabData)
             activeTab.set(tabData)
 
@@ -127,6 +136,7 @@ class TextEditorViewModel {
         try {
             val content = tabData.codeArea.text
             tabData.filePath.writeText(content)
+            tabData.isDirty.set(false)
             logger.info("File saved: ${tabData.filePath.fileName} (${content.length} characters)")
         } catch (e: Exception) {
             logger.error("Failed to save file: ${tabData.filePath.fileName}", e)

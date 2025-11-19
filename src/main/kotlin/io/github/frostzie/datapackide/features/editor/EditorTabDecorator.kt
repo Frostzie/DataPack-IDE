@@ -1,0 +1,19 @@
+package io.github.frostzie.datapackide.features.editor
+
+import atlantafx.base.controls.Tab
+import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
+
+/**
+ * Defines a contract for features that wish to decorate or add behavior to an editor tab.
+ */
+interface EditorTabDecorator {
+    /**
+     * Applies decorations to the given tab based on the tab's data.
+     *
+     * @param tab The UI Tab control from AtlantaFX.
+     * @param tabData The view model's data for this tab.
+     * @return A cleanup function (lambda) that will be called when the tab is closed.
+     *         This is for removing listeners and preventing memory leaks.
+     */
+    fun decorate(tab: Tab, tabData: TextEditorViewModel.TabData): () -> Unit
+}

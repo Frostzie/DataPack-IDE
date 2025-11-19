@@ -2,11 +2,23 @@ package io.github.frostzie.datapackide.settings.categories
 
 import io.github.frostzie.datapackide.settings.annotations.ConfigCategory
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorButton
+import io.github.frostzie.datapackide.settings.annotations.ConfigEditorText
 import io.github.frostzie.datapackide.settings.annotations.ConfigOption
 import io.github.frostzie.datapackide.settings.annotations.Expose
 import io.github.frostzie.datapackide.utils.OpenLinks
+import javafx.beans.property.SimpleStringProperty
 
 object MainConfig {
+
+    @Expose
+    @ConfigCategory(name = "UI")
+    @ConfigOption(
+        name = "Modified Indicator",
+        desc = "Suffix added on a file in tab when it has unsaved changes."
+    )
+    @ConfigEditorText
+    val dirtyIndicator = SimpleStringProperty(" ●")
+
     @Expose
     @ConfigCategory(name = "Links")
     @ConfigOption(name = "Discord Server", desc = "Join our Discord server for support and community!")

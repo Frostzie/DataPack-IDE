@@ -3,6 +3,7 @@ package io.github.frostzie.datapackide.screen.elements.main
 import atlantafx.base.controls.Tab
 import atlantafx.base.controls.TabLine
 import atlantafx.base.theme.Styles
+import io.github.frostzie.datapackide.features.FeatureRegistry
 import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.collections.ListChangeListener
@@ -27,6 +28,7 @@ class TextEditorView : VBox() {
     internal val viewModel = TextEditorViewModel()
     private val tabLine = TabLine()
     private val contentArea = StackPane()
+    private val decoratorCleanups = mutableMapOf<String, MutableList<() -> Unit>>()
 
     init {
         styleClass.add("text-editor-container")
@@ -104,6 +106,12 @@ class TextEditorView : VBox() {
         val tab = Tab(tabData.id, tabData.displayName, FontIcon(Material2AL.FOLDER))
         tab.tooltip = Tooltip(tabData.filePath.toString())
 
+        val cleanups = mutableListOf<() -> Unit>()
+        FeatureRegistry.editorTabDecorators.forEach { decorator ->
+            cleanups.add(decorator.decorate(tab, tabData))
+        }
+        decoratorCleanups[tabData.id] = cleanups
+
         tab.setOnCloseRequest { event ->
             viewModel.closeTab(tabData)
             event.consume()
@@ -120,11 +128,19 @@ class TextEditorView : VBox() {
      * Removes a tab from the TabLine
      */
     private fun removeTab(tabData: TextEditorViewModel.TabData) {
-        val tab = tabLine.tabs.find { it.id == tabData.id }
-        if (tab != null) {
-            tabLine.tabs.remove(tab)
-            logger.debug("Removed tab: ${tabData.displayName}, ID: ${tabData.id}")
+        tabLine.tabs.find { it.id == tabData.id }?.let {
+            tabLine.tabs.remove(it)
         }
+
+        // Execute and remove all cleanup functions associated with the closed tab
+        decoratorCleanups.remove(tabData.id)?.forEach { cleanup ->
+            try {
+                cleanup()
+            } catch (e: Exception) {
+                logger.error("Error during tab decorator cleanup for ${tabData.displayName}", e)
+            }
+        }
+        logger.debug("Removed tab and cleaned up decorators: ${tabData.displayName}, ID: ${tabData.id}")
     }
 
     /**
