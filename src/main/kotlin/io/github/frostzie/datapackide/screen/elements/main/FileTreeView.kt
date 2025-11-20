@@ -1,23 +1,47 @@
 package io.github.frostzie.datapackide.screen.elements.main
 
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.MoveFile
+
 import io.github.frostzie.datapackide.events.OpenFile
+
 import io.github.frostzie.datapackide.events.RequestMoveConfirmation
+
 import io.github.frostzie.datapackide.modules.main.FileTreeViewModel
+
+import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
+
+import io.github.frostzie.datapackide.settings.categories.MainConfig
+
 import io.github.frostzie.datapackide.utils.UIConstants
+
+import javafx.beans.InvalidationListener
+
 import javafx.scene.control.TreeCell
+
 import javafx.scene.control.TreeView
-import javafx.scene.input.*
+
+import javafx.scene.input.ClipboardContent
+
+import javafx.scene.input.DataFormat
+
+import javafx.scene.input.DragEvent
+
+import javafx.scene.input.MouseButton
+
+import javafx.scene.input.TransferMode
+
 import javafx.scene.layout.Priority
+
 import javafx.scene.layout.VBox
+
 import java.nio.file.Path
+
 import kotlin.io.path.isDirectory
 
 /**
  * The View for the file tree. This class is responsible for displaying the tree.
  */
-class FileTreeView : VBox() {
+class FileTreeView(private val textEditorViewModel: TextEditorViewModel) : VBox() {
     internal val viewModel = FileTreeViewModel()
     private val treeView = TreeView<FileTreeItem>()
 
@@ -43,7 +67,12 @@ class FileTreeView : VBox() {
         // mouse click listeners for opening files and handling all drag-and-drop gestures.
         treeView.setCellFactory { _ ->
             object : TreeCell<FileTreeItem>() {
+                private val invalidationListener = InvalidationListener { updateStyle() }
+
                 init {
+                    textEditorViewModel.dirtyFiles.addListener(invalidationListener)
+                    MainConfig.dirtyFileColor.addListener(invalidationListener)
+
                     setOnMouseClicked { event ->
                         if (event.button == MouseButton.PRIMARY && event.clickCount == 2) {
                             val currentItem = item ?: return@setOnMouseClicked
@@ -98,14 +127,36 @@ class FileTreeView : VBox() {
 
                 override fun updateItem(item: FileTreeItem?, empty: Boolean) {
                     super.updateItem(item, empty)
-                    text = if (empty) null else item?.toString()
-                    graphic = null // Can add icons here later
+
+                    if (empty || item == null) {
+                        text = null
+                        graphic = null
+                        style = "" // Reset style
+                    } else {
+                        text = item.toString()
+                        graphic = null
+                        updateStyle()
+                    }
+                }
+
+                private fun updateStyle() {
+                    if (isEmpty || item == null) {
+                        style = ""
+                        return
+                    }
+
+                    style = if (item.path in textEditorViewModel.dirtyFiles) {
+                        "-fx-text-fill: ${MainConfig.dirtyFileColor.get()};"
+                    } else {
+                        "" // Reset to default
+                    }
                 }
 
                 private fun isValidDropTarget(event: DragEvent): Boolean {
                     if (event.gestureSource == this || !event.dragboard.hasContent(dragDataFormat)) {
                         return false
                     }
+
                     val targetItem = item ?: return false
                     val sourcePath = Path.of(event.dragboard.getContent(dragDataFormat) as String)
 

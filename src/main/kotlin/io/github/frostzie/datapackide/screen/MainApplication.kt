@@ -117,7 +117,7 @@ class MainApplication {
             topBarView = TopBarView(toolBarMenu!!)
             leftBarView = LeftBarView()
             textEditorView = TextEditorView()
-            fileTreeView = FileTreeView()
+            fileTreeView = FileTreeView(textEditorView!!.viewModel)
             bottomBarView = BottomBarView()
 
             bottomBarModule = BottomBarModule()

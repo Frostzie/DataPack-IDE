@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import javafx.collections.ObservableSet
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
 import java.nio.file.Path
@@ -37,6 +38,7 @@ class TextEditorViewModel {
 
     // Observable list of all open tabs
     val tabs: ObservableList<TabData> = FXCollections.observableArrayList()
+    val dirtyFiles: ObservableSet<Path> = FXCollections.observableSet()
 
     // Currently active tab
     val activeTab = SimpleObjectProperty<TabData?>()
@@ -84,6 +86,14 @@ class TextEditorViewModel {
                 displayName = filePath.fileName.toString(),
                 codeArea = codeArea
             )
+
+            tabData.isDirty.addListener { _, _, isDirty ->
+                if (isDirty) {
+                    dirtyFiles.add(tabData.filePath)
+                } else {
+                    dirtyFiles.remove(tabData.filePath)
+                }
+            }
 
             codeArea.textProperty().addListener { _, _, _ ->
                 if (!tabData.isDirty.get()) {
