@@ -1,41 +1,27 @@
 package io.github.frostzie.datapackide.screen.elements.main
 
+import atlantafx.base.theme.Tweaks
 import io.github.frostzie.datapackide.events.EventBus
-
 import io.github.frostzie.datapackide.events.OpenFile
-
 import io.github.frostzie.datapackide.events.RequestMoveConfirmation
-
 import io.github.frostzie.datapackide.modules.main.FileTreeViewModel
-
 import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
-
 import io.github.frostzie.datapackide.settings.categories.MainConfig
-
+import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 import io.github.frostzie.datapackide.utils.UIConstants
-
 import javafx.beans.InvalidationListener
-
 import javafx.scene.control.TreeCell
-
 import javafx.scene.control.TreeView
-
 import javafx.scene.input.ClipboardContent
-
 import javafx.scene.input.DataFormat
-
 import javafx.scene.input.DragEvent
-
 import javafx.scene.input.MouseButton
-
 import javafx.scene.input.TransferMode
-
 import javafx.scene.layout.Priority
-
 import javafx.scene.layout.VBox
-
 import java.nio.file.Path
-
+import org.kordamp.ikonli.javafx.FontIcon
+import org.kordamp.ikonli.material2.Material2AL
 import kotlin.io.path.isDirectory
 
 /**
@@ -60,6 +46,10 @@ class FileTreeView(private val textEditorViewModel: TextEditorViewModel) : VBox(
         children.add(treeView)
 
         treeView.rootProperty().bind(viewModel.root)
+        treeView.styleClass.add(Tweaks.EDGE_TO_EDGE)
+        treeView.styleClass.add(Tweaks.ALT_ICON)
+
+        MainConfig.showFileIcons.addListener { _ -> treeView.refresh() }
 
         treeView.isShowRoot = true
 
@@ -134,7 +124,12 @@ class FileTreeView(private val textEditorViewModel: TextEditorViewModel) : VBox(
                         style = "" // Reset style
                     } else {
                         text = item.toString()
-                        graphic = null
+                        graphic = if (MainConfig.showFileIcons.get()) {
+                            val iconCode = if (item.path.isDirectory()) Material2AL.FOLDER else Material2AL.DESCRIPTION
+                            FontIcon(iconCode).apply { iconSize = ThemeConfig.fontSize.get() }
+                        } else {
+                            null
+                        }
                         updateStyle()
                     }
                 }

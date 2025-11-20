@@ -3,6 +3,7 @@ package io.github.frostzie.datapackide.features
 import io.github.frostzie.datapackide.features.editor.DirtyTabDecorator
 import io.github.frostzie.datapackide.features.editor.DirtyTextColorDecorator
 import io.github.frostzie.datapackide.features.editor.EditorTabDecorator
+import io.github.frostzie.datapackide.features.editor.FileIconDecorator
 
 /**
  * A central registry for discovering and accessing all feature services.
@@ -16,6 +17,7 @@ object FeatureRegistry {
      */
     val editorTabDecorators: List<EditorTabDecorator> = listOf(
         DirtyTabDecorator(),
-        DirtyTextColorDecorator()
+        DirtyTextColorDecorator(),
+        FileIconDecorator()
     )
 }

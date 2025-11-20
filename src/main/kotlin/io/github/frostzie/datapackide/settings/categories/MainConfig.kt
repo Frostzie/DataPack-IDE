@@ -24,6 +24,15 @@ object MainConfig {
     @ConfigEditorColorPicker
     val dirtyFileColor = SimpleStringProperty("#f7aeae")
 
+    @Expose //TODO: Fix font size not impacting icon size
+    @ConfigCategory(name = "UI")
+    @ConfigOption(
+        name = "Show File Icons",
+        desc = "Toggles the visibility of file and folder icons in the File Tree and Editor Tabs. \n Not recommend currently due to incorrect icon sizes!"
+    )
+    @ConfigEditorBoolean
+    val showFileIcons = javafx.beans.property.SimpleBooleanProperty(false)
+
     @Expose
     @ConfigCategory(name = "Links")
     @ConfigOption(name = "Discord Server", desc = "Join our Discord server for support and community!")
