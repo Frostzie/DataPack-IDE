@@ -20,5 +20,6 @@ class OpenWith
 
 class SaveFile
 class SaveAsFile
+class SaveAllFiles
 
 data class OpenFile(val path: Path)

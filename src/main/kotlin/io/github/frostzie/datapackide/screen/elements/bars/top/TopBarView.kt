@@ -48,6 +48,7 @@ class TopBarView(private val toolBarMenu: ToolBarMenu) : ToolBar() {
             Feather.PLAY,
             "Reload Datapack"
         ) {
+            EventBus.post(SaveAllFiles())
             EventBus.post(ReloadDatapack())
         }
 

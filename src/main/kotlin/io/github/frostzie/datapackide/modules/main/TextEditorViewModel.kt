@@ -2,6 +2,7 @@ package io.github.frostzie.datapackide.modules.main
 
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.OpenFile
+import io.github.frostzie.datapackide.events.SaveAllFiles
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
@@ -65,6 +66,15 @@ class TextEditorViewModel {
             logger.debug("Opening new file in tab: {}", event.path.fileName)
             createNewTab(event.path)
         }
+    }
+
+    /**
+     * Saves all modified files
+     */
+    @SubscribeEvent
+    fun onSaveAll(event: SaveAllFiles) {
+        logger.debug("Saving all modified files...")
+        tabs.filter { it.isDirty.get() }.forEach { saveFile(it) }
     }
 
     /**
@@ -147,7 +157,7 @@ class TextEditorViewModel {
             val content = tabData.codeArea.text
             tabData.filePath.writeText(content)
             tabData.isDirty.set(false)
-            logger.info("File saved: ${tabData.filePath.fileName} (${content.length} characters)")
+            logger.debug("File saved: {} ({} characters)", tabData.filePath.fileName, content.length)
         } catch (e: Exception) {
             logger.error("Failed to save file: ${tabData.filePath.fileName}", e)
             // TODO: Show error notification to user

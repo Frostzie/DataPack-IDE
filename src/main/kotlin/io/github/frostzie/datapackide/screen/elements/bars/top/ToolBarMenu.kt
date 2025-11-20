@@ -14,6 +14,7 @@ import io.github.frostzie.datapackide.events.GitHubLink
 import io.github.frostzie.datapackide.events.OpenDatapackFolder
 import io.github.frostzie.datapackide.events.ReloadDatapack
 import io.github.frostzie.datapackide.events.ReportBugLink
+import io.github.frostzie.datapackide.events.SaveAllFiles
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -52,6 +53,7 @@ class ToolBarMenu {
                 MenuItem("Open").apply { setOnAction { EventBus.post(ChooseDirectory()) } },
                 MenuItem("New Project").apply { setOnAction {  } },
                 MenuItem("Close Project").apply { setOnAction {  } },
+                MenuItem("Save All").apply { setOnAction { EventBus.post(SaveAllFiles()) } },
                 MenuItem("Exit").apply { setOnAction { modalPane.hide(true) } }
             ),
 
