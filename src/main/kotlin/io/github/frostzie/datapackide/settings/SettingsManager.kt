@@ -28,10 +28,9 @@ object SettingsManager {
     }
 
     fun initialize() {
-        logger.info("Initializing SettingsManager...")
+        logger.debug("Initializing SettingsManager...")
         cacheDefaultValues()
         loadSettings()
-        logger.info("SettingsManager initialization complete")
     }
 
     private fun cacheDefaultValues() {
@@ -115,7 +114,7 @@ object SettingsManager {
                 gson.toJson(jsonObject, writer)
             }
 
-                        logger.info("Settings saved to ${settingsFile.absolutePath}")
+                        logger.debug("Settings saved to ${settingsFile.absolutePath}")
         } catch (e: Exception) {
             logger.error("Failed to save settings", e)
         }
@@ -162,7 +161,7 @@ object SettingsManager {
                 }
             }
 
-                        logger.info("Settings loaded from ${settingsFile.absolutePath}")
+                        logger.debug("Settings loaded from ${settingsFile.absolutePath}")
         } catch (e: Exception) {
             logger.error("Failed to load settings", e)
         }

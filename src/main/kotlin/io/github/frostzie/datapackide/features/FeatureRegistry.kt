@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.features
 
 import io.github.frostzie.datapackide.features.editor.DirtyTabDecorator
+import io.github.frostzie.datapackide.features.editor.DirtyTextColorDecorator
 import io.github.frostzie.datapackide.features.editor.EditorTabDecorator
 
 /**
@@ -14,6 +15,7 @@ object FeatureRegistry {
      * and add an instance of it to this list.
      */
     val editorTabDecorators: List<EditorTabDecorator> = listOf(
-        DirtyTabDecorator()
+        DirtyTabDecorator(),
+        DirtyTextColorDecorator()
     )
 }

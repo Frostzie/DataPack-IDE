@@ -1,10 +1,6 @@
 package io.github.frostzie.datapackide.settings.categories
 
-import io.github.frostzie.datapackide.settings.annotations.ConfigCategory
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorButton
-import io.github.frostzie.datapackide.settings.annotations.ConfigEditorTextArea
-import io.github.frostzie.datapackide.settings.annotations.ConfigOption
-import io.github.frostzie.datapackide.settings.annotations.Expose
+import io.github.frostzie.datapackide.settings.annotations.*
 import io.github.frostzie.datapackide.utils.OpenLinks
 import javafx.beans.property.SimpleStringProperty
 
@@ -16,8 +12,17 @@ object MainConfig {
         name = "Modified Indicator",
         desc = "Suffix added on a file in tab when it has unsaved changes."
     )
-    @ConfigEditorTextArea
+    @ConfigEditorTextField
     val dirtyIndicator = SimpleStringProperty(" ●")
+
+    @Expose
+    @ConfigCategory(name = "UI")
+    @ConfigOption(
+        name = "Modified File Color",
+        desc = "Changes the color of the name of a file that has unsaved changes."
+    )
+    @ConfigEditorColorPicker
+    val dirtyFileColor = SimpleStringProperty("#f7aeae")
 
     @Expose
     @ConfigCategory(name = "Links")

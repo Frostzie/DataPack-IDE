@@ -7,7 +7,10 @@ import io.github.frostzie.datapackide.features.FeatureRegistry
 import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.collections.ListChangeListener
+import javafx.geometry.Pos
+import javafx.scene.control.Label
 import javafx.scene.control.Tooltip
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
@@ -102,8 +105,16 @@ class TextEditorView : VBox() {
      * Adds a new tab to the TabLine for the given TabData
      */
     private fun addTab(tabData: TextEditorViewModel.TabData) {
-        // AtlantaFX Tab constructor: Tab(id, text, graphic)
-        val tab = Tab(tabData.id, tabData.displayName, FontIcon(Material2AL.FOLDER))
+        // Create a custom graphic for the tab content, allowing direct access to the label for styling
+        val tabLabel = Label(tabData.displayName)
+        val tabIcon = FontIcon(Material2AL.FOLDER)
+        val graphic = HBox(tabIcon, tabLabel).apply {
+            alignment = Pos.CENTER_LEFT
+            spacing = 5.0 // Space between icon and label
+        }
+
+        // We pass null for text and use our custom graphic instead
+        val tab = Tab(tabData.id, null, graphic)
         tab.tooltip = Tooltip(tabData.filePath.toString())
 
         val cleanups = mutableListOf<() -> Unit>()
@@ -118,7 +129,6 @@ class TextEditorView : VBox() {
         }
 
         tabLine.tabs.add(tab)
-
         tabLine.selectionModel.select(tab)
 
         logger.debug("Added tab: ${tabData.displayName}, ID: ${tabData.id}")

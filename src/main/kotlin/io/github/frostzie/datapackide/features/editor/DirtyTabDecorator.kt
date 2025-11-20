@@ -4,6 +4,8 @@ import atlantafx.base.controls.Tab
 import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
 import io.github.frostzie.datapackide.settings.categories.MainConfig
 import javafx.beans.value.ChangeListener
+import javafx.scene.control.Label
+import javafx.scene.layout.HBox
 
 /**
  * An implementation of [EditorTabDecorator] that adds a "dirty" suffix
@@ -31,8 +33,11 @@ class DirtyTabDecorator : EditorTabDecorator {
     }
 
     private fun updateTab(tab: Tab, tabData: TextEditorViewModel.TabData) {
+        val graphic = tab.graphic as? HBox ?: return
+        val label = graphic.children.find { it is Label } as? Label ?: return
+
         val isDirty = tabData.isDirty.get()
-        tab.text = if (isDirty) {
+        label.text = if (isDirty) {
             "${tabData.displayName}${MainConfig.dirtyIndicator.get()}"
         } else {
             tabData.displayName

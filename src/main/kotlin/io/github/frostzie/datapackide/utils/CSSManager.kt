@@ -103,7 +103,7 @@ object CSSManager {
             }
 
             if (cssBytes != null) {
-                logger.info("Loaded CSS content for: $cssFile from $sourceDescription")
+                logger.debug("Loaded CSS content for: $cssFile from $sourceDescription")
                 return String(cssBytes, Charsets.UTF_8)
             } else {
                 logger.warn("CSS file not found during load: $cssFile")
