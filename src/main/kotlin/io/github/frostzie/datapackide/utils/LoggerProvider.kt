@@ -10,7 +10,7 @@ object LoggerProvider {
     fun getLogger(name: String): Logger {
         val fullName = "$MAIN:$name"
         return loggers.getOrPut(fullName) {
-            LoggerFactory.getLogger(fullName)
+            LoggerWrapper(LoggerFactory.getLogger(fullName))
         }
     }
 }
