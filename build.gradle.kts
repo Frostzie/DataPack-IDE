@@ -21,7 +21,7 @@ val javafxClassifiers = listOf(
 fun javafxDep(module: String, classifier: String) =
 	"org.openjfx:javafx-$module:$javafx:$classifier"
 
-version = libs.versions.version.get()
+version = (libs.versions.version.get()) + "-" + (libs.versions.minecraft.get())
 group = project.findProperty("maven_group") as String
 
 base {
@@ -59,8 +59,18 @@ dependencies {
 	include(libs.material2)
 	include(libs.feather)
 
+	// RichTextFX and it's dependencies
 	implementation(libs.richTextFX)
+	implementation(libs.flowless)
+	implementation(libs.reactFX)
+	implementation(libs.undofx)
+	implementation(libs.wellbehavedfx)
+
 	include(libs.richTextFX)
+	include(libs.flowless)
+	include(libs.reactFX)
+	include(libs.undofx)
+	include(libs.wellbehavedfx)
 
 	// JavaFX
 	for (classifier in javafxClassifiers) {

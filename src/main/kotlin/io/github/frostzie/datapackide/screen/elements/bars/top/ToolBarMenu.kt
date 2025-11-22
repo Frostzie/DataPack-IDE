@@ -15,6 +15,7 @@ import io.github.frostzie.datapackide.events.OpenDatapackFolder
 import io.github.frostzie.datapackide.events.ReloadDatapack
 import io.github.frostzie.datapackide.events.ReportBugLink
 import io.github.frostzie.datapackide.events.SaveAllFiles
+import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -24,6 +25,7 @@ import javafx.scene.layout.Region
 import javafx.scene.layout.StackPane
 
 class ToolBarMenu {
+    private val logger = LoggerProvider.getLogger("ToolBarMenu")
     val modalPane: ModalPane = ModalPane()
     val dialogContent: BorderPane
 
@@ -51,8 +53,8 @@ class ToolBarMenu {
 
             Menu("File", null,
                 MenuItem("Open").apply { setOnAction { EventBus.post(ChooseDirectory()) } },
-                MenuItem("New Project").apply { setOnAction {  } },
-                MenuItem("Close Project").apply { setOnAction {  } },
+                MenuItem("New Project").apply { setOnAction { logger.warn("New Project button not implemented yet! ") } },
+                MenuItem("Close Project").apply { setOnAction { logger.warn("Close Project button not implemented yet!") } },
                 MenuItem("Save All").apply { setOnAction { EventBus.post(SaveAllFiles()) } },
                 MenuItem("Exit").apply { setOnAction { modalPane.hide(true) } }
             ),
@@ -68,7 +70,7 @@ class ToolBarMenu {
 
             Menu("Build", null,
                 MenuItem("Reload Datapack").apply { setOnAction { EventBus.post(ReloadDatapack()) } },
-                MenuItem("Zip Datapack").apply { setOnAction {  } },
+                MenuItem("Zip Datapack").apply { setOnAction { logger.warn("Zip Datapack button not implemented yet!") } },
                 MenuItem("Open Folder").apply { setOnAction { EventBus.post(OpenDatapackFolder()) } }
             ),
 

@@ -36,7 +36,7 @@ class LeftBarView : ToolBar() {
             Feather.SEARCH,
             "Search"
         ) {
-            logger.info("Search button clicked") //TODO: Implement search
+            logger.warn("Search button not implemented yet!")
         }
 
         val spacer = Region().apply {
