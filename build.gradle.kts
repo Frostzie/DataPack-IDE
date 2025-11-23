@@ -21,7 +21,10 @@ val javafxClassifiers = listOf(
 fun javafxDep(module: String, classifier: String) =
 	"org.openjfx:javafx-$module:$javafx:$classifier"
 
-version = (libs.versions.version.get()) + "-" + (libs.versions.minecraft.get())
+// Naming examples
+// Version Name: 0.0.1-fabric+mc1.20.5-1.21.8
+// Jar Name: Datapack-IDE-0.0.1-fabric+mc1.20.5-1.21.8.jar
+version = (libs.versions.version.get()) + "-fabric+mc1.20.5-1.21.8"
 group = project.findProperty("maven_group") as String
 
 base {
