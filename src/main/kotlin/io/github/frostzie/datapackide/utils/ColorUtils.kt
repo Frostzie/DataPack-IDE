@@ -2,10 +2,10 @@ package io.github.frostzie.datapackide.utils
 
 import javafx.scene.effect.ColorAdjust
 import javafx.scene.paint.Color
-import net.minecraft.text.MutableText
-import net.minecraft.text.Style
-import net.minecraft.text.Text
-import net.minecraft.text.TextColor
+import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.Style
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextColor
 
 /**
  * Utility class for color manipulation and conversion to ColorAdjust parameters
@@ -63,7 +63,7 @@ object ColorUtils {
         }
     }
 
-    fun dataPackIDEPrefixChat(): MutableText {
+    fun dataPackIDEPrefixChat(): MutableComponent {
         val text = "DataPack IDE"
         val colors = listOf(
             0x14EE72, // D
@@ -79,10 +79,10 @@ object ColorUtils {
             0x0A9AF2, // D
             0x0090FF, // E
         )
-        val result = Text.empty()
+        val result = Component.empty()
         for (i in text.indices) {
             result.append(
-                Text.literal(text[i].toString())
+                Component.literal(text[i].toString())
                     .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(colors[i])))
             )
         }

@@ -1,6 +1,6 @@
 package io.github.frostzie.datapackide.modules.bars.top
 
-import net.minecraft.util.Util
+import net.minecraft.Util
 import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
@@ -85,7 +85,7 @@ class TopBarModule(private val stage: Stage?, private val topBarView: TopBarView
 
     fun openDatapackFolder() {
         DirectoryChooseUtils.getDatapackPath()?.let {
-            Util.getOperatingSystem().open(it.toFile())
+            Util.getPlatform().openFile(it.toFile())
         }
     }
 

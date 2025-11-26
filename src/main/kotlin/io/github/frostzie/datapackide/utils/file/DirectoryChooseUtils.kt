@@ -1,8 +1,8 @@
 package io.github.frostzie.datapackide.utils.file
 
-import net.minecraft.client.MinecraftClient
-import net.minecraft.server.integrated.IntegratedServer
-import net.minecraft.util.WorldSavePath
+import net.minecraft.client.Minecraft
+import net.minecraft.client.server.IntegratedServer
+import net.minecraft.world.level.storage.LevelResource
 import java.nio.file.Path
 
 object DirectoryChooseUtils {
@@ -11,9 +11,9 @@ object DirectoryChooseUtils {
      * Gets the instance folder path.
      */
     fun getInstancePath(): Path? {
-        val client = MinecraftClient.getInstance()
+        val client = Minecraft.getInstance()
 
-        return client.runDirectory?.toPath()
+        return client.gameDirectory?.toPath()
     }
 
     /**
@@ -21,17 +21,17 @@ object DirectoryChooseUtils {
      * Returns null if not in singleplayer.
      */
     fun getDatapackPath(): Path? {
-        val client = MinecraftClient.getInstance()
-        val server: IntegratedServer? = client.server
+        val client = Minecraft.getInstance()
+        val server: IntegratedServer? = client.singleplayerServer
 
-        return server?.getSavePath(WorldSavePath.DATAPACKS)
+        return server?.getWorldPath(LevelResource.DATAPACK_DIR)
     }
 
     /**
      * Checks if the player is in singleplayer (integrated server).
      */
     fun isSingleplayer(): Boolean {
-        val client = MinecraftClient.getInstance()
-        return client.isIntegratedServerRunning
+        val client = Minecraft.getInstance()
+        return client.hasSingleplayerServer()
     }
 }

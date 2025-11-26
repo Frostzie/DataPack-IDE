@@ -1,14 +1,14 @@
 package io.github.frostzie.datapackide.commands
 
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import net.minecraft.client.MinecraftClient
+import net.minecraft.client.Minecraft
 
 object ReloadDataPacksCommand {
 
     private val logger = LoggerProvider.getLogger("ReloadDataPacksCommand")
 
     fun executeCommandButton() {
-        MinecraftClient.getInstance().player?.networkHandler?.sendChatCommand("reload")
+        Minecraft.getInstance().player?.connection?.sendCommand("reload")
         logger.debug("Sent /reload with button press")
     }
 
