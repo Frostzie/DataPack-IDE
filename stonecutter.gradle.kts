@@ -4,7 +4,7 @@ plugins {
 
 }
 
-stonecutter active file("versions/current")
+stonecutter active "1.21.10"
 
 stonecutter parameters {
     swaps["mod_version"] = "\"" + property("mod.version") + "\";"

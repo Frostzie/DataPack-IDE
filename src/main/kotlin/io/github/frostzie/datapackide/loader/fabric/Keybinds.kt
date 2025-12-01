@@ -15,20 +15,20 @@ object Keybinds {
     private var toggleIDEKey: KeyMapping? = null
 
     fun register() {
-        //? if 1.21.10 {
+        //? if <=1.21.8 {
+        /*toggleIDEKey = KeyBindingHelper.registerKeyBinding(KeyMapping(
+            "key.datapack-ide.toggle_ide",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_H,
+            "category.datapack-ide.general"
+        ))
+        *///?} else {
         /*toggleIDEKey = KeyBindingHelper.registerKeyBinding(
             KeyMapping(
                 "key.datapack-ide.toggle_ide",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_H,
                 KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath("datapack-ide", "general"))
-        ))
-        *///?} else {
-        /*toggleIDEKey = KeyBindingHelper.registerKeyBinding(KeyMapping(
-            "key.datapack-ide.toggle_ide",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_H,
-            "category.datapack-ide.general"
         ))
         *///?}
 
