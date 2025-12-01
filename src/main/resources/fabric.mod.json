@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "datapack-ide",
+	"id": "${id}",
 	"version": "${version}",
-	"name": "DataPack IDE",
+	"name": "${name}",
 	"description": "Allows in game data pack editing with a built in text editor screen.",
 	"authors": [
 		"Frostzie"
@@ -31,10 +31,7 @@
 		"datapack-ide.mixins.json"
 	],
 	"depends": {
-		"fabricloader": "*",
-		"minecraft": "*",
-		"fabric-api": "*",
-		"fabric-language-kotlin": "*"
+		"minecraft": "*"
 	},
 	"custom": {
 		"modmenu": {

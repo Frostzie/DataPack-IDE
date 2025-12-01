@@ -2,14 +2,16 @@ import org.gradle.api.tasks.bundling.Jar
 import kotlin.String
 
 plugins {
+	id("fabric-loom")
 	java
 	`maven-publish`
 	alias(libs.plugins.kotlin.jvm)
-	alias(libs.plugins.fabric.loom)
 	alias(libs.plugins.javafx)
 }
-val javafx = libs.versions.javafxapp.get()
 
+val mcVersion = property("mcVersion")!!.toString()
+
+val javafx = libs.versions.javafxapp.get()
 // http://insecure.repo1.maven.org/maven2/org/openjfx/javafx-base/21.0.8/
 val javafxClassifiers = listOf(
 	"win",
@@ -27,9 +29,7 @@ fun javafxDep(module: String, classifier: String) =
 version = (libs.versions.version.get()) + "-fabric+mc1.20.5-1.21.8"
 group = project.findProperty("maven_group") as String
 
-base {
-	archivesName.set(project.findProperty("archives_base_name") as String)
-}
+base.archivesName = property("mod.id") as String
 
 repositories {
 	mavenCentral()
@@ -39,14 +39,16 @@ repositories {
 }
 
 dependencies {
-	"minecraft"(libs.minecraft)
-	"mappings"("net.fabricmc:yarn:${libs.versions.yarn.get()}:v2")
+	minecraft("com.mojang:minecraft:$mcVersion")
 
-	modCompileOnly(libs.fabric.api)
-	modImplementation(libs.fabric.loader)
+	mappings(loom.officialMojangMappings())
+
+	modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+
+	modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+
 	modImplementation(libs.fabric.kotlin)
-	modImplementation(libs.fabric.api)
-	modImplementation(libs.modmenu)
+	//modImplementation(libs.modmenu)
 	modRuntimeOnly(libs.devauth)
 
 	// Style and icon packs
@@ -91,12 +93,29 @@ dependencies {
 	}
 }
 
-tasks.named<ProcessResources>("processResources") {
-	inputs.property("version", project.version)
-
-	filesMatching("fabric.mod.json") {
-		expand("version" to project.version)
+// Taken from Stonecutter template
+loom {
+	runConfigs.all {
+		ideConfigGenerated(true)
+		vmArgs("-Dmixin.debug.export=true") // Exports transformed classes for debugging
+		runDir = "../../run" // Shares the run directory between versions
 	}
+}
+
+tasks.named<ProcessResources>("processResources") {
+	inputs.property("id", project.findProperty("mod.id"))
+	inputs.property("name", project.findProperty("mod.name"))
+	inputs.property("version", project.findProperty("mod.version"))
+	inputs.property("minecraft", project.findProperty("mod.mc_dep"))
+
+	val props = mapOf(
+		"id" to project.property("mod.id"),
+		"name" to project.property("mod.name"),
+		"version" to project.property("mod.version"),
+		"minecraft" to project.property("mod.mc_dep")
+	)
+
+	filesMatching("fabric.mod.json") { expand(props) }
 }
 
 tasks.withType<JavaCompile> {
