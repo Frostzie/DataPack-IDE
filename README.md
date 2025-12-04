@@ -88,4 +88,4 @@ Any input is appreciated here
 
 ## License & Dependencies
 Datapack IDE uses: [LGPL-v2.1](https://github.com/Frostzie/DataPack-IDE/blob/main/LICENSE) <br>
-Dependencies used: [List](docs/LIBRARIES_USED.md)
+Dependencies used: [List](docs/SOFTWARE_USED.md)

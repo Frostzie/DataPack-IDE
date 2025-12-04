@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation
 import org.lwjgl.glfw.GLFW
 
 object Keybinds {
-    private val logger = LoggerProvider.getLogger("DataPackIDE:Keybinds")
+    private val logger = LoggerProvider.getLogger("Keybinds")
     private var toggleIDEKey: KeyMapping? = null
 
     fun register() {

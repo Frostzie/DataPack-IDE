@@ -19,3 +19,4 @@ Datapack IDE relies on the following software:
 | [ReactFX](https://github.com/TomasMikula/ReactFX)                             | [BSD 2-Clause](https://github.com/TomasMikula/ReactFX/blob/master/LICENSE)              |
 | [UndoFX](https://github.com/FXMisc/UndoFX)                                    | [BSD 2-Clause](https://github.com/FXMisc/UndoFX/blob/master/LICENSE)                    |
 | [WellBehavedFX](https://github.com/FXMisc/WellBehavedFX)                      | [BSD 2-Clause](https://github.com/FXMisc/WellBehavedFX/blob/master/LICENSE)             |
+| [Stonecutter](https://stonecutter.kikugie.dev/)                               | [LGPL-3.0](https://codeberg.org/stonecutter/stonecutter/src/branch/0.7/LICENSE)         |
