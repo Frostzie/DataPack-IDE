@@ -4,11 +4,12 @@ import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.scene.control.Label
 import javafx.scene.control.Separator
+import javafx.scene.control.ToolBar
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 
-class BottomBarView() : HBox() {
+class BottomBarView() : ToolBar() {
 
     companion object {
         private val LOGGER = LoggerProvider.getLogger("StatusBar")
@@ -32,11 +33,11 @@ class BottomBarView() : HBox() {
         ideVersionLabel.styleClass.add("status-label")
 
         val spacer = Region().apply {
-            setHgrow(this, Priority.ALWAYS)
+            HBox.setHgrow(this, Priority.ALWAYS)
             styleClass.add("status-spacer")
         }
 
-        children.addAll(
+        items.addAll(
             cursorLabel,
             createSeparator(),
             encodingLabel,
