@@ -120,7 +120,7 @@ class MainApplication {
             fileTreeView = FileTreeView(textEditorView!!.viewModel)
             bottomBarView = BottomBarView()
 
-            bottomBarModule = BottomBarModule()
+            bottomBarModule = BottomBarModule
             bottomBarHandler = BottomBarHandler(bottomBarModule!!)
 
             topBarModule = TopBarModule(stage, topBarView)

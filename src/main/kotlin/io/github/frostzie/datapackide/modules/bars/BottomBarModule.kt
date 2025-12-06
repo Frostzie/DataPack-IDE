@@ -3,9 +3,9 @@ package io.github.frostzie.datapackide.modules.bars
 import io.github.frostzie.datapackide.loader.fabric.ModVersion
 import javafx.beans.property.SimpleStringProperty
 
-class BottomBarModule {
+object BottomBarModule {
 
-    val cursorPositionProperty = SimpleStringProperty("Ln 1, Col 1")
+    val cursorPositionProperty = SimpleStringProperty("")
     val encodingProperty = SimpleStringProperty("UTF-8")
     val ideVersionProperty = SimpleStringProperty("DataPack IDE v${ModVersion.current}")
 

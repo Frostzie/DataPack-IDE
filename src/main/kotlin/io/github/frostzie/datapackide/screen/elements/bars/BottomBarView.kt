@@ -15,7 +15,6 @@ class BottomBarView() : ToolBar() {
         private val LOGGER = LoggerProvider.getLogger("StatusBar")
     }
 
-    private val module = BottomBarModule()
     private val cursorLabel = Label()
     private val encodingLabel = Label()
     private val ideVersionLabel = Label()
@@ -48,9 +47,9 @@ class BottomBarView() : ToolBar() {
     }
 
     private fun bindProperties() {
-        cursorLabel.textProperty().bind(module.cursorPositionProperty)
-        encodingLabel.textProperty().bind(module.encodingProperty)
-        ideVersionLabel.textProperty().bind(module.ideVersionProperty)
+        cursorLabel.textProperty().bind(BottomBarModule.cursorPositionProperty)
+        encodingLabel.textProperty().bind(BottomBarModule.encodingProperty)
+        ideVersionLabel.textProperty().bind(BottomBarModule.ideVersionProperty)
     }
 
     private fun createSeparator(): Separator {

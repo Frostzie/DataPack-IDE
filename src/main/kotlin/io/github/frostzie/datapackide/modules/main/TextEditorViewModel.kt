@@ -3,11 +3,14 @@ package io.github.frostzie.datapackide.modules.main
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.OpenFile
 import io.github.frostzie.datapackide.events.SaveAllFiles
+import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
+import javafx.beans.property.IntegerProperty
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -43,6 +46,10 @@ class TextEditorViewModel {
 
     // Currently active tab
     val activeTab = SimpleObjectProperty<TabData?>()
+
+    // Current line and column of the caret in the active editor
+    val currentLine: IntegerProperty = SimpleIntegerProperty(1)
+    val currentColumn: IntegerProperty = SimpleIntegerProperty(1)
 
     init {
         EventBus.register(this)
@@ -111,6 +118,11 @@ class TextEditorViewModel {
                 }
             }
 
+            // Listen for caret position changes to update line and column numbers
+            codeArea.caretPositionProperty().addListener { _, _, _ ->
+                updateLineAndColumn(codeArea)
+            }
+
             tabs.add(tabData)
             activeTab.set(tabData)
 
@@ -121,6 +133,22 @@ class TextEditorViewModel {
         }
     }
 
+    /**
+     * Updates the line and column properties based on the caret position in the given CodeArea.
+     * If the codeArea is null (e.g., no active tab), it resets the values.
+     */
+    fun updateLineAndColumn(codeArea: CodeArea?) {
+        if (codeArea != null) {
+            val line = codeArea.currentParagraph + 1
+            val column = codeArea.caretColumn + 1
+            currentLine.set(line)
+            currentColumn.set(column)
+            BottomBarModule.updateCursorPosition(line, column)
+        } else {
+            currentLine.set(1)
+            currentColumn.set(1)
+        }
+    }
     /**
      * Closes the specified tab and auto-saves before closing
      */
