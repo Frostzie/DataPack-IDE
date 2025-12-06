@@ -34,6 +34,19 @@ object MainConfig {
     val showFileIcons = javafx.beans.property.SimpleBooleanProperty(false)
 
     @Expose
+    @ConfigCategory(name = "UI")
+    @ConfigOption(name = "Enable Caret Color", desc = "When enable the caret will change to the color selected below.")
+    @ConfigEditorBoolean
+    val enableCaretColor = javafx.beans.property.SimpleBooleanProperty(false)
+
+    @Expose
+    @ConfigCategory(name = "UI")
+    @ConfigOption(name = "Caret Color", desc = "Change the color of the caret (Typing mouse curser).")
+    @ConfigEditorColorPicker
+    val caretColor = SimpleStringProperty("#000000")
+
+
+    @Expose
     @ConfigCategory(name = "Links")
     @ConfigOption(name = "Discord Server", desc = "Join our Discord server for support and community!")
     @ConfigEditorButton(text = "Discord")
