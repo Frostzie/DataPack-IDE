@@ -6,11 +6,13 @@ import atlantafx.base.theme.Styles
 import io.github.frostzie.datapackide.features.FeatureRegistry
 import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import javafx.beans.value.ChangeListener
 import javafx.collections.ListChangeListener
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Region
 import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
@@ -49,11 +51,12 @@ class TextEditorView : VBox() {
     /**
      * Configures the TabLine with AtlantaFX styles and policies
      */
+    //TODO: Remove animation
     private fun setupTabLine() {
         tabLine.styleClass.add(Styles.TABS_BORDER_TOP)
         tabLine.setTabDragPolicy(Tab.DragPolicy.REORDER)
-        tabLine.setTabResizePolicy(Tab.ResizePolicy.COMPUTED_WIDTH) // Change
-        tabLine.setTabClosingPolicy(Tab.ClosingPolicy.SELECTED_TAB)
+        tabLine.setTabResizePolicy(Tab.ResizePolicy.COMPUTED_WIDTH)
+        tabLine.setTabClosingPolicy(Tab.ClosingPolicy.SELECTED_TAB) //TODO: Possibly? add hover closing
     }
 
     private fun setupContentArea() {
@@ -108,7 +111,14 @@ class TextEditorView : VBox() {
         // Create a custom graphic for the tab content, allowing direct access to the label for styling
         val tabLabel = Label(tabData.displayName)
         val tabIcon = FontIcon(Material2AL.FOLDER)
-        val graphic = HBox(tabIcon, tabLabel).apply {
+
+        // An invisible placeholder that reserves space for the close button.
+        // The width is an estimate of the close button's size. If you find a more exact one, change pls.
+        val closeButtonPlaceholder = Region().apply {
+            prefWidth = 22.0
+        }
+
+        val graphic = HBox(tabIcon, tabLabel, closeButtonPlaceholder).apply {
             alignment = Pos.CENTER_LEFT
             spacing = 5.0 // Space between icon and label
         }
@@ -117,6 +127,14 @@ class TextEditorView : VBox() {
         val tab = Tab(tabData.id, null, graphic)
         tab.tooltip = Tooltip(tabData.filePath.toString())
 
+        // When the tab is selected, the close button appears, so we hide the placeholder.
+        // When it's deselected, we show the placeholder to keep the tab width consistent.
+        val selectionListener = ChangeListener<Boolean> { _, _, isSelected ->
+            closeButtonPlaceholder.isVisible = !isSelected
+            closeButtonPlaceholder.isManaged = !isSelected
+        }
+        tab.selectedProperty().addListener(selectionListener)
+
         val cleanups = mutableListOf<() -> Unit>()
         FeatureRegistry.editorTabDecorators.forEach { decorator ->
             cleanups.add(decorator.decorate(tab, tabData))
@@ -124,6 +142,7 @@ class TextEditorView : VBox() {
         decoratorCleanups[tabData.id] = cleanups
 
         tab.setOnCloseRequest { event ->
+            tab.selectedProperty().removeListener(selectionListener) // Clean up listener
             viewModel.closeTab(tabData)
             event.consume()
         }
