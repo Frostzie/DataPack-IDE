@@ -2,6 +2,7 @@ package io.github.frostzie.datapackide.settings.categories
 
 import io.github.frostzie.datapackide.settings.annotations.*
 import io.github.frostzie.datapackide.utils.OpenLinks
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 
 object MainConfig {
@@ -31,13 +32,13 @@ object MainConfig {
         desc = "Toggles the visibility of file and folder icons in the File Tree and Editor Tabs. \n Not recommend currently due to incorrect icon sizes!"
     )
     @ConfigEditorBoolean
-    val showFileIcons = javafx.beans.property.SimpleBooleanProperty(false)
+    val showFileIcons = SimpleBooleanProperty(false)
 
     @Expose
     @ConfigCategory(name = "UI")
     @ConfigOption(name = "Enable Caret Color", desc = "When enable the caret will change to the color selected below.")
     @ConfigEditorBoolean
-    val enableCaretColor = javafx.beans.property.SimpleBooleanProperty(false)
+    val enableCaretColor = SimpleBooleanProperty(false)
 
     @Expose
     @ConfigCategory(name = "UI")
@@ -70,11 +71,9 @@ object MainConfig {
     @ConfigEditorButton(text = "Buy Me A Coffee")
     val buyMeACoffeeLink: () -> Unit = { OpenLinks.buyMeACoffeeLink() }
 
-    /* TODO: Add once modrinth page is up
     @Expose
     @ConfigCategory(name = "Links")
     @ConfigOption(name = "Modrinth", desc = "Check out the project on Modrinth!")
     @ConfigEditorButton(text = "Modrinth")
     val modrinthLink: () -> Unit = { OpenLinks.modrinthLink() }
-    */
 }

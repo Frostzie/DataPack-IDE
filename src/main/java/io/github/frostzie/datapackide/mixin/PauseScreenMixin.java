@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.mixin;
 
 import io.github.frostzie.datapackide.screen.MainApplication;
+import io.github.frostzie.datapackide.settings.categories.MinecraftConfig;
 import io.github.frostzie.datapackide.utils.JavaFXInitializer;
 import io.github.frostzie.datapackide.utils.LoggerProvider;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -26,6 +27,10 @@ public abstract class PauseScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void onInit(CallbackInfo ci) {
+        if (!MinecraftConfig.INSTANCE.getOnScreenButton().get()) {
+            return;
+        }
+
         PauseScreen self = (PauseScreen)(Object)this;
 
         Button button = Button.builder(Component.literal("IDE"), b -> {
@@ -34,7 +39,7 @@ public abstract class PauseScreenMixin extends Screen {
             } else {
                 logger.error("Cannot open IDE window - JavaFX is not available");
             }
-        }).bounds(self.width / 2 + 104, self.height / 4 + 32, 30, 20).build(); //TODO: Change
+        }).bounds(self.width / 2 + 72, self.height / 4 - 16, 30, 20).build();
 
         this.addRenderableWidget(button);
     }

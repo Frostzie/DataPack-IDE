@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.mixin;
 
 import io.github.frostzie.datapackide.screen.MainApplication;
+import io.github.frostzie.datapackide.settings.categories.MinecraftConfig;
 import io.github.frostzie.datapackide.utils.JavaFXInitializer;
 import io.github.frostzie.datapackide.utils.LoggerProvider;
 import net.minecraft.client.gui.components.Button;
@@ -26,6 +27,10 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void onInit(CallbackInfo ci) {
+        if (!MinecraftConfig.INSTANCE.getOnScreenButton().get()) {
+            return;
+        }
+
         TitleScreen self = (TitleScreen)(Object)this;
 
         Button button = Button.builder(Component.literal("IDE"), b -> {
