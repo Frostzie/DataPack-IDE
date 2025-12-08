@@ -1,9 +1,6 @@
 [versions]
-version = "0.0.1"
-yarn = "1.21.10+build.3"
 kotlin = "2.1.0"
 fabric_kotlin = "1.13.4+kotlin.2.2.0"
-modmenu = "15.0.0-beta.3"
 devauth = "1.2.1"
 javafxapp = "21.0.8"
 javafx_plugin = "0.1.0"
@@ -17,7 +14,6 @@ wellbehavedFXv = "0.3.3"
 
 [libraries]
 fabric_kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric_kotlin" }
-modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 devauth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
 
 richTextFX = { module = "org.fxmisc.richtext:richtextfx", version.ref = "richTextFXv"}

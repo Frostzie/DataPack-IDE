@@ -26,14 +26,13 @@ fun javafxDep(module: String, classifier: String) =
 // Naming examples
 // Version Name: 0.0.1-fabric+mc1.20.5-1.21.8
 // Jar Name: Datapack-IDE-0.0.1-fabric+mc1.20.5-1.21.8.jar
-version = (libs.versions.version.get()) + "-fabric+mc1.20.5-1.21.8"
+version = "${property("mod.version")}-fabric+mc${property("mod.mc_targets").toString().replace(" ", "-")}"
 group = project.findProperty("maven_group") as String
 
 base.archivesName = property("mod.id") as String
 
 repositories {
 	mavenCentral()
-	maven("https://maven.terraformersmc.com/releases/")
 	maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
 	mavenLocal()
 }
@@ -48,7 +47,6 @@ dependencies {
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
 
 	modImplementation(libs.fabric.kotlin)
-	//modImplementation(libs.modmenu)
 	modRuntimeOnly(libs.devauth)
 
 	// Style and icon packs

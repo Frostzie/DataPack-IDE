@@ -18,7 +18,7 @@
 	},
 	"license": "LGPL-2.1",
 	"icon": "assets/datapack-ide/icon.png",
-	"environment": "*",
+	"environment": "client",
 	"entrypoints": {
 		"main": [
 			{
@@ -31,12 +31,15 @@
 		"datapack-ide.mixins.json"
 	],
 	"depends": {
-		"minecraft": "*"
+		"fabric-language-kotlin": "*",
+		"fabric-api": "*"
 	},
 	"custom": {
 		"modmenu": {
 			"links": {
-				"modmenu.discord": "https://discord.gg/qZ885qTvkx"
+				"modmenu.discord": "https://discord.gg/qZ885qTvkx",
+				"modmenu.modrinth": "https://modrinth.com/mod/datapack-ide",
+				"modmenu.buymeacoffee": "https://buymeacoffee.com/frostzie"
 			}
 		}
 	}
