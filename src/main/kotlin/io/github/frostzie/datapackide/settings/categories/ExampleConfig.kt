@@ -37,7 +37,7 @@ object ExampleConfig {
     
     @Expose
     @ConfigCategory(name = "Example")
-    @ConfigOption(name = "Text field", desc = "Description")
+    @ConfigOption(name = "Text Area", desc = "Description")
     @ConfigEditorTextArea
     val text = SimpleStringProperty("Text Area...")
 

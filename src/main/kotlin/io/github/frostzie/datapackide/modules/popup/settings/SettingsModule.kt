@@ -18,6 +18,13 @@ import javafx.scene.control.ButtonType
 import javafx.stage.Stage
 import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 
+/**
+ * Manages the logic for the settings window, including searching, category selection,
+ * displaying settings content, and saving changes. It acts as an intermediary between
+ * the settings UI elements and the [SettingsManager].
+ *
+ * @param parentStage The parent JavaFX Stage for the settings dialog.
+ */
 class SettingsModule(private val parentStage: Stage) {
     companion object {
         private val logger = LoggerProvider.getLogger("SettingsModule")
@@ -31,6 +38,12 @@ class SettingsModule(private val parentStage: Stage) {
 
     private var currentQuery: String = ""
 
+    /**
+     * Initiates a search for settings based on the provided query string.
+     * The search results are then posted as a [SettingsSearchResultsAvailable] event.
+     *
+     * @param query The search string.
+     */
     fun search(query: String) {
         this.currentQuery = query
         if (query.isBlank()) {
@@ -41,6 +54,13 @@ class SettingsModule(private val parentStage: Stage) {
         }
     }
 
+    /**
+     * Handles the selection of a settings category (either main or subcategory) from the navigation tree.
+     * It retrieves the relevant settings fields and updates the content area of the settings window
+     * by posting a [SettingsContentUpdate] event. The order of sections reflects the declaration order.
+     *
+     * @param item The [CategoryItem] representing the selected category.
+     */
     fun selectCategory(item: CategoryItem) {
         val sections = mutableListOf<SectionData>()
         val title: String
@@ -76,6 +96,12 @@ class SettingsModule(private val parentStage: Stage) {
         EventBus.post(SettingsContentUpdate(title, sections, filterFields))
     }
 
+    /**
+     * Handles the selection of a search result, navigating the settings tree to highlight
+     * the corresponding category and field.
+     *
+     * @param result The [SearchResult] that was selected.
+     */
     fun selectSearchResult(result: SearchResult) {
         val categories = SettingsManager.getConfigCategories()
         val categoryIndex = categories.indexOfFirst { it.first == result.mainCategory }
@@ -85,6 +111,9 @@ class SettingsModule(private val parentStage: Stage) {
         }
     }
 
+    /**
+     * Displays the main settings window dialog.
+     */
     fun showSettingsWindow() {
         val view = SettingsView()
 
@@ -122,19 +151,35 @@ class SettingsModule(private val parentStage: Stage) {
         saveSettings()
     }
 
+    /**
+     * Loads the available setting categories and their subcategories from the [SettingsManager]
+     * and sends them to the UI components via a [SettingsCategoriesAvailable] event.
+     * This method ensures the categories are sent in their declared order.
+     */
     fun loadAndSendCategories() {
         val categoryDataList = SettingsManager.getConfigCategories().map { (categoryName, configClass) ->
-            val subCategories = SettingsManager.getNestedCategories(configClass).keys.sorted()
+            // Subcategories are retrieved in their declared order due to the LinkedHashMap in SettingsManager.
+            val subCategories = SettingsManager.getNestedCategories(configClass).keys.toList()
             CategoryData(categoryName.replaceFirstChar { it.uppercase() }, configClass, subCategories)
         }
         EventBus.post(SettingsCategoriesAvailable(categoryDataList))
     }
 
+    /**
+     * Triggers the saving of all current settings values through the [SettingsManager].
+     */
     fun saveSettings() {
         SettingsManager.saveSettings()
         logger.debug("Settings saved.")
     }
 
+    /**
+     * Performs a search across all registered settings and returns a list of matching [SearchResult]s.
+     * Results are ranked by relevance.
+     *
+     * @param query The search query string.
+     * @return A list of [SearchResult]s, sorted by relevance score in descending order.
+     */
     private fun searchSettings(query: String): List<SearchResult> {
         if (query.isBlank()) return emptyList()
 
@@ -152,6 +197,13 @@ class SettingsModule(private val parentStage: Stage) {
         .sortedByDescending { it.relevanceScore }
     }
 
+    /**
+     * Calculates a relevance score for a given [ConfigField] against a search query.
+     *
+     * @param field The [ConfigField] to evaluate.
+     * @param query The search query in lowercase.
+     * @return An integer representing the relevance score. Higher scores mean more relevant.
+     */
     private fun calculateRelevance(field: ConfigField, query: String): Int {
         var score = 0
 

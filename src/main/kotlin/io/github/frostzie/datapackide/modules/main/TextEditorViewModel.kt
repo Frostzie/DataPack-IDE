@@ -7,6 +7,7 @@ import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
+import javafx.beans.InvalidationListener
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.IntegerProperty
 import javafx.beans.property.SimpleBooleanProperty
@@ -14,6 +15,7 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import javafx.beans.value.ChangeListener
 import javafx.collections.ObservableSet
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
@@ -37,7 +39,11 @@ class TextEditorViewModel {
         val filePath: Path,
         val displayName: String,
         val codeArea: CodeArea,
-        val isDirty: BooleanProperty = SimpleBooleanProperty(false)
+        val isDirty: BooleanProperty = SimpleBooleanProperty(false),
+        // Listeners to be managed for cleanup
+        var isDirtyListener: ChangeListener<Boolean>? = null,
+        var textListener: InvalidationListener? = null,
+        var caretListener: InvalidationListener? = null
     )
 
     // Observable list of all open tabs
@@ -104,24 +110,24 @@ class TextEditorViewModel {
                 codeArea = codeArea
             )
 
-            tabData.isDirty.addListener { _, _, isDirty ->
+            tabData.isDirtyListener = ChangeListener { _, _, isDirty ->
                 if (isDirty) {
                     dirtyFiles.add(tabData.filePath)
                 } else {
                     dirtyFiles.remove(tabData.filePath)
                 }
-            }
+            }.also { tabData.isDirty.addListener(it) }
 
-            codeArea.textProperty().addListener { _, _, _ ->
+            tabData.textListener = InvalidationListener {
                 if (!tabData.isDirty.get()) {
                     tabData.isDirty.set(true)
                 }
-            }
+            }.also { codeArea.textProperty().addListener(it) }
 
             // Listen for caret position changes to update line and column numbers
-            codeArea.caretPositionProperty().addListener { _, _, _ ->
+            tabData.caretListener = InvalidationListener {
                 updateLineAndColumn(codeArea)
-            }
+            }.also { codeArea.caretPositionProperty().addListener(it) }
 
             tabs.add(tabData)
             activeTab.set(tabData)
@@ -162,6 +168,14 @@ class TextEditorViewModel {
         } catch (e: Exception) {
             logger.error("Failed to auto-save before closing: ${tabData.displayName}", e)
         }
+
+        // Remove listeners to prevent memory leaks
+        tabData.isDirtyListener?.let { tabData.isDirty.removeListener(it) }
+        tabData.textListener?.let { tabData.codeArea.textProperty().removeListener(it) }
+        tabData.caretListener?.let { tabData.codeArea.caretPositionProperty().removeListener(it) }
+        tabData.isDirtyListener = null
+        tabData.textListener = null
+        tabData.caretListener = null
 
         tabs.remove(tabData)
 

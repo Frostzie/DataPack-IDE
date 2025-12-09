@@ -114,7 +114,7 @@ class SettingsNav : VBox() {
     fun onSearchResultsAvailable(event: SettingsSearchResultsAvailable) {
         if (event.query.isBlank()) {
             categoryTreeView.root = originalRoot
-            if (categoryTreeView.root.children.isNotEmpty()) {
+            if (originalRoot?.children?.isNotEmpty() == true) {
                 categoryTreeView.selectionModel.select(1)
             }
             return
@@ -127,7 +127,11 @@ class SettingsNav : VBox() {
             val newMainCategoryItem = TreeItem(mainCategoryItem.value)
 
             mainCategoryItem.children.forEach { subCategoryItem ->
-                val fieldsForSubCategory = SettingsManager.getNestedCategories(subCategoryItem.value.configClass!!)[subCategoryItem.value.subCategory!!]
+                val configClass = subCategoryItem.value.configClass
+                val subCategory = subCategoryItem.value.subCategory
+                val fieldsForSubCategory = if (configClass != null && subCategory != null) {
+                    SettingsManager.getNestedCategories(configClass)[subCategory]
+                } else null
                 val hasMatch = fieldsForSubCategory?.any { it in matchingFields } == true
 
                 if (hasMatch) {
@@ -150,5 +154,9 @@ class SettingsNav : VBox() {
             val itemToSelect = if (firstItem.children.isNotEmpty()) firstItem.children.first() else firstItem
             categoryTreeView.selectionModel.select(itemToSelect)
         }
+    }
+
+    fun cleanup() {
+        EventBus.unregister(this)
     }
 }

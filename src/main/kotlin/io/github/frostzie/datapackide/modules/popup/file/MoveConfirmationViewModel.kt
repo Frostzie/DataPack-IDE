@@ -22,9 +22,17 @@ class MoveConfirmationViewModel(
     fun confirm(): Boolean {
         error.set(null)
         try {
-            val newTargetDirPath = Path.of(targetDirectory.get())
+            val targetDirValue = targetDirectory.get()?.takeIf { it.isNotBlank() } ?: run {
+                error.set("Target directory cannot be empty")
+                return false
+            }
+            val newTargetDirPath = Path.of(targetDirValue)
             if (Files.isDirectory(newTargetDirPath)) {
-                val newTargetPath = newTargetDirPath.resolve(sourcePath.fileName)
+                val fileName = sourcePath.fileName ?: run {
+                    error.set("Invalid file name")
+                    return false
+                }
+                val newTargetPath = newTargetDirPath.resolve(fileName)
                 EventBus.post(MoveFile(sourcePath, newTargetPath))
                 return true
             } else {
