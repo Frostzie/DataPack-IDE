@@ -1,8 +1,8 @@
 package io.github.frostzie.datapackide.settings.categories
 
 import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.ReloadTheme
-import io.github.frostzie.datapackide.events.ResetDefaultTheme
+import io.github.frostzie.datapackide.events.ReloadCSSEvent
+import io.github.frostzie.datapackide.events.ResetAssetsEvent
 import io.github.frostzie.datapackide.settings.annotations.*
 import javafx.beans.property.SimpleBooleanProperty
 
@@ -12,13 +12,13 @@ object AdvancedConfig {
     @ConfigCategory(name = "Dev")
     @ConfigOption(name = "Reload Styles", desc = "Reloads all css styles from configs")
     @ConfigEditorButton(text = "Reload All Styles")
-    val reloadStyles: () -> Unit = { EventBus.post(ReloadTheme()) }
+    val reloadStyles: () -> Unit = { EventBus.post(ReloadCSSEvent()) }
 
     @Expose
     @ConfigCategory(name = "Dev")
     @ConfigOption(name = "Reset All Styles", desc = "Resets all styles to their default state")
     @ConfigEditorButton(text = "Reset Styles")
-    val resetStylesToDefault: () -> Unit = { EventBus.post(ResetDefaultTheme()) }
+    val resetStylesToDefault: () -> Unit = { EventBus.post(ResetAssetsEvent()) }
 
     @Expose
     @ConfigCategory(name = "Debug")

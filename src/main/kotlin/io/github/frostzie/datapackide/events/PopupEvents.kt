@@ -9,6 +9,7 @@ class SettingsWindowOpen
 
 // Settings events
 class SettingsSave
+class CloseSettingsEvent
 data class SettingsSearchQueryChanged(val query: String)
 data class SettingsSearchResultsAvailable(val query: String, val results: List<SearchResult>)
 data class SettingsSearchResultSelected(val result: SearchResult)

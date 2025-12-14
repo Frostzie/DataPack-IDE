@@ -2,6 +2,7 @@ package io.github.frostzie.datapackide.settings.categories
 
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.ImportThemeEvent
+import io.github.frostzie.datapackide.events.OpenThemeEvent
 import io.github.frostzie.datapackide.settings.annotations.*
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
@@ -35,4 +36,10 @@ object ThemeConfig {
     @ConfigOption(name = "Import Custom Theme", desc = "Select a .css theme file to import and apply.")
     @ConfigEditorButton(text = "Import")
     val importTheme: () -> Unit = { EventBus.post(ImportThemeEvent()) }
+
+    @Expose
+    @ConfigCategory(name = "Custom Themes")
+    @ConfigOption(name = "Edit Selected Theme", desc = "Open the selected custom theme's CSS file in the editor.")
+    @ConfigEditorButton(text = "Edit")
+    val editTheme: () -> Unit = { EventBus.post(OpenThemeEvent()) }
 }

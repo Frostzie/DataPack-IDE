@@ -3,6 +3,7 @@ package io.github.frostzie.datapackide.modules.popup.settings
 import io.github.frostzie.datapackide.events.*
 import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
 import io.github.frostzie.datapackide.settings.SettingsManager
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.settings.data.CategoryItem
 import io.github.frostzie.datapackide.settings.data.CategoryType
 import io.github.frostzie.datapackide.settings.data.ConfigField
@@ -10,6 +11,7 @@ import io.github.frostzie.datapackide.settings.data.SearchResult
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.scene.control.Dialog
 import io.github.frostzie.datapackide.utils.UIConstants
+import io.github.frostzie.datapackide.utils.ThemeManager
 import javafx.beans.value.ChangeListener
 import javafx.event.ActionEvent
 import javafx.scene.control.Button
@@ -37,6 +39,22 @@ class SettingsModule(private val parentStage: Stage) {
     }
 
     private var currentQuery: String = ""
+    private var settingsDialog: Dialog<ButtonType>? = null
+
+    init {
+        EventBus.register(this)
+    }
+
+    @SubscribeEvent @Suppress("unused")
+    fun onImportTheme(event: ImportThemeEvent) {
+        ThemeManager.importTheme(parentStage)
+    }
+
+    @SubscribeEvent @Suppress("unused")
+    fun onCloseSettings(event: CloseSettingsEvent) {
+        saveSettings()
+        settingsDialog?.close()
+    }
 
     /**
      * Initiates a search for settings based on the provided query string.
@@ -117,28 +135,31 @@ class SettingsModule(private val parentStage: Stage) {
     fun showSettingsWindow() {
         val view = SettingsView()
 
-        val dialog = Dialog<ButtonType>()
-        dialog.title = "Settings"
-        dialog.isResizable = true
-        dialog.dialogPane.content = view
-        dialog.dialogPane.style = "-fx-font-size: ${ThemeConfig.fontSize.get()}px;"
+        settingsDialog = Dialog<ButtonType>().apply {
+            title = "Settings"
+            isResizable = true
+            dialogPane.content = view
+            dialogPane.style = "-fx-font-size: ${ThemeConfig.fontSize.get()}px;"
 
-        dialog.initOwner(parentStage)
-        dialog.dialogPane.minWidth = UIConstants.SETTINGS_MIN_WIDTH
-        dialog.dialogPane.minHeight = UIConstants.SETTINGS_MIN_HEIGHT
-        dialog.dialogPane.prefWidth = UIConstants.SETTINGS_WIDTH
-        dialog.dialogPane.prefHeight = UIConstants.SETTINGS_HEIGHT
+            initOwner(parentStage)
+            dialogPane.minWidth = UIConstants.SETTINGS_MIN_WIDTH
+            dialogPane.minHeight = UIConstants.SETTINGS_MIN_HEIGHT
+            dialogPane.prefWidth = UIConstants.SETTINGS_WIDTH
+            dialogPane.prefHeight = UIConstants.SETTINGS_HEIGHT
 
-        val applyBtn = ButtonType("Apply", ButtonBar.ButtonData.APPLY)
-        val closeBtn = ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE)
-        dialog.dialogPane.buttonTypes.addAll(applyBtn, closeBtn)
+            val applyBtn = ButtonType("Apply", ButtonBar.ButtonData.APPLY)
+            val closeBtn = ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE)
+            dialogPane.buttonTypes.addAll(applyBtn, closeBtn)
 
-        val applyButton = dialog.dialogPane.lookupButton(applyBtn) as Button
-        applyButton.isDefaultButton = false
-        applyButton.addEventFilter(ActionEvent.ACTION) { event ->
-            saveSettings()
-            event.consume() // Prevents the dialog from closing
+            val applyButton = dialogPane.lookupButton(applyBtn) as Button
+            applyButton.isDefaultButton = false
+            applyButton.addEventFilter(ActionEvent.ACTION) { event ->
+                saveSettings()
+                event.consume() // Prevents the dialog from closing
+            }
         }
+
+        val dialog = settingsDialog ?: return // Should not be null here
 
         val fontSizeListener = ChangeListener<Number> { _, _, _ ->
             dialog.dialogPane.style = "-fx-font-size: ${ThemeConfig.fontSize.get()}px;"
@@ -149,6 +170,7 @@ class SettingsModule(private val parentStage: Stage) {
 
         ThemeConfig.fontSize.removeListener(fontSizeListener)
         saveSettings()
+        settingsDialog = null // Cleanup reference
     }
 
     /**

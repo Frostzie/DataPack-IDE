@@ -1,21 +1,32 @@
 package io.github.frostzie.datapackide.utils
 
 import atlantafx.base.theme.*
+import io.github.frostzie.datapackide.config.ConfigManager
 import javafx.application.Application
+import kotlin.io.path.exists
 
 object ThemeUtils {
 
     fun applyTheme(themeName: String) {
-        val theme = when (themeName) {
-            "Primer Light" -> PrimerLight()
-            "Primer Dark" -> PrimerDark()
-            "Nord Light" -> NordLight()
-            "Nord Dark" -> NordDark()
-            "Cupertino Light" -> CupertinoLight()
-            "Cupertino Dark" -> CupertinoDark()
-            "Dracula" -> Dracula()
-            else -> PrimerDark() // Default theme
+        val themeStylesheetUrl = when (themeName) {
+            "Primer Light" -> PrimerLight().userAgentStylesheet
+            "Primer Dark" -> PrimerDark().userAgentStylesheet
+            "Nord Light" -> NordLight().userAgentStylesheet
+            "Nord Dark" -> NordDark().userAgentStylesheet
+            "Cupertino Light" -> CupertinoLight().userAgentStylesheet
+            "Cupertino Dark" -> CupertinoDark().userAgentStylesheet
+            "Dracula" -> Dracula().userAgentStylesheet
+            else -> {
+                val customThemeFile = ConfigManager.configDir.resolve("themes").resolve("$themeName.css")
+                if (customThemeFile.exists()) {
+                    customThemeFile.toUri().toString()
+                } else {
+                    // Default to Primer Dark if custom theme not found
+                    //TODO: Show notif of error
+                    PrimerDark().userAgentStylesheet
+                }
+            }
         }
-        Application.setUserAgentStylesheet(theme.userAgentStylesheet)
+        Application.setUserAgentStylesheet(themeStylesheetUrl)
     }
 }

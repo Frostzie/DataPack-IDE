@@ -1,9 +1,11 @@
 package io.github.frostzie.datapackide.utils.ui
 
 import io.github.frostzie.datapackide.settings.annotations.ConfigEditorSlider
+import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 import io.github.frostzie.datapackide.settings.data.*
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import atlantafx.base.controls.ToggleSwitch
+import io.github.frostzie.datapackide.utils.ThemeManager
 import io.github.frostzie.datapackide.utils.ui.controls.KeybindInputButton
 import javafx.geometry.Pos
 import javafx.scene.control.*
@@ -69,7 +71,12 @@ object SettingsControlBuilder {
             is DropdownConfigField -> {
                 val prop = field.property.get(field.objectInstance)
                 val comboBox = ComboBox<String>().apply {
-                    items.addAll(*field.dropdownAnnotation.values)
+                    //TODO: Remove this by make the Theme have their own nicer screen rather then just a dropdown.
+                    if (field.objectInstance is ThemeConfig && field.property.name == "theme") {
+                        items = ThemeManager.availableThemes
+                    } else {
+                        items.addAll(*field.dropdownAnnotation.values)
+                    }
                     valueProperty().bindBidirectional(prop)
                 }
                 Tiles.LargeTile(field.name, field.description.takeIf { it.isNotEmpty() }, comboBox)

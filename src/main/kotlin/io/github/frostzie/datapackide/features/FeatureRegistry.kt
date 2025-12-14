@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.features
 
 import io.github.frostzie.datapackide.features.editor.CaretColor
+import io.github.frostzie.datapackide.features.editor.ConfigTabDecorator
 import io.github.frostzie.datapackide.features.editor.DirtyTabDecorator
 import io.github.frostzie.datapackide.features.editor.DirtyTextColorDecorator
 import io.github.frostzie.datapackide.features.editor.EditorTabDecorator
@@ -21,6 +22,7 @@ object FeatureRegistry {
         DirtyTabDecorator(),
         DirtyTextColorDecorator(),
         FileIconDecorator(),
-        CaretColor()
+        CaretColor(),
+        ConfigTabDecorator()
     )
 }

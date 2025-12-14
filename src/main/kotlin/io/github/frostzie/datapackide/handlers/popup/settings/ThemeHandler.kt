@@ -1,12 +1,14 @@
 package io.github.frostzie.datapackide.handlers.popup.settings
 
 import io.github.frostzie.datapackide.config.AssetsConfig
-import io.github.frostzie.datapackide.events.ReloadTheme
-import io.github.frostzie.datapackide.events.ResetDefaultTheme
+import io.github.frostzie.datapackide.events.OpenThemeEvent
+import io.github.frostzie.datapackide.events.ReloadCSSEvent
+import io.github.frostzie.datapackide.events.ResetAssetsEvent
 import io.github.frostzie.datapackide.modules.popup.settings.ThemeModule
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.CSSManager
 import io.github.frostzie.datapackide.events.ThemeChangeEvent
+import io.github.frostzie.datapackide.utils.ThemeManager
 import io.github.frostzie.datapackide.utils.ThemeUtils
 
 class ThemeHandler(private val themeModule: ThemeModule) {
@@ -17,13 +19,18 @@ class ThemeHandler(private val themeModule: ThemeModule) {
     }
 
     @SubscribeEvent
-    fun onReloadTheme(event: ReloadTheme) {
+    fun onReloadTheme(event: ReloadCSSEvent) {
         CSSManager.reloadAllStyles(*themeModule.scenes.toTypedArray())
     }
 
     @SubscribeEvent
-    fun onResetDefaultTheme(event: ResetDefaultTheme) {
+    fun onResetDefaultTheme(event: ResetAssetsEvent) {
         AssetsConfig.forceTransferAllStyleAssets()
         CSSManager.reloadAllStyles(*themeModule.scenes.toTypedArray())
+    }
+
+    @SubscribeEvent
+    fun onOpenTheme(event: OpenThemeEvent) {
+        ThemeManager.openTheme(event)
     }
 }
