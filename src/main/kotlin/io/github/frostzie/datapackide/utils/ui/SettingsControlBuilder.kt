@@ -85,6 +85,13 @@ object SettingsControlBuilder {
             is TextAreaConfigField -> {
                 val prop = field.property.get(field.objectInstance)
                 val textArea = TextArea().apply {
+                    textFormatter = TextFormatter<String> { change ->
+                        if (change.controlNewText.length > 1000) {
+                            null
+                        } else {
+                            change
+                        }
+                    }
                     textProperty().bindBidirectional(prop)
                     isWrapText = true
                 }
@@ -190,6 +197,13 @@ object SettingsControlBuilder {
             is TextFieldConfigField -> {
                 val prop = field.property.get(field.objectInstance)
                 val textField = TextField().apply {
+                    textFormatter = TextFormatter<String> { change ->
+                        if (change.controlNewText.length > 1000) {
+                            null
+                        } else {
+                            change
+                        }
+                    }
                     textProperty().bindBidirectional(prop)
                 }
                 Tiles.LowTile(field.name, field.description.takeIf { it.isNotEmpty() }, textField)
