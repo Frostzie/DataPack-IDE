@@ -59,7 +59,6 @@ class TextEditorViewModel {
 
     init {
         EventBus.register(this)
-        logger.info("TextEditorViewModel initialized and registered with EventBus.")
     }
 
     /**
@@ -159,7 +158,7 @@ class TextEditorViewModel {
      * Closes the specified tab and auto-saves before closing
      */
     fun closeTab(tabData: TabData) {
-        logger.info("Closing tab: ${tabData.displayName}")
+        logger.debug("Closing tab: ${tabData.displayName}")
 
         // Auto-save before closing
         try {

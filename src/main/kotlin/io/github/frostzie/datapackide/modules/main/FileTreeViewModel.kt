@@ -32,7 +32,6 @@ class FileTreeViewModel {
 
     init {
         EventBus.register(this)
-        logger.info("FileTreeViewModel initialized and registered with EventBus.")
     }
 
     fun setWindowFocused(focused: Boolean) {
@@ -56,7 +55,7 @@ class FileTreeViewModel {
     fun onDirectorySelected(event: DirectorySelected) {
         val previousRoot = rootDirectory
         rootDirectory = event.directoryPath
-        logger.info("Directory selected: ${event.directoryPath}")
+        logger.debug("Directory selected: ${event.directoryPath}")
 
         if (previousRoot != event.directoryPath) {
             // Make stop/create/start atomic so setWindowFocused or cleanup cannot observe an inconsistent state.

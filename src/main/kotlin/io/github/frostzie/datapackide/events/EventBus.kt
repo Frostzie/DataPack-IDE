@@ -43,7 +43,7 @@ object EventBus {
         }
 
         handlerMap[handler] = registered
-        logger.info("Registered handler ${handler::class.simpleName} with ${registered.size} subscribers")
+        logger.debug("Registered handler ${handler::class.simpleName} with ${registered.size} subscribers")
     }
 
     fun unregister(handler: Any) {
@@ -52,7 +52,7 @@ object EventBus {
             listeners[eventClass]?.remove(fn)
             if (listeners[eventClass]?.isEmpty() == true) listeners.remove(eventClass)
         }
-        logger.info("Unregistered handler ${handler::class.simpleName}")
+        logger.debug("Unregistered handler ${handler::class.simpleName}")
     }
 
     fun post(event: Any) {

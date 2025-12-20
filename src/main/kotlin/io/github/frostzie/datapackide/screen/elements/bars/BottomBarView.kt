@@ -11,10 +11,6 @@ import javafx.scene.layout.Region
 
 class BottomBarView() : ToolBar() {
 
-    companion object {
-        private val LOGGER = LoggerProvider.getLogger("StatusBar")
-    }
-
     private val cursorLabel = Label()
     private val encodingLabel = Label()
     private val ideVersionLabel = Label()
@@ -23,7 +19,6 @@ class BottomBarView() : ToolBar() {
         styleClass.add("status-bar")
         createStatusElements()
         bindProperties()
-        LOGGER.info("Status bar initialized")
     }
 
     private fun createStatusElements() {

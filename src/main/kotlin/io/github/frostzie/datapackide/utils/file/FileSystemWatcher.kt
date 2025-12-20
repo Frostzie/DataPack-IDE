@@ -42,7 +42,7 @@ class FileSystemWatcher(private val watchPath: Path) {
             registerRecursive(watchPath)
 
             watchThread = thread(name = "FileSystemWatcher") {
-                logger.info("Started watching directory: $watchPath")
+                logger.debug("Started watching directory: {}", watchPath)
                 pollEvents()
             }
         } catch (e: Exception) {

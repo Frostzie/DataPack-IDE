@@ -44,8 +44,6 @@ class TextEditorView : VBox() {
 
         children.addAll(tabLine, contentArea)
         setVgrow(contentArea, Priority.ALWAYS)
-
-        logger.info("TextEditorView initialized")
     }
 
     /**
