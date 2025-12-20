@@ -131,6 +131,11 @@ class TextEditorViewModel {
             tabs.add(tabData)
             activeTab.set(tabData)
 
+            Platform.runLater {
+                codeArea.moveTo(0)
+                codeArea.requestFollowCaret()
+            }
+
             logger.debug("Tab created for file: {}", filePath.fileName)
 
         } catch (e: Exception) {

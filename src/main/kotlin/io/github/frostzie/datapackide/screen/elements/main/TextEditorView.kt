@@ -6,6 +6,7 @@ import atlantafx.base.theme.Styles
 import io.github.frostzie.datapackide.features.FeatureRegistry
 import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import javafx.application.Platform
 import javafx.beans.value.ChangeListener
 import javafx.collections.ListChangeListener
 import javafx.geometry.Pos
@@ -181,6 +182,10 @@ class TextEditorView : VBox() {
         val tab = tabLine.tabs.find { it.id == tabData.id }
         if (tab != null && tabLine.selectionModel.selectedItem != tab) {
             tabLine.selectionModel.select(tab)
+        }
+
+        Platform.runLater {
+            tabData.codeArea.requestFocus()
         }
 
         logger.debug("Switched to tab: ${tabData.displayName}, ID: ${tabData.id}")

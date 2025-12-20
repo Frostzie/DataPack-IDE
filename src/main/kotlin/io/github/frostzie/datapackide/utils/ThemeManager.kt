@@ -7,6 +7,7 @@ import io.github.frostzie.datapackide.events.OpenFile
 import io.github.frostzie.datapackide.events.OpenThemeEvent
 import io.github.frostzie.datapackide.events.ThemeChangeEvent
 import io.github.frostzie.datapackide.settings.categories.ThemeConfig.theme
+import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.scene.control.Alert
@@ -116,8 +117,8 @@ object ThemeManager {
         val themeName = theme.get()
         val customThemePath = customThemesDir.toPath().resolve("$themeName.css")
         if (Files.exists(customThemePath)) {
-            EventBus.post(OpenFile(customThemePath))
             EventBus.post(CloseSettingsEvent())
+            EventBus.post(OpenFile(customThemePath))
         } else {
             val alert = Alert(Alert.AlertType.WARNING)
             alert.title = "Cannot Edit Theme"
