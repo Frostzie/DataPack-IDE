@@ -1,11 +1,14 @@
 package io.github.frostzie.datapackide.features
 
 import io.github.frostzie.datapackide.features.editor.CaretColor
-import io.github.frostzie.datapackide.features.editor.ConfigTabDecorator
 import io.github.frostzie.datapackide.features.editor.DirtyTabDecorator
-import io.github.frostzie.datapackide.features.editor.DirtyTextColorDecorator
 import io.github.frostzie.datapackide.features.editor.EditorTabDecorator
 import io.github.frostzie.datapackide.features.editor.FileIconDecorator
+import io.github.frostzie.datapackide.styling.tabs.TabStyleManager
+import io.github.frostzie.datapackide.styling.tabs.TabStyler
+import io.github.frostzie.datapackide.styling.tabs.rules.ConfigRule
+import io.github.frostzie.datapackide.styling.tabs.rules.DefaultRule
+import io.github.frostzie.datapackide.styling.tabs.rules.DirtyStateRule
 
 /**
  * A central registry for discovering and accessing all feature services.
@@ -19,10 +22,16 @@ object FeatureRegistry {
      */
     //TODO: split up
     val editorTabDecorators: List<EditorTabDecorator> = listOf(
+        TabStyler(),
         DirtyTabDecorator(),
-        DirtyTextColorDecorator(),
         FileIconDecorator(),
-        CaretColor(),
-        ConfigTabDecorator()
+        CaretColor()
     )
+
+    init {
+        //Register the style rules with the central TabStyleManager.
+        TabStyleManager.registerRule(DefaultRule())
+        TabStyleManager.registerRule(DirtyStateRule())
+        TabStyleManager.registerRule(ConfigRule())
+    }
 }
