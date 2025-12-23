@@ -13,6 +13,7 @@ import io.github.frostzie.datapackide.modules.popup.file.FilePopupModule
 import io.github.frostzie.datapackide.modules.popup.settings.SettingsModule
 import io.github.frostzie.datapackide.handlers.popup.settings.ThemeHandler
 import io.github.frostzie.datapackide.modules.popup.settings.ThemeModule
+import io.github.frostzie.datapackide.styling.common.NotificationMessageArea
 import io.github.frostzie.datapackide.screen.elements.bars.BottomBarView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
 import io.github.frostzie.datapackide.screen.elements.bars.top.ToolBarMenu
@@ -159,7 +160,7 @@ class MainApplication {
             root.center = centerContent
             root.bottom = bottomBarView
 
-            val rootStack = StackPane(root, toolBarMenu!!.modalPane)
+            val rootStack = StackPane(root, toolBarMenu!!.modalPane, NotificationMessageArea)
 
             setupStageDimensions(stage, root)
 

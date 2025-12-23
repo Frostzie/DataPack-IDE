@@ -9,6 +9,10 @@ import io.github.frostzie.datapackide.styling.tabs.TabStyler
 import io.github.frostzie.datapackide.styling.tabs.rules.ConfigRule
 import io.github.frostzie.datapackide.styling.tabs.rules.DefaultRule
 import io.github.frostzie.datapackide.styling.tabs.rules.DirtyStateRule
+import io.github.frostzie.datapackide.styling.messages.MessageStyleManager
+import io.github.frostzie.datapackide.styling.messages.rules.CustomIconRule
+import io.github.frostzie.datapackide.styling.messages.rules.DefaultMessageRule
+import io.github.frostzie.datapackide.styling.messages.rules.SeverityMessageRule
 
 /**
  * A central registry for discovering and accessing all feature services.
@@ -33,5 +37,10 @@ object FeatureRegistry {
         TabStyleManager.registerRule(DefaultRule())
         TabStyleManager.registerRule(DirtyStateRule())
         TabStyleManager.registerRule(ConfigRule())
+
+        // Register message style rules
+        MessageStyleManager.registerRule(DefaultMessageRule())
+        MessageStyleManager.registerRule(SeverityMessageRule())
+        MessageStyleManager.registerRule(CustomIconRule())
     }
 }

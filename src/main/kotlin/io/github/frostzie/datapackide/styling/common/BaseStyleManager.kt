@@ -36,7 +36,7 @@ abstract class BaseStyleManager<C, S : DynamicStyle>(
      * @param context The data context for the component to be styled.
      * @return The final, consolidated style model.
      */
-    fun evaluate(context: C): S {
+    open fun evaluate(context: C): S {
         val matchingRules = rules
             .filter { it.appliesTo(context) }
             .sortedBy { it.priority }
