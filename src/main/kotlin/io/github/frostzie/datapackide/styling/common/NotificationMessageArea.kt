@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.styling.common
 
 import atlantafx.base.controls.Message
+import atlantafx.base.controls.Notification
 import io.github.frostzie.datapackide.styling.messages.NotificationPosition
 import javafx.application.Platform
 import javafx.geometry.Insets
@@ -64,12 +65,7 @@ object NotificationMessageArea : StackPane() {
             return
         }
 
-        val container = when (position) {
-            NotificationPosition.TOP_LEFT -> topLeftContainer
-            NotificationPosition.TOP_RIGHT -> topRightContainer
-            NotificationPosition.BOTTOM_LEFT -> bottomLeftContainer
-            NotificationPosition.BOTTOM_RIGHT -> bottomRightContainer
-        }
+        val container = getContainer(position)
 
         // Enforce container size limits on the message
         if (container.maxWidth > 0) {
@@ -116,6 +112,66 @@ object NotificationMessageArea : StackPane() {
     }
 
     /**
+     * Shows a notification in the overlay.
+     */
+    fun show(notification: Notification, position: NotificationPosition, durationMillis: Long = 5000, maxMessages: Int = 5) {
+        // Ensure UI updates happen on JavaFX thread
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater { show(notification, position, durationMillis, maxMessages) }
+            return
+        }
+
+        val container = getContainer(position)
+
+        // Enforce container size limits on the notification
+        if (container.maxWidth > 0) {
+            if (notification.minWidth > container.maxWidth) notification.minWidth = container.maxWidth
+            if (notification.prefWidth > container.maxWidth) notification.prefWidth = container.maxWidth
+            if (notification.maxWidth > container.maxWidth) notification.maxWidth = container.maxWidth
+        }
+
+        if (container.maxHeight > 0) {
+            if (notification.minHeight > container.maxHeight) notification.minHeight = container.maxHeight
+            if (notification.prefHeight > container.maxHeight) notification.prefHeight = container.maxHeight
+            if (notification.maxHeight > container.maxHeight) notification.maxHeight = container.maxHeight
+        }
+
+        // Manage Capacity (Count)
+        manageCapacity(container, position, maxMessages)
+
+        // Manage Capacity (Height/Bounds)
+        manageBounds(container, notification, position)
+
+        // Add to container
+        if (position == NotificationPosition.TOP_LEFT || position == NotificationPosition.TOP_RIGHT) {
+            container.children.add(0, notification)
+        } else {
+            container.children.add(notification)
+        }
+
+        notification.setOnClose {
+            closeMessage(container, notification)
+        }
+
+        if (durationMillis > 0) {
+            Timer().schedule(durationMillis) {
+                Platform.runLater {
+                    if (container.children.contains(notification)) {
+                        closeMessage(container, notification)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getContainer(position: NotificationPosition): VBox = when (position) {
+        NotificationPosition.TOP_LEFT -> topLeftContainer
+        NotificationPosition.TOP_RIGHT -> topRightContainer
+        NotificationPosition.BOTTOM_LEFT -> bottomLeftContainer
+        NotificationPosition.BOTTOM_RIGHT -> bottomRightContainer
+    }
+
+    /**
      * Manages the number of messages in a container, removing the oldest ones if the `maxMessages` limit is exceeded.
      *
      * @param container The [VBox] holding the messages.
@@ -133,10 +189,10 @@ object NotificationMessageArea : StackPane() {
      * would exceed the container's `maxHeight`.
      *
      * @param container The [VBox] holding the messages.
-     * @param newMessage The new [Message] being added.
+     * @param newMessage The new [Node] being added.
      * @param position The corner position, used to determine which message is "oldest".
      */
-    private fun manageBounds(container: VBox, newMessage: Message, position: NotificationPosition) {
+    private fun manageBounds(container: VBox, newMessage: Node, position: NotificationPosition) {
         val maxHeight = container.maxHeight
         if (maxHeight <= 0) return // No limit
 
@@ -175,7 +231,7 @@ object NotificationMessageArea : StackPane() {
         // Bottom: Oldest at start
         val index = if (isTop) container.children.size - 1 else 0
         if (index in container.children.indices) {
-            closeMessage(container, container.children[index] as Message)
+            closeMessage(container, container.children[index])
         }
     }
 
@@ -196,10 +252,10 @@ object NotificationMessageArea : StackPane() {
      * Removes a message from its container.
      *
      * @param container The parent [VBox].
-     * @param message The [Message] to remove.
+     * @param node The [Node] to remove.
      */
-    private fun closeMessage(container: VBox, message: Message) {
+    private fun closeMessage(container: VBox, node: Node) {
         // TODO: Fade out animation
-        container.children.remove(message)
+        container.children.remove(node)
     }
 }

@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.settings.categories
 
 import io.github.frostzie.datapackide.features.dev.showcase.MessageShowcase
+import io.github.frostzie.datapackide.features.dev.showcase.NotificationShowcase
 import io.github.frostzie.datapackide.settings.KeyCombination
 import io.github.frostzie.datapackide.settings.annotations.*
 import javafx.beans.property.SimpleBooleanProperty
@@ -127,4 +128,58 @@ object ExampleConfig {
     @ConfigOption(name = "Trigger", desc = "Click to show the message")
     @ConfigEditorButton(text = "Show Message")
     val showMessage: () -> Unit = { MessageShowcase.showExampleMessage() }
+
+    @Expose
+    @ConfigCategory(name = "Notification Showcase")
+    @ConfigOption(name = "Text", desc = "Text content of the notification\nYeah Yeah same thing here art it's fine...")
+    @ConfigEditorTextArea
+    val notificationText = SimpleStringProperty("This is a notification.")
+
+    @Expose
+    @ConfigCategory(name = "Notification Showcase")
+    @ConfigOption(name = "Severity", desc = "Visual style of the notification")
+    @ConfigEditorDropdown(values = ["REGULAR", "INFO", "SUCCESS", "WARNING", "DANGER"])
+    val notificationSeverity = SimpleStringProperty("INFO")
+
+    @Expose
+    @ConfigCategory(name = "Notification Showcase")
+    @ConfigOption(name = "Position", desc = "Screen corner for the notification")
+    @ConfigEditorDropdown(values = ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"])
+    val notificationPosition = SimpleStringProperty("BOTTOM_RIGHT")
+
+    @Expose
+    @ConfigCategory(name = "Notification Showcase")
+    @ConfigOption(name = "Duration (ms)", desc = "How long the notification stays visible")
+    @ConfigEditorSlider(minValue = 500.0, maxValue = 10000.0, stepSize = 500.0)
+    val notificationDuration = SimpleDoubleProperty(3000.0)
+
+    @Expose
+    @ConfigCategory(name = "Notification Showcase")
+    @ConfigOption(name = "Width", desc = "Custom width (0 = default)")
+    @ConfigEditorSlider(minValue = 0.0, maxValue = 600.0, stepSize = 25.0)
+    val notificationWidth = SimpleDoubleProperty(0.0)
+
+    @Expose
+    @ConfigCategory(name = "Notification Showcase")
+    @ConfigOption(name = "Height", desc = "Custom height (0 = default)")
+    @ConfigEditorSlider(minValue = 0.0, maxValue = 600.0, stepSize = 25.0)
+    val notificationHeight = SimpleDoubleProperty(0.0)
+
+    @Expose
+    @ConfigCategory(name = "Notification Showcase")
+    @ConfigOption(name = "Icon", desc = "Icon name (e.g. STAR, WARNING, CHECK) Using Ikonli Material2OutlinedMZ icon pack.")
+    @ConfigEditorTextField
+    val notificationIcon = SimpleStringProperty("")
+
+    @Expose
+    @ConfigCategory(name = "Notification Showcase")
+    @ConfigOption(name = "Show Actions", desc = "Add example buttons and menu items")
+    @ConfigEditorBoolean
+    val notificationShowActions = SimpleBooleanProperty(false)
+
+    @Expose
+    @ConfigCategory(name = "Notification Showcase")
+    @ConfigOption(name = "Trigger", desc = "Click to show the notification")
+    @ConfigEditorButton(text = "Show Notification")
+    val showNotification: () -> Unit = { NotificationShowcase.showExampleNotification() }
 }
