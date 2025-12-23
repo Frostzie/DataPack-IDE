@@ -25,6 +25,7 @@ object NotificationMessageArea : StackPane() {
     init {
         // Allow mouse events to pass through the empty parts of the overlay
         this.isPickOnBounds = false
+        this.styleClass.add("notification-overlay")
 
         children.addAll(topLeftContainer, topRightContainer, bottomLeftContainer, bottomRightContainer)
     }
@@ -38,7 +39,8 @@ object NotificationMessageArea : StackPane() {
     private fun createContainer(alignment: Pos): VBox {
         val box = VBox(10.0) // 10px spacing
         box.isPickOnBounds = false
-        box.padding = Insets(20.0)
+        box.styleClass.add("notification-container")
+        box.padding = Insets(50.0, 10.0, 30.0, 50.0)
 
         box.maxHeight = 400.0
         box.maxWidth = 400.0

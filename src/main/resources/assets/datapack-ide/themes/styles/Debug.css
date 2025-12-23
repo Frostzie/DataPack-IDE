@@ -59,3 +59,14 @@
 /* --- File Tree --- */
 /*.debug-layout .tree-cell { -fx-background-color: -color-bg-default; -fx-effect: innershadow(one-pass-box, brown, 4, 1, 0, 0); }
 .debug-layout .tree-cell .tree-disclosure-node { -fx-background-color: -color-bg-default; -fx-effect: innershadow(one-pass-box, purple, 4, 1, 0, 0); } */
+
+/* --- Notifications --- */
+.debug-layout .notification-overlay {
+    -fx-border-color: red;
+    -fx-border-width: 2;
+    -fx-border-style: dashed;
+}
+.debug-layout .notification-container {
+    -fx-background-color: rgba(255, 0, 255, 0.1);
+    -fx-effect: innershadow(one-pass-box, magenta, 4, 1, 0, 0);
+}
