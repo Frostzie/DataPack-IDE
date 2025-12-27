@@ -3,6 +3,9 @@ package io.github.frostzie.datapackide.modules.main
 import io.github.frostzie.datapackide.events.DirectorySelected
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MoveFile
+import io.github.frostzie.datapackide.events.WorkspaceUpdated
+import io.github.frostzie.datapackide.project.Project
+import io.github.frostzie.datapackide.project.WorkspaceManager
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeItem
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
@@ -18,98 +21,148 @@ import kotlinx.coroutines.launch
 import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 
 class FileTreeViewModel {
     private val logger = LoggerProvider.getLogger("FileTreeViewModel")
+    
+    // The invisible root of the TreeView. Its children are the Project roots.
     val root = SimpleObjectProperty<TreeItem<FileTreeItem>>()
-    var rootDirectory: Path? = null
-    private val fileWatcherLock = Any()
-    private var fileWatcher: FileSystemWatcher? = null
+    
+    // Map of a project path to its FileSystemWatcher
+    private val watchers = mutableMapOf<Path, FileSystemWatcher>()
+    private val watchersLock = Any()
+    
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    
+    // Track expanded paths for persistence
+    private val expandedPaths = mutableSetOf<Path>()
+    private var isRestoringExpansion = false
 
     init {
+        val dummyRoot = TreeItem(FileTreeItem(Paths.get("Workspace"), "Workspace"))
+        dummyRoot.isExpanded = true
+        root.set(dummyRoot)
+
         EventBus.register(this)
+        
+        // Initial load if workspace is already ready
+        updateWorkspace(WorkspaceManager.workspace.projects)
     }
 
     fun setWindowFocused(focused: Boolean) {
-        // Acquire the same lock used when replacing the watcher to avoid races.
-        synchronized(fileWatcherLock) {
-            fileWatcher?.setWindowFocused(focused)
+        synchronized(watchersLock) {
+            watchers.values.forEach { it.setWindowFocused(focused) }
         }
     }
 
     fun cleanup() {
-        scope.cancel() // Cancel all ongoing operations
-        synchronized(fileWatcherLock) {
-            fileWatcher?.stop()
-            fileWatcher = null
+        scope.cancel()
+        synchronized(watchersLock) {
+            watchers.values.forEach { it.stop() }
+            watchers.clear()
         }
         EventBus.unregister(this)
     }
 
+    /**
+     * Handles the "Open Folder" action.
+     */
     @Suppress("unused")
     @SubscribeEvent
     fun onDirectorySelected(event: DirectorySelected) {
-        val previousRoot = rootDirectory
-        rootDirectory = event.directoryPath
-        logger.debug("Directory selected: ${event.directoryPath}")
+        logger.info("Opening single directory as project: ${event.directoryPath}")
+        WorkspaceManager.openSingleProject(event.directoryPath)
+    }
 
-        if (previousRoot != event.directoryPath) {
-            // Make stop/create/start atomic so setWindowFocused or cleanup cannot observe an inconsistent state.
-            synchronized(fileWatcherLock) {
-                fileWatcher?.stop()
-                fileWatcher = FileSystemWatcher(event.directoryPath)
-                fileWatcher?.start()
-            }
-        }
+    @Suppress("unused")
+    @SubscribeEvent
+    fun onWorkspaceUpdated(event: WorkspaceUpdated) {
+        updateWorkspace(event.workspace.projects)
+    }
 
+    private fun updateWorkspace(projects: List<Project>) {
+        // Run on background thread to avoid blocking UI with IO or watcher setup
         scope.launch {
-            val children = loadChildren(event.directoryPath)
-            Platform.runLater {
-                // Read prior UI state on the FX thread
-                val currentRoot = root.get()
-                val expandedPaths =
-                    if (currentRoot != null && previousRoot == event.directoryPath) {
-                        collectExpandedPaths(currentRoot)
-                    } else emptySet()
+            synchronized(watchersLock) {
+                // 1. Identify removed projects
+                val currentPaths = watchers.keys.toSet()
+                val newPaths = projects.map { it.path }.toSet()
+                
+                val toRemove = currentPaths - newPaths
+                val toAdd = newPaths - currentPaths
 
-                val rootNode = TreeItem(FileTreeItem(event.directoryPath, event.directoryPath.fileName.toString()))
-                rootNode.isExpanded = true
-                rootNode.children.setAll(children)
-                root.set(rootNode)
-                if (expandedPaths.isNotEmpty()) {
-                    restoreExpandedPaths(rootNode, expandedPaths)
+                // Remove watchers for closed projects
+                toRemove.forEach { path ->
+                    watchers[path]?.stop()
+                    watchers.remove(path)
+                }
+
+                // Add watchers for new projects
+                toAdd.forEach { path ->
+                    val watcher = FileSystemWatcher(path)
+                    watcher.start()
+                    watchers[path] = watcher
                 }
             }
+            
+            // Load saved expansion state
+            val state = WorkspaceManager.getCurrentState()
+            isRestoringExpansion = true
+            expandedPaths.clear()
+            expandedPaths.addAll(state.expandedPaths)
+
+            // 2. Update the UI Tree
+            Platform.runLater {
+                val rootNode = root.get()
+                
+                // Remove nodes that are no longer in the project list
+                rootNode.children.removeIf { item ->
+                    val path = item.value?.path
+                    path != null && projects.none { it.path == path }
+                }
+
+                // Add or Update nodes
+                projects.forEach { project ->
+                    val existingNode = rootNode.children.find { it.value?.path == project.path }
+                    if (existingNode == null) {
+                        // Create new project node
+                        val projectNode = TreeItem(FileTreeItem(project.path, project.name))
+                        projectNode.isExpanded = true // Auto-expand project roots
+                        
+                        // Load children asynchronously
+                        scope.launch {
+                            val children = loadChildren(project.path)
+                            Platform.runLater {
+                                projectNode.children.setAll(children)
+                                restoreExpandedPaths(projectNode) // Try to restore
+                            }
+                        }
+                        rootNode.children.add(projectNode)
+                        
+                        // Add listener to project root itself
+                        addExpansionListener(projectNode, project.path)
+                    }
+                }
+                isRestoringExpansion = false
+            }
         }
     }
-
-    private fun collectExpandedPaths(node: TreeItem<FileTreeItem>): Set<Path> {
-        val expandedPaths = mutableSetOf<Path>()
-
-        fun traverse(item: TreeItem<FileTreeItem>) {
-            if (item.isExpanded && item.value != null) {
-                expandedPaths.add(item.value.path)
+    
+    private fun restoreExpandedPaths(node: TreeItem<FileTreeItem>) {
+        if (node.value == null) return
+        
+        // Check children
+        node.children.forEach { child ->
+            val childPath = child.value?.path
+            if (childPath != null && childPath in expandedPaths) {
+                child.isExpanded = true
+                restoreExpandedPaths(child)
             }
-            item.children.forEach { traverse(it) }
         }
-
-        traverse(node)
-        return expandedPaths
-    }
-
-    private fun restoreExpandedPaths(node: TreeItem<FileTreeItem>, expandedPaths: Set<Path>) {
-        fun traverse(item: TreeItem<FileTreeItem>) {
-            if (item.value != null && item.value.path in expandedPaths) {
-                item.isExpanded = true
-            }
-            item.children.forEach { traverse(it) }
-        }
-
-        traverse(node)
     }
 
     @Suppress("unused")
@@ -123,14 +176,20 @@ class FileTreeViewModel {
                 logger.warn("Atomic move not supported, falling back to standard move.")
                 Files.move(event.sourcePath, event.targetPath, StandardCopyOption.REPLACE_EXISTING)
             }
+            
+            // Reload the parent of the source and target to reflect changes
+            // Note: The FileWatcher should trigger this update.
+            // For now, we manually trigger a refresh if we can find the parent node.
+             refreshNode(event.sourcePath.parent)
+             refreshNode(event.targetPath.parent)
 
-            rootDirectory?.let {
-                onDirectorySelected(DirectorySelected(it))
-            }
         } catch (e: Exception) {
             logger.error("Failed to move file: ${event.sourcePath}", e)
-            // TODO: Show an error message to the user in the UI
         }
+    }
+    
+    private fun refreshNode(path: Path?) {
+        // Placeholder for refresh logic
     }
 
     /**
@@ -173,7 +232,7 @@ class FileTreeViewModel {
      *
      * @param startPath The initial directory to begin compaction from.
      * @return A Pair containing the final, deepest path in the chain and the compacted display name.
-     */
+     */ //TODO: Add settings to change separation character
     private fun findCompactedPath(startPath: Path): Pair<Path, String> {
         var currentPath = startPath
         val nameParts = mutableListOf(startPath.fileName.toString())
@@ -197,6 +256,8 @@ class FileTreeViewModel {
 
     private fun createNode(itemData: FileTreeItem): TreeItem<FileTreeItem> {
         val treeItem = TreeItem(itemData)
+        
+        addExpansionListener(treeItem, itemData.path)
 
         if (itemData.path.isDirectory()) {
             treeItem.children.add(TreeItem()) // Fake item for expandability
@@ -207,6 +268,7 @@ class FileTreeViewModel {
                         val children = loadChildren(itemData.path)
                         Platform.runLater {
                             treeItem.children.setAll(children)
+                            restoreExpandedPaths(treeItem) // Restore children state
                         }
                     }
                 }
@@ -214,10 +276,21 @@ class FileTreeViewModel {
         }
         return treeItem
     }
+    
+    private fun addExpansionListener(item: TreeItem<FileTreeItem>, path: Path) {
+        item.expandedProperty().addListener { _, _, isExpanded ->
+            if (isRestoringExpansion) return@addListener
+            
+            if (isExpanded) {
+                expandedPaths.add(path)
+            } else {
+                expandedPaths.remove(path)
+            }
+            WorkspaceManager.updateExpandedPaths(expandedPaths)
+        }
+    }
 
-    // TODO: implement better one later on. Useful info:
-    // https://stackoverflow.com/questions/1262239/natural-sort-order-string-comparison-in-java-is-one-built-in
-    // https://stackoverflow.com/questions/104599/sort-on-a-string-that-may-contain-a-number
+    //TODO: Move to utils
     private val naturalOrderComparator = Comparator<String> { a, b ->
         var i = 0
         var j = 0

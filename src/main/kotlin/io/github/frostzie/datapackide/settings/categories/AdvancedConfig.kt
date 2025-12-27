@@ -1,8 +1,10 @@
 package io.github.frostzie.datapackide.settings.categories
 
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.OpenProjectManagerEvent
 import io.github.frostzie.datapackide.events.ReloadCSSEvent
 import io.github.frostzie.datapackide.events.ResetAssetsEvent
+import io.github.frostzie.datapackide.events.ResetWorkspaceEvent
 import io.github.frostzie.datapackide.settings.annotations.*
 import javafx.beans.property.SimpleBooleanProperty
 
@@ -19,6 +21,18 @@ object AdvancedConfig {
     @ConfigOption(name = "Reset All Styles", desc = "Resets all styles to their default state")
     @ConfigEditorButton(text = "Reset Styles")
     val resetStylesToDefault: () -> Unit = { EventBus.post(ResetAssetsEvent()) }
+
+    @Expose
+    @ConfigCategory(name = "Dev")
+    @ConfigOption(name = "Open Project Manager", desc = "Closes the current project and returns to the start screen")
+    @ConfigEditorButton(text = "Open Project Manager")
+    val openProjectManager: () -> Unit = { EventBus.post(OpenProjectManagerEvent()) }
+
+    @Expose
+    @ConfigCategory(name = "Dev")
+    @ConfigOption(name = "Reset Workspace", desc = "Resets ALL workspace history and settings, and returns to start screen")
+    @ConfigEditorButton(text = "Reset Workspace")
+    val resetWorkspace: () -> Unit = { EventBus.post(ResetWorkspaceEvent()) }
 
     @Expose
     @ConfigCategory(name = "Debug")

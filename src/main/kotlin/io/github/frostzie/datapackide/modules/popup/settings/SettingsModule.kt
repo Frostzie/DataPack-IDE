@@ -53,6 +53,13 @@ class SettingsModule(private val parentStage: Stage) {
     @SubscribeEvent @Suppress("unused")
     fun onCloseSettings(event: CloseSettingsEvent) {
         saveSettings()
+        close()
+    }
+
+    /**
+     * Closes the settings dialog if it is open.
+     */
+    fun close() {
         settingsDialog?.close()
     }
 

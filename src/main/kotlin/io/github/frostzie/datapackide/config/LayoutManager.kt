@@ -9,10 +9,17 @@ import java.io.FileWriter
 import java.nio.file.Files
 
 data class LayoutConfig(
+    // Main IDE Window
     var x: Double = -1.0,
     var y: Double = -1.0,
     var width: Double = UIConstants.DEFAULT_WINDOW_WIDTH,
-    var height: Double = UIConstants.DEFAULT_WINDOW_HEIGHT
+    var height: Double = UIConstants.DEFAULT_WINDOW_HEIGHT,
+    
+    // Start Screen Window
+    var startScreenX: Double = -1.0,
+    var startScreenY: Double = -1.0,
+    var startScreenWidth: Double = 800.0,
+    var startScreenHeight: Double = 600.0
 )
 
 object LayoutManager {

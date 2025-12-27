@@ -51,7 +51,7 @@ class FileTreeView(private val textEditorViewModel: TextEditorViewModel) : VBox(
 
         MainConfig.showFileIcons.addListener { _ -> treeView.refresh() }
 
-        treeView.isShowRoot = true
+        treeView.isShowRoot = false
 
         // A cell factory is used to customize each cell in the tree. This includes setting up
         // mouse click listeners for opening files and handling all drag-and-drop gestures.

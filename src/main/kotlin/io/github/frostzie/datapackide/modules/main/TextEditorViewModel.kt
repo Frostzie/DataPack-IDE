@@ -3,7 +3,9 @@ package io.github.frostzie.datapackide.modules.main
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.OpenFile
 import io.github.frostzie.datapackide.events.SaveAllFiles
+import io.github.frostzie.datapackide.events.WorkspaceUpdated
 import io.github.frostzie.datapackide.modules.bars.BottomBarModule
+import io.github.frostzie.datapackide.project.WorkspaceManager
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
@@ -15,8 +17,8 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
-import javafx.beans.value.ChangeListener
 import javafx.collections.ObservableSet
+import javafx.beans.value.ChangeListener
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
 import java.nio.file.Path
@@ -57,8 +59,79 @@ class TextEditorViewModel {
     val currentLine: IntegerProperty = SimpleIntegerProperty(1)
     val currentColumn: IntegerProperty = SimpleIntegerProperty(1)
 
+    private var isRestoringSession = false
+
     init {
         EventBus.register(this)
+        
+        // Listen for tab changes to persist state
+        tabs.addListener(InvalidationListener {
+             persistState()
+        })
+        
+        activeTab.addListener { _, _, _ ->
+             persistState()
+        }
+
+        // Initial session restoration for when the VM is created after WorkspaceManager is already ready
+        Platform.runLater {
+            restoreSession()
+        }
+    }
+
+    @SubscribeEvent
+    fun onWorkspaceUpdated(event: WorkspaceUpdated) {
+        // Reload open files from session state
+        if (isRestoringSession) return
+        
+        Platform.runLater {
+            restoreSession()
+        }
+    }
+
+    private fun restoreSession() {
+        isRestoringSession = true
+        try {
+            val state = WorkspaceManager.getCurrentState()
+            val savedFiles = state.openFiles
+            val lastActive = state.activeFile
+            
+            // Close existing tabs that are not in the new session (e.g. on reset or project switch)
+            val currentPaths = tabs.map { it.filePath }.toSet()
+            val toClose = tabs.filter { it.filePath !in savedFiles }
+            
+            // Close removed tabs
+            toClose.forEach { closeTab(it, false) }
+            
+            // Open new files
+            savedFiles.forEach { path ->
+                 if (path !in currentPaths) {
+                     createNewTab(path)
+                 }
+            }
+            
+            // Restore active tab
+            if (lastActive != null) {
+                val tab = tabs.find { it.filePath == lastActive }
+                if (tab != null) {
+                    activeTab.set(tab)
+                }
+            }
+        } finally {
+            isRestoringSession = false
+        }
+    }
+    
+    private fun persistState() {
+        if (isRestoringSession) return
+        
+        val openPaths = tabs.map { it.filePath }.toSet()
+        val activePath = activeTab.get()?.filePath
+
+        val currentState = WorkspaceManager.getCurrentState()
+        if (openPaths != currentState.openFiles || activePath != currentState.activeFile) {
+             WorkspaceManager.updateOpenFiles(openPaths, activePath)
+        }
     }
 
     /**
@@ -162,7 +235,7 @@ class TextEditorViewModel {
     /**
      * Closes the specified tab and auto-saves before closing
      */
-    fun closeTab(tabData: TabData) {
+    fun closeTab(tabData: TabData, persist: Boolean = true) {
         logger.debug("Closing tab: ${tabData.displayName}")
 
         // Auto-save before closing
@@ -187,6 +260,13 @@ class TextEditorViewModel {
         if (activeTab.get() == tabData) {
             activeTab.set(tabs.firstOrNull())
         }
+        
+        if (persist) persistState()
+    }
+    
+    // Overload for API compatibility if needed elsewhere
+    fun closeTab(tabData: TabData) {
+        closeTab(tabData, true)
     }
 
     /**

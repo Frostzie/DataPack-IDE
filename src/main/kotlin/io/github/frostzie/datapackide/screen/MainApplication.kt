@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.screen
 
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.WorkspaceUpdated
 import io.github.frostzie.datapackide.handlers.bars.BottomBarHandler
 import io.github.frostzie.datapackide.handlers.bars.LeftBarHandler
 import io.github.frostzie.datapackide.handlers.bars.top.TopBarHandler
@@ -21,6 +22,9 @@ import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
 import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
+import io.github.frostzie.datapackide.screen.elements.start.StartScreenView
+import io.github.frostzie.datapackide.project.WorkspaceManager
+import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.WindowResizer
@@ -58,6 +62,11 @@ class MainApplication {
         private var settingsView: SettingsView? = null
         private var textEditorView: TextEditorView? = null
         private var contentArea: SplitPane? = null
+        
+        // View Containers
+        private var startScreenView: StartScreenView? = null
+        private var ideLayout: BorderPane? = null
+        private var rootContainer: StackPane? = null
 
         // Modules and Handlers
         private var toolBarMenu: ToolBarMenu? = null
@@ -78,6 +87,18 @@ class MainApplication {
 
         private var themeModule: ThemeModule? = null
         private var themeHandler: ThemeHandler? = null
+        
+        // Drag cleanup callback
+        private var dragCleanup: (() -> Unit)? = null
+        
+        private val workspaceHandler = object {
+            @SubscribeEvent
+            fun onWorkspaceUpdated(event: WorkspaceUpdated) {
+                JavaFXInitializer.runLater {
+                    updateMainView()
+                }
+            }
+        }
 
         fun initializeJavaFX() {
             if (!fxInitialized) {
@@ -110,8 +131,8 @@ class MainApplication {
         }
 
         private fun createMainUI(stage: Stage): Pane {
-            val root = BorderPane()
-            root.styleClass.add("window") // Add CSS class for drop shadow
+            // IDE Layout Construction
+            ideLayout = BorderPane()
             stage.icons.add(Image("assets/datapack-ide/icon.png"))
 
             toolBarMenu = ToolBarMenu()
@@ -156,36 +177,112 @@ class MainApplication {
                 HBox.setHgrow(contentArea, Priority.ALWAYS)
             }
 
-            root.top = topBarView
-            root.center = centerContent
-            root.bottom = bottomBarView
+            ideLayout!!.top = topBarView
+            ideLayout!!.center = centerContent
+            ideLayout!!.bottom = bottomBarView
+            
+            // Start Screen Construction
+            startScreenView = StartScreenView()
 
-            val rootStack = StackPane(root, toolBarMenu!!.modalPane, NotificationMessageArea)
+            // Root Container
+            rootContainer = StackPane()
+            rootContainer!!.styleClass.add("window")
+            // Wrap in modal pane stack
+            val rootStack = StackPane(rootContainer!!, toolBarMenu!!.modalPane, NotificationMessageArea)
+            setupStageDimensions(stage, rootContainer!!)
 
-            setupStageDimensions(stage, root)
-
-            val saveLayoutAction = {
-                if (stage.isIconified || topBarModule?.isMaximized == true) {
-                    // do nothing
-                } else {
-                    LayoutManager.config.x = stage.x
-                    LayoutManager.config.y = stage.y
-                    LayoutManager.config.width = stage.width
-                    LayoutManager.config.height = stage.height
-                    LayoutManager.save()
-                }
-            }
-
-            WindowDrag.makeDraggable(stage, topBarView!!, saveLayoutAction)
-
-            // The resizable wrapper should wrap the StackPane to allow resizing modal panes as well.
-            val resizableWrapper = WindowResizer.install(stage, rootStack, saveLayoutAction)
+            // The resizable wrapper should wrap the entire root stack
+            val resizableWrapper = WindowResizer.install(stage, rootStack, ::saveCurrentLayout)
             DebugManager.initialize(resizableWrapper)
 
             return resizableWrapper
         }
+        
+        private fun saveCurrentLayout() {
+            val stage = primaryStage ?: return
+            
+            if (stage.isIconified || topBarModule?.isMaximized == true) {
+                return
+            }
+            
+            val isStartScreen = rootContainer?.children?.getOrNull(0) == startScreenView
+            if (isStartScreen) {
+                LayoutManager.config.startScreenX = stage.x
+                LayoutManager.config.startScreenY = stage.y
+                LayoutManager.config.startScreenWidth = stage.width
+                LayoutManager.config.startScreenHeight = stage.height
+            } else {
+                LayoutManager.config.x = stage.x
+                LayoutManager.config.y = stage.y
+                LayoutManager.config.width = stage.width
+                LayoutManager.config.height = stage.height
+            }
+            LayoutManager.save()
+        }
 
-        private fun setupStageDimensions(stage: Stage, root: BorderPane) {
+        private fun updateMainView() {
+            if (rootContainer == null || primaryStage == null) return
+
+            val stage = primaryStage!!
+            val hasProjects = WorkspaceManager.workspace.projects.isNotEmpty()
+            logger.debug("Updating Main View. Has Projects: $hasProjects")
+
+            // Clear previous drag listener
+            dragCleanup?.invoke()
+            dragCleanup = null
+
+            if (hasProjects) {
+                if (rootContainer!!.children.isEmpty() || rootContainer!!.children[0] != ideLayout) {
+
+                    // Save Start Screen State before switching
+                    if (rootContainer!!.children.isNotEmpty() && rootContainer!!.children[0] == startScreenView) {
+                         saveCurrentLayout()
+                    }
+
+                    rootContainer!!.children.setAll(ideLayout)
+
+                    // Apply IDE State
+                    stage.width = LayoutManager.config.width
+                    stage.height = LayoutManager.config.height
+                    if (LayoutManager.config.x != -1.0) {
+                        stage.x = LayoutManager.config.x
+                        stage.y = LayoutManager.config.y
+                    } else {
+                        stage.centerOnScreen()
+                    }
+
+                    // Enable Drag for TopBar
+                    dragCleanup = WindowDrag.makeDraggable(stage, topBarView!!, ::saveCurrentLayout) { event ->
+                        topBarView!!.isOverDraggableArea(event)
+                    }
+                }
+            } else {
+                if (rootContainer!!.children.isEmpty() || rootContainer!!.children[0] != startScreenView) {
+
+                    // Save IDE State before switching
+                    if (rootContainer!!.children.isNotEmpty() && rootContainer!!.children[0] == ideLayout) {
+                         saveCurrentLayout()
+                    }
+
+                    rootContainer!!.children.setAll(startScreenView)
+
+                    // Apply Start Screen State
+                    stage.width = LayoutManager.config.startScreenWidth
+                    stage.height = LayoutManager.config.startScreenHeight
+                    if (LayoutManager.config.startScreenX != -1.0) {
+                        stage.x = LayoutManager.config.startScreenX
+                        stage.y = LayoutManager.config.startScreenY
+                    } else {
+                        stage.centerOnScreen()
+                    }
+
+                    // Enable Drag for Start Screen Header
+                    dragCleanup = WindowDrag.makeDraggable(stage, startScreenView!!.dragTarget, ::saveCurrentLayout)
+                }
+            }
+        }
+
+        private fun setupStageDimensions(stage: Stage, root: Pane) {
             val minContentWidth = UIConstants.MIN_CONTENT_WIDTH
             val minContentHeight = UIConstants.MIN_CONTENT_HEIGHT
             val maxContentWidth = Double.MAX_VALUE
@@ -225,6 +322,8 @@ class MainApplication {
             EventBus.register(filePopupHandler!!)
 
             EventBus.register(themeHandler!!)
+            
+            EventBus.register(workspaceHandler)
 
             logger.debug("Event handlers initialized")
         }
@@ -284,6 +383,7 @@ class MainApplication {
                 }
 
                 primaryStage = stage
+                updateMainView()
                 logger.info("Main IDE Window created with ResizeHandler (hidden)!")
             } catch (e: Exception) {
                 logger.error("Failed to create main window: ${e.message}", e)
@@ -293,13 +393,7 @@ class MainApplication {
         fun hideMainWindow() {
             JavaFXInitializer.runLater {
                 primaryStage?.takeIf { it.isShowing }?.let { stage ->
-                    if (!stage.isIconified && topBarModule?.isMaximized == false) {
-                        LayoutManager.config.width = stage.width
-                        LayoutManager.config.height = stage.height
-                        LayoutManager.config.x = stage.x
-                        LayoutManager.config.y = stage.y
-                    }
-                    LayoutManager.save()
+                    saveCurrentLayout()
                     stage.hide()
                     logger.debug("Main IDE Window hidden via hideMainWindow()!")
                 }

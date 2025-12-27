@@ -36,4 +36,14 @@ class SettingsHandler(private val settingsModule: SettingsModule) {
     fun onRequestSettingsCategories(event: RequestSettingsCategories) {
         settingsModule.loadAndSendCategories()
     }
+    
+    @SubscribeEvent
+    fun onOpenProjectManager(event: OpenProjectManagerEvent) {
+        settingsModule.close()
+    }
+
+    @SubscribeEvent
+    fun onResetWorkspace(event: ResetWorkspaceEvent) {
+        settingsModule.close()
+    }
 }
