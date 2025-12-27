@@ -17,12 +17,9 @@ data class Project(
     fun loadMetadata() {
         metadata = DatapackParser.parse(path)
 
-        // No idea if any name.png is supported here so went with the most common ig
-        val icon = path.resolve("icon.png")
+        // It indeed can only have pack.png
         val pack = path.resolve("pack.png")
-        if (icon.exists()) {
-            iconPath = icon
-        } else if (pack.exists()) {
+        if (pack.exists()) {
             iconPath = pack
         }
     }
