@@ -75,6 +75,8 @@ dependencies {
 	include(libs.undofx)
 	include(libs.wellbehavedfx)
 
+	implementation("io.methvin:directory-watcher:0.19.1")
+
 	// JavaFX
 	for (classifier in javafxClassifiers) {
 		implementation(javafxDep("base", classifier))

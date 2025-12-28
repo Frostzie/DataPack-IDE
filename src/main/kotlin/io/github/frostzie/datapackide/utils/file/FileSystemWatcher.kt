@@ -1,20 +1,21 @@
 package io.github.frostzie.datapackide.utils.file
 
-import io.github.frostzie.datapackide.events.DirectorySelected
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.utils.LoggerProvider
-import java.nio.file.*
-import java.util.concurrent.ExecutorService
+import io.methvin.watcher.DirectoryWatcher
+import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
-import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
+data class FileSystemUpdate(val path: Path)
+
 class FileSystemWatcher(private val watchPath: Path) {
     private val logger = LoggerProvider.getLogger("FileSystemWatcher")
-    private var watchService: WatchService? = null
+    private var watcher: DirectoryWatcher? = null
     private var watchThread: Thread? = null
     private var debounceExecutor: ScheduledExecutorService? = null
     private var scheduledUpdate: ScheduledFuture<*>? = null
@@ -26,24 +27,37 @@ class FileSystemWatcher(private val watchPath: Path) {
     @Volatile
     private var pendingUpdate = false
 
-    // Executor dedicated to offloading directory-checks and registration so the watch thread is never blocked.
-    private var registerExecutor: ExecutorService? = null
-    // Lock to ensure registerRecursive's registration operations are thread-safe (reentrant on the same thread).
-    private val registerLock = Any()
+    private val ignoredPaths = ConcurrentHashMap<Path, Long>()
+    private val ignoreDurationMs = 2000L
 
     fun start() {
         stop()
 
         try {
             debounceExecutor = Executors.newSingleThreadScheduledExecutor()
-            registerExecutor = Executors.newSingleThreadExecutor()
-            watchService = FileSystems.getDefault().newWatchService()
-            // Initial registration can remain synchronous; it will acquire the same lock.
-            registerRecursive(watchPath)
+
+            watcher = DirectoryWatcher.builder()
+                .path(watchPath)
+                .listener { event ->
+                    if (shouldIgnore(event.path())) {
+                        logger.debug("Ignoring internal change for: {}", event.path())
+                        return@listener
+                    }
+                    logger.debug("File system event: {} - {}", event.eventType(), event.path())
+                    scheduleUpdate()
+                }
+                .build()
 
             watchThread = thread(name = "FileSystemWatcher") {
                 logger.debug("Started watching directory: {}", watchPath)
-                pollEvents()
+                try {
+                    watcher?.watch()
+                } catch (e: Exception) {
+                    // DirectoryWatcher throws on close, so we check if we are stopping
+                    if (watcher != null) {
+                        logger.error("Watcher terminated unexpectedly", e)
+                    }
+                }
             }
         } catch (e: Exception) {
             logger.error("Failed to start file system watcher", e)
@@ -65,21 +79,12 @@ class FileSystemWatcher(private val watchPath: Path) {
             Thread.currentThread().interrupt()
         }
 
-        // Shutdown the register executor cleanly
-        registerExecutor?.shutdown()
         try {
-            registerExecutor?.awaitTermination(5, TimeUnit.SECONDS)?.let {
-                if (!it) {
-                    registerExecutor?.shutdownNow()
-                }
-            }
-        } catch (ie: InterruptedException) {
-            registerExecutor?.shutdownNow()
-            Thread.currentThread().interrupt()
+            watcher?.close()
+        } catch (e: Exception) {
+            logger.warn("Failed to close watcher cleanly", e)
         }
-
-        watchService?.close()
-        watchService = null
+        watcher = null
         logger.info("Stopped file system watcher")
     }
 
@@ -94,83 +99,24 @@ class FileSystemWatcher(private val watchPath: Path) {
         }
     }
 
-    private fun registerRecursive(path: Path) {
-        // Ensure only one thread performs registration operations at a time.
-        synchronized(registerLock) {
-            if (!Files.isDirectory(path)) return
-            val service = watchService ?: return
-
-            try {
-                path.register(
-                    service,
-                    StandardWatchEventKinds.ENTRY_CREATE,
-                    StandardWatchEventKinds.ENTRY_DELETE,
-                    StandardWatchEventKinds.ENTRY_MODIFY
-                )
-
-                Files.walk(path, 1).use { stream ->
-                    stream.filter { Files.isDirectory(it) && it != path }
-                        .forEach { registerRecursive(it) }
-                }
-            } catch (e: Exception) {
-                logger.warn("Failed to register watch for: $path", e)
-            }
-        }
+    fun ignoreChanges(path: Path) {
+        ignoredPaths[path] = System.currentTimeMillis()
     }
 
-    private fun pollEvents() {
-        while (!Thread.currentThread().isInterrupted) {
-            try {
-                val key = watchService?.poll(100, TimeUnit.MILLISECONDS) ?: continue
-
-                for (event in key.pollEvents()) {
-                    val kind = event.kind()
-
-                    if (kind == StandardWatchEventKinds.OVERFLOW) continue
-
-                    @Suppress("UNCHECKED_CAST")
-                    val ev = event as WatchEvent<Path>
-                    val context = ev.context()
-                    val dir = key.watchable() as Path
-                    val child = dir.resolve(context)
-
-                    logger.debug("File system event: {} - {}", kind, child)
-
-                    // Re-register if a new directory was created.
-                    // Do the potentially blocking Files.isDirectory(...) and registration off the watch thread.
-                    if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-                        try {
-                            val pathToCheck = child
-                            registerExecutor?.submit {
-                                try {
-                                    if (Files.isDirectory(pathToCheck)) {
-                                        // registerRecursive is already synchronized internally
-                                        registerRecursive(pathToCheck)
-                                    }
-                                } catch (e: Exception) {
-                                    logger.warn("Failed to check/register created path: $pathToCheck", e)
-                                }
-                            }
-                        } catch (ree: RejectedExecutionException) {
-                            logger.warn("Register executor rejected task for path: $child", ree)
-                        }
-                    }
-
-                    if (!isWindowFocused) {
-                        scheduleUpdate()
-                    }
-                }
-
-                if (!key.reset()) {
-                    logger.warn("Watch key no longer valid, continuing to watch other directories")
-                    continue
-                }
-            } catch (e: InterruptedException) {
-                break
-            } catch (e: Exception) {
-                logger.error("Error polling file system events", e)
+    private fun shouldIgnore(path: Path): Boolean {
+        val now = System.currentTimeMillis()
+        val iterator = ignoredPaths.iterator()
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            if (now - entry.value > ignoreDurationMs) {
+                iterator.remove()
+                continue
+            }
+            if (path.startsWith(entry.key)) {
+                return true
             }
         }
+        return false
     }
 
     private fun scheduleUpdate() {
@@ -186,6 +132,6 @@ class FileSystemWatcher(private val watchPath: Path) {
 
     private fun triggerUpdate() {
         logger.info("Triggering directory refresh due to file system changes")
-        EventBus.post(DirectorySelected(watchPath))
+        EventBus.post(FileSystemUpdate(watchPath))
     }
 }

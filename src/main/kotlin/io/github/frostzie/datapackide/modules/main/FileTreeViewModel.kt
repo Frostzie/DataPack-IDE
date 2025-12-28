@@ -9,6 +9,7 @@ import io.github.frostzie.datapackide.project.WorkspaceManager
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeItem
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.file.FileSystemUpdate
 import io.github.frostzie.datapackide.utils.file.FileSystemWatcher
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
@@ -170,6 +171,9 @@ class FileTreeViewModel {
     fun onFileMoved(event: MoveFile) {
         logger.info("Moving file from ${event.sourcePath} to ${event.targetPath}")
         try {
+            ignorePath(event.sourcePath)
+            ignorePath(event.targetPath)
+
             try {
                 Files.move(event.sourcePath, event.targetPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
             } catch (e: AtomicMoveNotSupportedException) {
@@ -188,8 +192,72 @@ class FileTreeViewModel {
         }
     }
     
+    private fun ignorePath(path: Path) {
+        synchronized(watchersLock) {
+            for ((root, watcher) in watchers) {
+                if (path.startsWith(root)) {
+                    watcher.ignoreChanges(path)
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    fun onFileSystemUpdate(event: FileSystemUpdate) {
+        refreshNode(event.path)
+    }
+
     private fun refreshNode(path: Path?) {
-        // Placeholder for refresh logic
+        if (path == null) return
+
+        Platform.runLater {
+            var currentPath = path
+            var targetNode: TreeItem<FileTreeItem>? = null
+
+            // Find the closest existing ancestor node
+            while (currentPath != null && targetNode == null) {
+                targetNode = findNode(root.get(), currentPath)
+                if (targetNode == null) {
+                    currentPath = currentPath.parent
+                }
+            }
+
+            if (targetNode != null && targetNode.isExpanded) {
+                val nodeToRefresh = targetNode
+                val pathToRefresh = nodeToRefresh.value.path
+
+                scope.launch {
+                    val children = loadChildren(pathToRefresh)
+                    Platform.runLater {
+                        nodeToRefresh.children.setAll(children)
+                        restoreExpandedPaths(nodeToRefresh)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun findNode(root: TreeItem<FileTreeItem>, path: Path): TreeItem<FileTreeItem>? {
+        if (root.value?.path == path) return root
+
+        // Optimization: Check if path belongs to this branch
+        if (root.value?.displayName == "Workspace") {
+            for (child in root.children) {
+                if (path.startsWith(child.value.path)) {
+                    return findNode(child, path)
+                }
+            }
+            return null
+        }
+
+        for (child in root.children) {
+            val childPath = child.value?.path ?: continue
+            if (path == childPath) return child
+            if (path.startsWith(childPath)) {
+                return findNode(child, path)
+            }
+        }
+        return null
     }
 
     /**
