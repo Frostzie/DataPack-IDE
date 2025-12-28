@@ -87,5 +87,12 @@ Any input is appreciated here
 </h4>
 
 ## License & Dependencies
-Datapack IDE uses: [LGPL-v2.1](https://github.com/Frostzie/DataPack-IDE/blob/main/LICENSE) <br>
+
+Datapack IDE is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; **either version 2.1 of the License, or
+(at your option) any later version**.
+
+A copy of the GNU LGPL is provided in the [LICENSE](LICENSE) file.<br>
+
 Dependencies used: [List](docs/SOFTWARE_USED.md)
