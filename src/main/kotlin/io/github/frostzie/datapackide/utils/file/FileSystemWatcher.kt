@@ -1,10 +1,15 @@
 package io.github.frostzie.datapackide.utils.file
 
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.FileDeleted
+import io.github.frostzie.datapackide.events.FileModified
+import io.github.frostzie.datapackide.events.FileMoved
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.methvin.watcher.DirectoryChangeEvent
 import io.methvin.watcher.DirectoryWatcher
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
@@ -19,16 +24,17 @@ class FileSystemWatcher(private val watchPath: Path) {
     private var watchThread: Thread? = null
     private var debounceExecutor: ScheduledExecutorService? = null
     private var scheduledUpdate: ScheduledFuture<*>? = null
-    @Volatile
-    private var lastEventTime = 0L
     private val debounceDelayMs = 500L
     @Volatile
     private var isWindowFocused = true
     @Volatile
     private var pendingUpdate = false
+    private val pendingEvents = ConcurrentLinkedQueue<Any>()
 
     private val ignoredPaths = ConcurrentHashMap<Path, Long>()
     private val ignoreDurationMs = 2000L
+    private val pendingDeletes = ConcurrentHashMap<Path, ScheduledFuture<*>>()
+    private val renameDelayMs = 150L
 
     fun start() {
         stop()
@@ -43,6 +49,35 @@ class FileSystemWatcher(private val watchPath: Path) {
                         logger.debug("Ignoring internal change for: {}", event.path())
                         return@listener
                     }
+
+                    when (event.eventType()) {
+                        DirectoryChangeEvent.EventType.MODIFY -> {
+                            postOrQueue(FileModified(event.path()))
+                        }
+                        DirectoryChangeEvent.EventType.DELETE -> {
+                            val future = debounceExecutor?.schedule({
+                                pendingDeletes.remove(event.path())
+                                postOrQueue(FileDeleted(event.path()))
+                            }, renameDelayMs, TimeUnit.MILLISECONDS)
+                            if (future != null) {
+                                pendingDeletes[event.path()] = future
+                            }
+                        }
+                        DirectoryChangeEvent.EventType.CREATE -> {
+                            // Try to match with a pending delete (rename/move)
+                            // Prefer matching filename (move), otherwise take any (rename)
+                            val oldPath = pendingDeletes.keys.find { it.fileName == event.path().fileName }
+                                ?: pendingDeletes.keys.firstOrNull()
+
+                            if (oldPath != null) {
+                                val future = pendingDeletes.remove(oldPath)
+                                future?.cancel(false)
+                                postOrQueue(FileMoved(oldPath, event.path()))
+                            }
+                        }
+                        else -> {}
+                    }
+
                     logger.debug("File system event: {} - {}", event.eventType(), event.path())
                     scheduleUpdate()
                 }
@@ -90,11 +125,17 @@ class FileSystemWatcher(private val watchPath: Path) {
 
     fun setWindowFocused(focused: Boolean) {
         isWindowFocused = focused
-        if (focused && pendingUpdate) {
-            try {
-                triggerUpdate()
-            } finally {
-                pendingUpdate = false
+        if (focused) {
+            while (!pendingEvents.isEmpty()) {
+                EventBus.post(pendingEvents.poll())
+            }
+
+            if (pendingUpdate) {
+                try {
+                    triggerUpdate()
+                } finally {
+                    pendingUpdate = false
+                }
             }
         }
     }
@@ -128,6 +169,14 @@ class FileSystemWatcher(private val watchPath: Path) {
                 pendingUpdate = true
             }
         }, debounceDelayMs, TimeUnit.MILLISECONDS)
+    }
+
+    private fun postOrQueue(event: Any) {
+        if (isWindowFocused) {
+            EventBus.post(event)
+        } else {
+            pendingEvents.add(event)
+        }
     }
 
     private fun triggerUpdate() {

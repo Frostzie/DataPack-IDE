@@ -6,6 +6,7 @@ import io.github.frostzie.datapackide.settings.categories.MainConfig
 import javafx.beans.value.ChangeListener
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
+import org.fxmisc.richtext.CodeArea
 
 /**
  * An implementation of [EditorTabDecorator] that adds a "dirty" suffix
@@ -13,7 +14,7 @@ import javafx.scene.layout.HBox
  */
 class DirtyTabDecorator : EditorTabDecorator {
 
-    override fun decorate(tab: Tab, tabData: TextEditorViewModel.TabData): () -> Unit {
+    override fun decorate(tab: Tab, codeArea: CodeArea, tabData: TextEditorViewModel.TabData): () -> Unit {
         // This listener reacts to both the dirty status and changes to the indicator setting itself.
         val listener = ChangeListener<Any> { _, _, _ ->
             updateTab(tab, tabData)

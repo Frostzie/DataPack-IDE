@@ -5,7 +5,7 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.OpenFile
 import io.github.frostzie.datapackide.events.RequestMoveConfirmation
 import io.github.frostzie.datapackide.modules.main.FileTreeViewModel
-import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
+import io.github.frostzie.datapackide.project.WorkspaceManager
 import io.github.frostzie.datapackide.settings.categories.MainConfig
 import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 import io.github.frostzie.datapackide.utils.UIConstants
@@ -27,7 +27,7 @@ import kotlin.io.path.isDirectory
 /**
  * The View for the file tree. This class is responsible for displaying the tree.
  */
-class FileTreeView(private val textEditorViewModel: TextEditorViewModel) : VBox() {
+class FileTreeView : VBox() {
     internal val viewModel = FileTreeViewModel()
     private val treeView = TreeView<FileTreeItem>()
 
@@ -60,7 +60,7 @@ class FileTreeView(private val textEditorViewModel: TextEditorViewModel) : VBox(
                 private val invalidationListener = InvalidationListener { updateStyle() }
 
                 init {
-                    textEditorViewModel.dirtyFiles.addListener(invalidationListener)
+                    WorkspaceManager.dirtyFiles.addListener(invalidationListener)
                     MainConfig.dirtyFileColor.addListener(invalidationListener)
 
                     setOnMouseClicked { event ->
@@ -140,7 +140,7 @@ class FileTreeView(private val textEditorViewModel: TextEditorViewModel) : VBox(
                         return
                     }
 
-                    style = if (item.path in textEditorViewModel.dirtyFiles) {
+                    style = if (item.path in WorkspaceManager.dirtyFiles) {
                         "-fx-text-fill: ${MainConfig.dirtyFileColor.get()};"
                     } else {
                         "" // Reset to default

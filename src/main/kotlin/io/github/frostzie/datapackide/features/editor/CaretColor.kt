@@ -12,34 +12,34 @@ import org.fxmisc.richtext.CodeArea
  */
 class CaretColor : EditorTabDecorator {
 
-    override fun decorate(tab: Tab, tabData: TextEditorViewModel.TabData): () -> Unit {
+    override fun decorate(tab: Tab, codeArea: CodeArea, tabData: TextEditorViewModel.TabData): () -> Unit {
         val configListener = ChangeListener<Any> { _, _, _ ->
             // Only update if it has focus.
-            if (tabData.codeArea.isFocused) {
-                updateCaretColor(tabData.codeArea)
+            if (codeArea.isFocused) {
+                updateCaretColor(codeArea)
             }
         }
 
         val focusListener = ChangeListener<Boolean> { _, _, isFocused ->
             if (isFocused) {
-                updateCaretColor(tabData.codeArea)
+                updateCaretColor(codeArea)
             }
         }
 
         MainConfig.enableCaretColor.addListener(configListener)
         MainConfig.caretColor.addListener(configListener)
-        tabData.codeArea.focusedProperty().addListener(focusListener)
+        codeArea.focusedProperty().addListener(focusListener)
 
         // Set initial color if it's already focused (e.g. first tab)
-        if (tabData.codeArea.isFocused) {
-            updateCaretColor(tabData.codeArea)
+        if (codeArea.isFocused) {
+            updateCaretColor(codeArea)
         }
 
         // Return cleanup function
         return {
             MainConfig.enableCaretColor.removeListener(configListener)
             MainConfig.caretColor.removeListener(configListener)
-            tabData.codeArea.focusedProperty().removeListener(focusListener)
+            codeArea.focusedProperty().removeListener(focusListener)
         }
     }
 

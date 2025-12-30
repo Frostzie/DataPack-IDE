@@ -7,6 +7,7 @@ import io.github.frostzie.datapackide.features.FeatureRegistry
 import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
+import javafx.beans.InvalidationListener
 import javafx.beans.value.ChangeListener
 import javafx.collections.ListChangeListener
 import javafx.geometry.Pos
@@ -18,6 +19,8 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import org.fxmisc.flowless.VirtualizedScrollPane
+import org.fxmisc.richtext.CodeArea
+import org.fxmisc.richtext.LineNumberFactory
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.material2.Material2AL
 
@@ -35,6 +38,7 @@ class TextEditorView : VBox() {
     private val tabLine = TabLine()
     private val contentArea = StackPane()
     private val decoratorCleanups = mutableMapOf<String, MutableList<() -> Unit>>()
+    private val tabCodeAreas = mutableMapOf<String, CodeArea>()
 
     init {
         styleClass.add("text-editor-container")
@@ -50,9 +54,9 @@ class TextEditorView : VBox() {
     /**
      * Configures the TabLine with AtlantaFX styles and policies
      */
-    //TODO: Remove animation
     private fun setupTabLine() {
         tabLine.styleClass.add(Styles.TABS_BORDER_TOP)
+        tabLine.animated = false // No more PowerPoint Animation yeay lol
         tabLine.setTabDragPolicy(Tab.DragPolicy.REORDER)
         tabLine.setTabResizePolicy(Tab.ResizePolicy.COMPUTED_WIDTH)
         tabLine.setTabClosingPolicy(Tab.ClosingPolicy.SELECTED_TAB) //TODO: Possibly? add hover closing
@@ -70,14 +74,18 @@ class TextEditorView : VBox() {
         // Listen for new tabs being added
         viewModel.tabs.addListener { change: ListChangeListener.Change<out TextEditorViewModel.TabData> ->
             while (change.next()) {
-                if (change.wasAdded()) {
-                    change.addedSubList.forEach { tabData ->
-                        addTab(tabData)
-                    }
-                }
+                // Handle removals first. In a replacement event (like file move), wasRemoved and wasAdded are both true.
+                // We must remove the old tab first to avoid ID conflicts or index shifting issues.
                 if (change.wasRemoved()) {
                     change.removed.forEach { tabData ->
                         removeTab(tabData)
+                    }
+                }
+                if (change.wasAdded()) {
+                    var index = change.from
+                    change.addedSubList.forEach { tabData ->
+                        addTab(tabData, index)
+                        index++
                     }
                 }
             }
@@ -106,7 +114,41 @@ class TextEditorView : VBox() {
     /**
      * Adds a new tab to the TabLine for the given TabData
      */
-    private fun addTab(tabData: TextEditorViewModel.TabData) {
+    private fun addTab(tabData: TextEditorViewModel.TabData, index: Int = -1) {
+        // Create CodeArea and binding logic
+        val codeArea = CodeArea(tabData.content.get())
+        codeArea.paragraphGraphicFactory = LineNumberFactory.get(codeArea)
+        codeArea.styleClass.add("code-area")
+        
+        // Listener to sync CodeArea -> ViewModel (User typing)
+        val textListener = InvalidationListener {
+            if (codeArea.text != tabData.content.get()) {
+                tabData.content.set(codeArea.text)
+                if (!tabData.isDirty.get()) {
+                    tabData.isDirty.set(true)
+                }
+            }
+        }
+        codeArea.textProperty().addListener(textListener)
+        
+        // Listener to sync ViewModel -> CodeArea (External reload)
+        val contentListener = InvalidationListener {
+             if (codeArea.text != tabData.content.get()) {
+                 codeArea.replaceText(tabData.content.get())
+             }
+        }
+        tabData.content.addListener(contentListener)
+        
+        // Listener for caret position
+        val caretListener = InvalidationListener {
+             if (viewModel.activeTab.get() == tabData) {
+                 viewModel.updateLineAndColumn(codeArea.currentParagraph + 1, codeArea.caretColumn + 1)
+             }
+        }
+        codeArea.caretPositionProperty().addListener(caretListener)
+        
+        tabCodeAreas[tabData.id] = codeArea
+
         // Create a custom graphic for the tab content, allowing direct access to the label for styling
         val tabLabel = Label(tabData.displayName)
         val tabIcon = FontIcon(Material2AL.FOLDER)
@@ -136,7 +178,7 @@ class TextEditorView : VBox() {
 
         val cleanups = mutableListOf<() -> Unit>()
         FeatureRegistry.editorTabDecorators.forEach { decorator ->
-            cleanups.add(decorator.decorate(tab, tabData))
+            cleanups.add(decorator.decorate(tab, codeArea, tabData))
         }
         decoratorCleanups[tabData.id] = cleanups
 
@@ -146,7 +188,11 @@ class TextEditorView : VBox() {
             event.consume()
         }
 
-        tabLine.tabs.add(tab)
+        if (index >= 0 && index <= tabLine.tabs.size) {
+            tabLine.tabs.add(index, tab)
+        } else {
+            tabLine.tabs.add(tab)
+        }
         tabLine.selectionModel.select(tab)
 
         logger.debug("Added tab: ${tabData.displayName}, ID: ${tabData.id}")
@@ -159,6 +205,8 @@ class TextEditorView : VBox() {
         tabLine.tabs.find { it.id == tabData.id }?.let {
             tabLine.tabs.remove(it)
         }
+        
+        tabCodeAreas.remove(tabData.id)
 
         // Execute and remove all cleanup functions associated with the closed tab
         decoratorCleanups.remove(tabData.id)?.forEach { cleanup ->
@@ -176,7 +224,12 @@ class TextEditorView : VBox() {
      */
     private fun switchToTab(tabData: TextEditorViewModel.TabData) {
         contentArea.children.clear()
-        contentArea.children.add(VirtualizedScrollPane(tabData.codeArea))
+        val codeArea = tabCodeAreas[tabData.id] ?: return
+        
+        contentArea.children.add(VirtualizedScrollPane(codeArea))
+        
+        // Update status bar for this tab
+        viewModel.updateLineAndColumn(codeArea.currentParagraph + 1, codeArea.caretColumn + 1)
 
         // Select the corresponding tab in the TabLine
         val tab = tabLine.tabs.find { it.id == tabData.id }
@@ -185,7 +238,7 @@ class TextEditorView : VBox() {
         }
 
         Platform.runLater {
-            tabData.codeArea.requestFocus()
+            codeArea.requestFocus()
         }
 
         logger.debug("Switched to tab: ${tabData.displayName}, ID: ${tabData.id}")
@@ -196,7 +249,8 @@ class TextEditorView : VBox() {
      */
     override fun requestFocus() {
         super.requestFocus()
-        viewModel.activeTab.get()?.codeArea?.requestFocus()
+        val active = viewModel.activeTab.get() ?: return
+        tabCodeAreas[active.id]?.requestFocus()
     }
 
     /**

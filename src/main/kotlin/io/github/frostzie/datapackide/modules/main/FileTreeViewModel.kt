@@ -2,16 +2,18 @@ package io.github.frostzie.datapackide.modules.main
 
 import io.github.frostzie.datapackide.events.DirectorySelected
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.FileMoved
 import io.github.frostzie.datapackide.events.MoveFile
 import io.github.frostzie.datapackide.events.WorkspaceUpdated
 import io.github.frostzie.datapackide.project.Project
 import io.github.frostzie.datapackide.project.WorkspaceManager
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeItem
+import io.github.frostzie.datapackide.services.FileService
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.file.FileSystemUpdate
-import io.github.frostzie.datapackide.utils.file.FileSystemWatcher
 import javafx.application.Platform
+import java.nio.file.Files
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.control.TreeItem
 import kotlinx.coroutines.CoroutineScope
@@ -19,23 +21,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.nio.file.AtomicMoveNotSupportedException
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import kotlin.io.path.isDirectory
-import kotlin.io.path.listDirectoryEntries
 
 class FileTreeViewModel {
     private val logger = LoggerProvider.getLogger("FileTreeViewModel")
     
     // The invisible root of the TreeView. Its children are the Project roots.
     val root = SimpleObjectProperty<TreeItem<FileTreeItem>>()
-    
-    // Map of a project path to its FileSystemWatcher
-    private val watchers = mutableMapOf<Path, FileSystemWatcher>()
-    private val watchersLock = Any()
     
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     
@@ -54,18 +48,8 @@ class FileTreeViewModel {
         updateWorkspace(WorkspaceManager.workspace.projects)
     }
 
-    fun setWindowFocused(focused: Boolean) {
-        synchronized(watchersLock) {
-            watchers.values.forEach { it.setWindowFocused(focused) }
-        }
-    }
-
     fun cleanup() {
         scope.cancel()
-        synchronized(watchersLock) {
-            watchers.values.forEach { it.stop() }
-            watchers.clear()
-        }
         EventBus.unregister(this)
     }
 
@@ -86,30 +70,8 @@ class FileTreeViewModel {
     }
 
     private fun updateWorkspace(projects: List<Project>) {
-        // Run on background thread to avoid blocking UI with IO or watcher setup
+        // Run on background thread to avoid blocking UI with IO
         scope.launch {
-            synchronized(watchersLock) {
-                // 1. Identify removed projects
-                val currentPaths = watchers.keys.toSet()
-                val newPaths = projects.map { it.path }.toSet()
-                
-                val toRemove = currentPaths - newPaths
-                val toAdd = newPaths - currentPaths
-
-                // Remove watchers for closed projects
-                toRemove.forEach { path ->
-                    watchers[path]?.stop()
-                    watchers.remove(path)
-                }
-
-                // Add watchers for new projects
-                toAdd.forEach { path ->
-                    val watcher = FileSystemWatcher(path)
-                    watcher.start()
-                    watchers[path] = watcher
-                }
-            }
-            
             // Load saved expansion state
             val state = WorkspaceManager.getCurrentState()
             isRestoringExpansion = true
@@ -169,36 +131,20 @@ class FileTreeViewModel {
     @Suppress("unused")
     @SubscribeEvent
     fun onFileMoved(event: MoveFile) {
-        logger.info("Moving file from ${event.sourcePath} to ${event.targetPath}")
+        logger.debug("Moving file from {}\nto {}", event.sourcePath, event.targetPath)
         try {
-            ignorePath(event.sourcePath)
-            ignorePath(event.targetPath)
+            WorkspaceManager.ignoreWatcherPath(event.sourcePath)
+            WorkspaceManager.ignoreWatcherPath(event.targetPath)
 
-            try {
-                Files.move(event.sourcePath, event.targetPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
-            } catch (e: AtomicMoveNotSupportedException) {
-                logger.warn("Atomic move not supported, falling back to standard move.")
-                Files.move(event.sourcePath, event.targetPath, StandardCopyOption.REPLACE_EXISTING)
-            }
+            FileService.move(event.sourcePath, event.targetPath)
             
-            // Reload the parent of the source and target to reflect changes
-            // Note: The FileWatcher should trigger this update.
-            // For now, we manually trigger a refresh if we can find the parent node.
-             refreshNode(event.sourcePath.parent)
-             refreshNode(event.targetPath.parent)
+            EventBus.post(FileMoved(event.sourcePath, event.targetPath))
+
+            refreshNode(event.sourcePath.parent)
+            refreshNode(event.targetPath.parent)
 
         } catch (e: Exception) {
             logger.error("Failed to move file: ${event.sourcePath}", e)
-        }
-    }
-    
-    private fun ignorePath(path: Path) {
-        synchronized(watchersLock) {
-            for ((root, watcher) in watchers) {
-                if (path.startsWith(root)) {
-                    watcher.ignoreChanges(path)
-                }
-            }
         }
     }
 
@@ -209,6 +155,13 @@ class FileTreeViewModel {
 
     private fun refreshNode(path: Path?) {
         if (path == null) return
+
+        // If the path to refresh doesn't exist (it was just renamed/deleted)
+        // refresh its parent to update the tree structure.
+        if (!FileService.isDirectory(path) && !Files.exists(path)) {
+            refreshNode(path.parent)
+            return
+        }
 
         Platform.runLater {
             var currentPath = path
@@ -268,7 +221,7 @@ class FileTreeViewModel {
             // This set tracks paths that have been processed as part of a compacted directory
             // to avoid adding them as duplicate, separate entries in the tree.
             val processedPaths = mutableSetOf<Path>()
-            directory.listDirectoryEntries()
+            FileService.listDirectory(directory)
                 .sortedWith(compareBy<Path> { !it.isDirectory() }.thenComparator { a, b ->
                     naturalOrderComparator.compare(a.fileName.toString(), b.fileName.toString())
                 })
@@ -306,12 +259,7 @@ class FileTreeViewModel {
         val nameParts = mutableListOf(startPath.fileName.toString())
 
         while (true) {
-            val entries = try {
-                currentPath.listDirectoryEntries()
-            } catch (e: Exception) {
-                logger.info("Cannot read directory during compaction: {}", currentPath, e)
-                emptyList()
-            }
+            val entries = FileService.listDirectory(currentPath)
             if (entries.size == 1 && entries.first().isDirectory()) {
                 currentPath = entries.first()
                 nameParts.add(currentPath.fileName.toString())

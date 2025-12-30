@@ -2,6 +2,7 @@ package io.github.frostzie.datapackide.modules.popup.file
 
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MoveFile
+import io.github.frostzie.datapackide.events.RequestFileOverride
 import javafx.beans.property.SimpleStringProperty
 import java.nio.file.Files
 import java.nio.file.InvalidPathException
@@ -33,6 +34,10 @@ class MoveConfirmationViewModel(
                     return false
                 }
                 val newTargetPath = newTargetDirPath.resolve(fileName)
+                if (Files.exists(newTargetPath)) {
+                    EventBus.post(RequestFileOverride(sourcePath, newTargetPath))
+                    return true
+                }
                 EventBus.post(MoveFile(sourcePath, newTargetPath))
                 return true
             } else {

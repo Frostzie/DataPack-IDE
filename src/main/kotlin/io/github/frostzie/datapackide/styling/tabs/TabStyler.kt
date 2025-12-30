@@ -5,6 +5,7 @@ import io.github.frostzie.datapackide.features.editor.EditorTabDecorator
 import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
 import io.github.frostzie.datapackide.styling.tabs.appliers.TabStyleApplier
 import javafx.beans.value.ChangeListener
+import org.fxmisc.richtext.CodeArea
 
 /**
  * An [EditorTabDecorator] that orchestrates the dynamic styling of an editor tab.
@@ -18,7 +19,7 @@ class TabStyler : EditorTabDecorator {
     /**
      * Applies dynamic styling to the tab and sets up listeners for state changes.
      */
-    override fun decorate(tab: Tab, tabData: TextEditorViewModel.TabData): () -> Unit {
+    override fun decorate(tab: Tab, codeArea: CodeArea, tabData: TextEditorViewModel.TabData): () -> Unit {
         val listener = ChangeListener<Any> { _, _, _ ->
             updateTabStyle(tab, tabData)
         }

@@ -15,6 +15,9 @@ import io.github.frostzie.datapackide.project.state.ProjectState
 import io.github.frostzie.datapackide.project.state.ProjectStateHandler
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import io.github.frostzie.datapackide.utils.file.FileSystemWatcher
+import javafx.collections.FXCollections
+import javafx.collections.ObservableSet
 import java.io.FileReader
 import java.io.FileWriter
 import java.nio.file.Files
@@ -47,6 +50,12 @@ object WorkspaceManager {
 
     // The entire session state (workspace + history)
     private var sessionState = SessionState()
+
+    // Shared state for dirty files (unsaved changes)
+    val dirtyFiles: ObservableSet<Path> = FXCollections.observableSet()
+    
+    // File System Watchers
+    private val watchers = mutableMapOf<Path, FileSystemWatcher>()
     
     // Public accessors
     val workspace: Workspace
@@ -73,7 +82,10 @@ object WorkspaceManager {
                             .filter { Files.exists(it.path) }
                             .toMutableList()
                         
-                        validActiveProjects.forEach { it.loadMetadata() }
+                        validActiveProjects.forEach {
+                            it.loadMetadata()
+                            setupWatcher(it.path)
+                        }
                             
                         val validRecentProjects = loadedState.recentProjects
                             .filter { Files.exists(it.path) }
@@ -117,6 +129,7 @@ object WorkspaceManager {
             workspace.projects.add(project)
             addToRecent(project)
             loadCurrentState()
+            setupWatcher(path) // Start watching
             save()
             EventBus.post(WorkspaceUpdated(workspace))
             logger.debug("Added project to workspace: {}", path)
@@ -126,11 +139,12 @@ object WorkspaceManager {
     }
     
     fun openSingleProject(path: Path) {
+        stopWatchers() // Stop previous
         workspace.projects.clear()
         
         if (DatapackParser.parse(path) != null) {
             logger.debug("Detected single datapack at {}", path)
-            addProject(path)
+            addProject(path) // This calls setupWatcher
             return
         }
         
@@ -142,6 +156,7 @@ object WorkspaceManager {
                     val project = Project(child)
                     project.loadMetadata()
                     workspace.projects.add(project)
+                    setupWatcher(child) // Start watching subproject
                     foundDatapacks = true
                 }
             }
@@ -187,21 +202,46 @@ object WorkspaceManager {
     
     private fun loadCurrentState() {
          val root = currentWorkspaceRoot
-         if (root != null) {
-             currentProjectState = ProjectStateHandler.loadState(root)
-         } else {
-             currentProjectState = ProjectState()
-         }
+        currentProjectState = if (root != null) {
+            ProjectStateHandler.loadState(root)
+        } else {
+            ProjectState()
+        }
     }
     
     fun getCurrentState(): ProjectState {
         return currentProjectState
+    }
+    
+    private fun setupWatcher(path: Path) {
+        if (watchers.containsKey(path)) return
+        val watcher = FileSystemWatcher(path)
+        watcher.start()
+        watchers[path] = watcher
+        logger.debug("Started watcher for: {}", path)
+    }
+    
+    private fun stopWatchers() {
+        watchers.values.forEach { it.stop() }
+        watchers.clear()
+        logger.debug("Stopped all file system watchers")
+    }
+    
+    fun setWindowFocused(focused: Boolean) {
+        watchers.values.forEach { it.setWindowFocused(focused) }
+    }
+    
+    fun ignoreWatcherPath(path: Path) {
+        watchers.values.forEach { watcher ->
+             watcher.ignoreChanges(path)
+        }
     }
 
     // Reset / Navigation
     @SubscribeEvent @Suppress("unused")
     fun onOpenProjectManager(event: OpenProjectManagerEvent) {
         logger.info("Returning to project manager...")
+        stopWatchers()
         workspace.projects.clear()
         save()
         EventBus.post(WorkspaceUpdated(workspace))
@@ -209,6 +249,7 @@ object WorkspaceManager {
 
     @SubscribeEvent @Suppress("unused")
     fun onResetWorkspace(event: ResetWorkspaceEvent) {
+        stopWatchers()
         try {
             Files.deleteIfExists(workspaceFile)
         } catch (e: Exception) {

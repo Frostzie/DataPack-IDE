@@ -1,11 +1,15 @@
 package io.github.frostzie.datapackide.modules.main
 
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.events.FileDeleted
+import io.github.frostzie.datapackide.events.FileModified
+import io.github.frostzie.datapackide.events.FileMoved
 import io.github.frostzie.datapackide.events.OpenFile
 import io.github.frostzie.datapackide.events.SaveAllFiles
 import io.github.frostzie.datapackide.events.WorkspaceUpdated
 import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.project.WorkspaceManager
+import io.github.frostzie.datapackide.services.FileService
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
@@ -17,14 +21,11 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
-import javafx.collections.ObservableSet
 import javafx.beans.value.ChangeListener
-import org.fxmisc.richtext.CodeArea
-import org.fxmisc.richtext.LineNumberFactory
+import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.StringProperty
 import java.nio.file.Path
 import java.util.UUID
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 /**
  * ViewModel for the text editor that manages multiple tabs.
@@ -40,19 +41,16 @@ class TextEditorViewModel {
         val id: String = UUID.randomUUID().toString(),
         val filePath: Path,
         val displayName: String,
-        val codeArea: CodeArea,
+        val content: StringProperty = SimpleStringProperty(""),
         val isDirty: BooleanProperty = SimpleBooleanProperty(false),
         // Listeners to be managed for cleanup
-        var isDirtyListener: ChangeListener<Boolean>? = null,
-        var textListener: InvalidationListener? = null,
-        var caretListener: InvalidationListener? = null
+        var isDirtyListener: ChangeListener<Boolean>? = null
     )
 
     // Observable list of all open tabs
     val tabs: ObservableList<TabData> = FXCollections.observableArrayList()
-    val dirtyFiles: ObservableSet<Path> = FXCollections.observableSet()
 
-    // Currently active tab
+    // Currently active tab //TODO: Fix: (External renaming) FileX -> FileY then FolderX -> FolderY then focus app = dir as tab...
     val activeTab = SimpleObjectProperty<TabData?>()
 
     // Current line and column of the caret in the active editor
@@ -101,7 +99,7 @@ class TextEditorViewModel {
             val toClose = tabs.filter { it.filePath !in savedFiles }
             
             // Close removed tabs
-            toClose.forEach { closeTab(it, false) }
+            toClose.forEach { closeTab(it, persist = false) }
             
             // Open new files
             savedFiles.forEach { path ->
@@ -162,52 +160,101 @@ class TextEditorViewModel {
         tabs.filter { it.isDirty.get() }.forEach { saveFile(it) }
     }
 
+    @SubscribeEvent
+    fun onFileModified(event: FileModified) {
+        Platform.runLater {
+            val tab = tabs.find { it.filePath == event.path } ?: return@runLater
+            // Only reload if not dirty to avoid overwriting user changes (Maybe add de-sync notification)
+            if (!tab.isDirty.get()) {
+                try {
+                    val newContent = FileService.readText(event.path)
+                    tab.content.set(newContent)
+                    // Reset dirty state since this is a sync with disk
+                    tab.isDirty.set(false)
+                } catch (e: Exception) {
+                    logger.error("Failed to reload modified file: ${event.path}", e)
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    fun onFileDeleted(event: FileDeleted) {
+        Platform.runLater {
+            val tab = tabs.find { it.filePath == event.path } ?: return@runLater
+            // Close the tab without trying to save, as the file is gone
+            closeTab(tab, save = false)
+        }
+    }
+
+    @SubscribeEvent
+    fun onFileMoved(event: FileMoved) {
+        Platform.runLater {
+            val oldTab = tabs.find { it.filePath == event.oldPath } ?: return@runLater
+
+            // Detach old listeners
+            oldTab.isDirtyListener?.let { oldTab.isDirty.removeListener(it) }
+
+            // Create new TabData with an updated path but same CodeArea/ID
+            val newTab = oldTab.copy(
+                filePath = event.newPath,
+                displayName = event.newPath.fileName.toString(),
+                isDirtyListener = null
+            )
+
+            // Setup listeners on new tab data
+            setupTabListeners(newTab)
+
+            // Update dirtyFiles set if it was dirty
+            if (oldTab.isDirty.get()) {
+                WorkspaceManager.dirtyFiles.remove(oldTab.filePath)
+                WorkspaceManager.dirtyFiles.add(newTab.filePath)
+            }
+
+            val index = tabs.indexOf(oldTab)
+            if (index != -1) {
+                tabs[index] = newTab
+            }
+
+            // Note: TextEditorView's addTab automatically selects the new tab, so activeTab update is handled there.
+        }
+    }
+
     /**
      * Creates a new tab for the given file path
      */
     private fun createNewTab(filePath: Path) {
         try {
-            // Read file content
-            val content = filePath.readText()
-            logger.debug("Read file content: {} ({} characters)", filePath.fileName, content.length)
+            // Safety Guard: Never open a directory as a tab
+            if (FileService.isDirectory(filePath)) {
+                logger.warn("Attempted to open a directory as a tab: $filePath")
+                return
+            }
 
-            // Create CodeArea
-            val codeArea = CodeArea(content)
-            codeArea.paragraphGraphicFactory = LineNumberFactory.get(codeArea)
-            codeArea.styleClass.add("code-area")
+            // Read file content
+            val contentText = FileService.readText(filePath)
+            logger.debug("Read file content: {} ({} characters)", filePath.fileName, contentText.length)
 
             val tabData = TabData(
                 filePath = filePath,
                 displayName = filePath.fileName.toString(),
-                codeArea = codeArea
+                content = SimpleStringProperty(contentText)
             )
 
-            tabData.isDirtyListener = ChangeListener { _, _, isDirty ->
-                if (isDirty) {
-                    dirtyFiles.add(tabData.filePath)
-                } else {
-                    dirtyFiles.remove(tabData.filePath)
-                }
-            }.also { tabData.isDirty.addListener(it) }
+            setupTabListeners(tabData)
 
-            tabData.textListener = InvalidationListener {
-                if (!tabData.isDirty.get()) {
-                    tabData.isDirty.set(true)
-                }
-            }.also { codeArea.textProperty().addListener(it) }
-
-            // Listen for caret position changes to update line and column numbers
-            tabData.caretListener = InvalidationListener {
-                updateLineAndColumn(codeArea)
-            }.also { codeArea.caretPositionProperty().addListener(it) }
-
-            tabs.add(tabData)
-            activeTab.set(tabData)
-
-            Platform.runLater {
-                codeArea.moveTo(0)
-                codeArea.requestFollowCaret()
+            // Insert after the currently active tab, or at the end if none is active
+            val active = activeTab.get()
+            val index = if (active != null) {
+                val activeIndex = tabs.indexOf(active)
+                if (activeIndex != -1) activeIndex + 1 else tabs.size
+            } else {
+                tabs.size
             }
+
+            tabs.add(index.coerceIn(0, tabs.size), tabData)
+
+            activeTab.set(tabData)
 
             logger.debug("Tab created for file: {}", filePath.fileName)
 
@@ -216,43 +263,47 @@ class TextEditorViewModel {
         }
     }
 
-    /**
-     * Updates the line and column properties based on the caret position in the given CodeArea.
-     * If the codeArea is null (e.g., no active tab), it resets the values.
-     */
-    fun updateLineAndColumn(codeArea: CodeArea?) {
-        if (codeArea != null) {
-            val line = codeArea.currentParagraph + 1
-            val column = codeArea.caretColumn + 1
-            currentLine.set(line)
-            currentColumn.set(column)
-            BottomBarModule.updateCursorPosition(line, column)
-        } else {
-            currentLine.set(1)
-            currentColumn.set(1)
-        }
+    private fun setupTabListeners(tabData: TabData) {
+        tabData.isDirtyListener = ChangeListener { _, _, isDirty ->
+            if (isDirty) {
+                WorkspaceManager.dirtyFiles.add(tabData.filePath)
+            } else {
+                WorkspaceManager.dirtyFiles.remove(tabData.filePath)
+            }
+        }.also { tabData.isDirty.addListener(it) }
     }
+
+    /**
+     * Updates the line and column properties.
+     */
+    fun updateLineAndColumn(line: Int, column: Int) {
+        currentLine.set(line)
+        currentColumn.set(column)
+        BottomBarModule.updateCursorPosition(line, column)
+    }
+
     /**
      * Closes the specified tab and auto-saves before closing
      */
-    fun closeTab(tabData: TabData, persist: Boolean = true) {
+    fun closeTab(tabData: TabData, persist: Boolean = true, save: Boolean = true) {
         logger.debug("Closing tab: ${tabData.displayName}")
 
-        // Auto-save before closing
-        try {
-            saveFile(tabData)
-            logger.debug("Auto-saved file before closing: ${tabData.displayName}")
-        } catch (e: Exception) {
-            logger.error("Failed to auto-save before closing: ${tabData.displayName}", e)
+        if (save) {
+            // Auto-save before closing
+            try {
+                saveFile(tabData)
+                logger.debug("Auto-saved file before closing: ${tabData.displayName}")
+            } catch (e: Exception) {
+                logger.error("Failed to auto-save before closing: ${tabData.displayName}", e)
+            }
         }
+
+        // Ensure the path is removed from the global dirty set
+        WorkspaceManager.dirtyFiles.remove(tabData.filePath)
 
         // Remove listeners to prevent memory leaks
         tabData.isDirtyListener?.let { tabData.isDirty.removeListener(it) }
-        tabData.textListener?.let { tabData.codeArea.textProperty().removeListener(it) }
-        tabData.caretListener?.let { tabData.codeArea.caretPositionProperty().removeListener(it) }
         tabData.isDirtyListener = null
-        tabData.textListener = null
-        tabData.caretListener = null
 
         tabs.remove(tabData)
 
@@ -266,7 +317,7 @@ class TextEditorViewModel {
     
     // Overload for API compatibility if needed elsewhere
     fun closeTab(tabData: TabData) {
-        closeTab(tabData, true)
+        closeTab(tabData, persist = true, save = true)
     }
 
     /**
@@ -280,8 +331,17 @@ class TextEditorViewModel {
 
     private fun saveFile(tabData: TabData) {
         try {
-            val content = tabData.codeArea.text
-            tabData.filePath.writeText(content)
+            // Safety guard: Never try to write content to a directory path
+            // This prevents crashes if a tab accidentally points to a directory
+            if (FileService.isDirectory(tabData.filePath)) {
+                logger.warn("Attempted to save to a directory path: ${tabData.filePath}. Aborting save!")
+                tabData.isDirty.set(false)
+                return
+            }
+
+            val content = tabData.content.get()
+            WorkspaceManager.ignoreWatcherPath(tabData.filePath)
+            FileService.writeText(tabData.filePath, content)
             tabData.isDirty.set(false)
             logger.debug("File saved: {} ({} characters)", tabData.filePath.fileName, content.length)
         } catch (e: Exception) {

@@ -1,14 +1,21 @@
-package io.github.frostzie.datapackide.screen.elements.popup
+package io.github.frostzie.datapackide.screen.elements.popup.file
 
 import io.github.frostzie.datapackide.modules.popup.file.MoveConfirmationViewModel
 import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.geometry.Pos
-import javafx.scene.control.*
+import javafx.scene.control.Alert
+import javafx.scene.control.ButtonBar
+import javafx.scene.control.ButtonType
+import javafx.scene.control.Dialog
+import javafx.scene.control.Label
+import javafx.scene.control.OverrunStyle
+import javafx.scene.control.TextField
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
+//TODO: Make this actually look okay lol
 class MoveConfirmationView(
     private val viewModel: MoveConfirmationViewModel,
     private val parentStage: Stage?

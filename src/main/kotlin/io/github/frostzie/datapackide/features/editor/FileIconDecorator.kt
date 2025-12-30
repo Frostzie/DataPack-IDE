@@ -5,6 +5,7 @@ import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
 import io.github.frostzie.datapackide.settings.categories.MainConfig
 import javafx.beans.value.ChangeListener
 import javafx.scene.layout.HBox
+import org.fxmisc.richtext.CodeArea
 import org.kordamp.ikonli.javafx.FontIcon
 
 /**
@@ -12,7 +13,7 @@ import org.kordamp.ikonli.javafx.FontIcon
  * icon in a tab based on the "Show File Icons" setting.
  */
 class FileIconDecorator : EditorTabDecorator {
-    override fun decorate(tab: Tab, tabData: TextEditorViewModel.TabData): () -> Unit {
+    override fun decorate(tab: Tab, codeArea: CodeArea, tabData: TextEditorViewModel.TabData): () -> Unit {
         val graphic = tab.graphic as? HBox ?: return { }
         val icon = graphic.children.find { it is FontIcon } as? FontIcon ?: return { }
 
