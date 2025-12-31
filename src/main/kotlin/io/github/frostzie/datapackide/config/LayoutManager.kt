@@ -15,11 +15,11 @@ data class LayoutConfig(
     var width: Double = UIConstants.DEFAULT_WINDOW_WIDTH,
     var height: Double = UIConstants.DEFAULT_WINDOW_HEIGHT,
     
-    // Start Screen Window
-    var startScreenX: Double = -1.0,
-    var startScreenY: Double = -1.0,
-    var startScreenWidth: Double = 800.0,
-    var startScreenHeight: Double = 600.0
+    // Project Manager Screen
+    var projectManagerViewX: Double = -1.0,
+    var projectManagerViewY: Double = -1.0,
+    var projectManagerViewWidth: Double = 810.0,
+    var projectManagerViewHeight: Double = 812.0
 )
 
 object LayoutManager {

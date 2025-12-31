@@ -22,7 +22,7 @@ import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
 import io.github.frostzie.datapackide.screen.elements.popup.settings.SettingsView
-import io.github.frostzie.datapackide.screen.elements.start.StartScreenView
+import io.github.frostzie.datapackide.screen.elements.project.ProjectManagerView
 import io.github.frostzie.datapackide.project.WorkspaceManager
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
@@ -64,7 +64,7 @@ class MainApplication {
         private var contentArea: SplitPane? = null
         
         // View Containers
-        private var startScreenView: StartScreenView? = null
+        private var projectManagerView: ProjectManagerView? = null
         private var ideLayout: BorderPane? = null
         private var rootContainer: StackPane? = null
 
@@ -139,7 +139,7 @@ class MainApplication {
             topBarView = TopBarView(toolBarMenu!!)
             leftBarView = LeftBarView()
             textEditorView = TextEditorView()
-            fileTreeView = FileTreeView(textEditorView!!.viewModel)
+            fileTreeView = FileTreeView()
             bottomBarView = BottomBarView()
 
             bottomBarModule = BottomBarModule
@@ -182,7 +182,7 @@ class MainApplication {
             ideLayout!!.bottom = bottomBarView
             
             // Start Screen Construction
-            startScreenView = StartScreenView()
+            projectManagerView = ProjectManagerView()
 
             // Root Container
             rootContainer = StackPane()
@@ -205,12 +205,12 @@ class MainApplication {
                 return
             }
             
-            val isStartScreen = rootContainer?.children?.getOrNull(0) == startScreenView
-            if (isStartScreen) {
-                LayoutManager.config.startScreenX = stage.x
-                LayoutManager.config.startScreenY = stage.y
-                LayoutManager.config.startScreenWidth = stage.width
-                LayoutManager.config.startScreenHeight = stage.height
+            val isProjectManagerView = rootContainer?.children?.getOrNull(0) == projectManagerView
+            if (isProjectManagerView) {
+                LayoutManager.config.projectManagerViewX = stage.x
+                LayoutManager.config.projectManagerViewY = stage.y
+                LayoutManager.config.projectManagerViewWidth = stage.width
+                LayoutManager.config.projectManagerViewHeight = stage.height
             } else {
                 LayoutManager.config.x = stage.x
                 LayoutManager.config.y = stage.y
@@ -235,7 +235,7 @@ class MainApplication {
                 if (rootContainer!!.children.isEmpty() || rootContainer!!.children[0] != ideLayout) {
 
                     // Save Start Screen State before switching
-                    if (rootContainer!!.children.isNotEmpty() && rootContainer!!.children[0] == startScreenView) {
+                    if (rootContainer!!.children.isNotEmpty() && rootContainer!!.children[0] == projectManagerView) {
                          saveCurrentLayout()
                     }
 
@@ -257,27 +257,27 @@ class MainApplication {
                     }
                 }
             } else {
-                if (rootContainer!!.children.isEmpty() || rootContainer!!.children[0] != startScreenView) {
+                if (rootContainer!!.children.isEmpty() || rootContainer!!.children[0] != projectManagerView) {
 
                     // Save IDE State before switching
                     if (rootContainer!!.children.isNotEmpty() && rootContainer!!.children[0] == ideLayout) {
                          saveCurrentLayout()
                     }
 
-                    rootContainer!!.children.setAll(startScreenView)
+                    rootContainer!!.children.setAll(projectManagerView)
 
                     // Apply Start Screen State
-                    stage.width = LayoutManager.config.startScreenWidth
-                    stage.height = LayoutManager.config.startScreenHeight
-                    if (LayoutManager.config.startScreenX != -1.0) {
-                        stage.x = LayoutManager.config.startScreenX
-                        stage.y = LayoutManager.config.startScreenY
+                    stage.width = LayoutManager.config.projectManagerViewWidth
+                    stage.height = LayoutManager.config.projectManagerViewHeight
+                    if (LayoutManager.config.projectManagerViewX != -1.0) {
+                        stage.x = LayoutManager.config.projectManagerViewX
+                        stage.y = LayoutManager.config.projectManagerViewY
                     } else {
                         stage.centerOnScreen()
                     }
 
                     // Enable Drag for Start Screen Header
-                    dragCleanup = WindowDrag.makeDraggable(stage, startScreenView!!.dragTarget, ::saveCurrentLayout)
+                    dragCleanup = WindowDrag.makeDraggable(stage, projectManagerView!!.dragTarget, ::saveCurrentLayout)
                 }
             }
         }
@@ -379,7 +379,7 @@ class MainApplication {
                 }
 
                 stage.focusedProperty().addListener { _, _, focused ->
-                    fileTreeView?.viewModel?.setWindowFocused(focused)
+                    WorkspaceManager.setWindowFocused(focused)
                 }
 
                 primaryStage = stage

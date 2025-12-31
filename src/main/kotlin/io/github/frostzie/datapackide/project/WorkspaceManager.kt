@@ -174,6 +174,12 @@ object WorkspaceManager {
         }
     }
 
+    fun removeRecentProject(project: Project) {
+        sessionState.recentProjects.removeIf { it.path == project.path }
+        save()
+        EventBus.post(WorkspaceUpdated(workspace))
+    }
+
     private fun addToRecent(project: Project) {
         sessionState.recentProjects.removeIf { it.path == project.path }
         sessionState.recentProjects.addFirst(project)

@@ -24,6 +24,7 @@ import javafx.collections.ObservableList
 import javafx.beans.value.ChangeListener
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.UUID
 
@@ -95,15 +96,20 @@ class TextEditorViewModel {
             val lastActive = state.activeFile
             
             // Close existing tabs that are not in the new session (e.g. on reset or project switch)
-            val currentPaths = tabs.map { it.filePath }.toSet()
             val toClose = tabs.filter { it.filePath !in savedFiles }
             
             // Close removed tabs
             toClose.forEach { closeTab(it, persist = false) }
             
+            // Close tabs that are in the session but missing on disk (prevent resurrection)
+            val missingTabs = tabs.filter { it.filePath in savedFiles && !Files.exists(it.filePath) }
+            missingTabs.forEach { closeTab(it, persist = false, save = false) }
+            
+            val currentPaths = tabs.map { it.filePath }.toSet()
+            
             // Open new files
             savedFiles.forEach { path ->
-                 if (path !in currentPaths) {
+                 if (path !in currentPaths && Files.exists(path)) {
                      createNewTab(path)
                  }
             }
