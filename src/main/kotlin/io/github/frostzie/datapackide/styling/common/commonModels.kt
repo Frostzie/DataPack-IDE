@@ -29,17 +29,18 @@ interface StyleRule<C, S> {
 }
 
 /**
- * Represents the source of an icon, allowing for multiple types.
+ * Represents the source of an icon, allowing Ikonli font icons or svgs.
  */
 sealed class IconSource {
+    abstract val size: Int
+
     /** An icon from the Ikonli font pack. */
-    data class IkonIcon(val ikon: Ikon) : IconSource()
+    data class IkonIcon(val ikon: Ikon, override val size: Int = 16) : IconSource()
 
     /**
-     * An SVG icon, represented by its raw content or a path to it.
-     * TODO: Implement the applier logic for rendering SVG icons.
+     * An SVG icon, represented by its path to it.
      */
-    data class SvgIcon(val path: String) : IconSource()
+    data class SvgIcon(val path: String, override val size: Int = 16) : IconSource()
 }
 
 /**

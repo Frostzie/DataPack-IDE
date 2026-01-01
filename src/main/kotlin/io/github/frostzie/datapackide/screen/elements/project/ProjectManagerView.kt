@@ -5,6 +5,8 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowClose
 import io.github.frostzie.datapackide.modules.project.ProjectManagerViewModel
 import io.github.frostzie.datapackide.project.Project
+import io.github.frostzie.datapackide.styling.common.IconSource
+import io.github.frostzie.datapackide.utils.IconUtils
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.file.DirectoryChooseUtils
 import io.github.frostzie.datapackide.utils.OpenLinks
@@ -17,8 +19,6 @@ import javafx.scene.control.Label
 import javafx.scene.control.ListView
 import javafx.scene.control.Separator
 import javafx.scene.control.Tooltip
-import javafx.scene.image.Image
-import javafx.scene.image.ImageView
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
@@ -63,9 +63,7 @@ class ProjectManagerView : BorderPane() {
         hBox.padding = Insets(10.0)
         hBox.minHeight = 40.0
 
-        val logo = ImageView(Image("assets/datapack-ide/icon.png"))
-        logo.fitHeight = 30.0
-        logo.fitWidth = 30.0
+        val logo = IconUtils.createIcon(IconSource.SvgIcon("/assets/datapack-ide/svg/icon.svg", 40))
 
         val appTitle = Label("DataPack IDE")
         appTitle.styleClass.add(Styles.TITLE_3)

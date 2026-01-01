@@ -2,11 +2,18 @@ package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import atlantafx.base.theme.Styles
 import io.github.frostzie.datapackide.events.*
+import io.github.frostzie.datapackide.modules.bars.top.TopBarViewModel
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
+import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.application.Platform
+import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.control.Button
-import javafx.scene.control.ToolBar
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuBar
+import javafx.scene.control.MenuItem
 import javafx.scene.control.Tooltip
+import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
@@ -18,30 +25,50 @@ import org.kordamp.ikonli.material2.Material2AL
 import io.github.frostzie.datapackide.utils.UIConstants
 import org.kordamp.ikonli.material2.Material2MZ
 import org.kordamp.ikonli.material2.Material2OutlinedMZ
+import io.github.frostzie.datapackide.utils.IconUtils
+import io.github.frostzie.datapackide.styling.common.IconSource
 
-class TopBarView(private val toolBarMenu: ToolBarMenu) : ToolBar() {
+class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
 
     private val maximizeButton: Button
     private val spacer: Region
+    private val logger = LoggerProvider.getLogger("TopBarView")
 
     init {
-        HBox.setHgrow(this, Priority.ALWAYS)
+        alignment = Pos.CENTER_LEFT
+        setHgrow(this, Priority.ALWAYS)
         prefHeight = UIConstants.TOP_BAR_HEIGHT
         minHeight = UIConstants.TOP_BAR_HEIGHT
         maxHeight = UIConstants.TOP_BAR_HEIGHT
         styleClass.add("top-bar-view")
+        styleClass.add("menu-bar")
+
+        val appIcon = IconUtils.createIcon(IconSource.SvgIcon("/assets/datapack-ide/svg/icon.svg", 25))
+        setMargin(appIcon, Insets(0.0, 8.0, 0.0, 8.0))
+
+        setOnMouseClicked { event ->
+            if (event.button == MouseButton.PRIMARY && event.clickCount == 2) {
+                viewModel.toggleMaximize()
+            }
+        }
 
         spacer = Region().apply {
-            HBox.setHgrow(this, Priority.ALWAYS)
+            setHgrow(this, Priority.ALWAYS)
             styleClass.add("title-spacer")
         }
 
-        val hideMenuButton = createTopBarButton(
+        val menuBar = createMenuBar()
+        menuBar.isVisible = false
+        menuBar.isManaged = false
+
+        val toggleMenuBar = createTopBarButton(
             Material2OutlinedMZ.REORDER,
             "Toggle Menu Bar",
             Styles.BUTTON_OUTLINED
         ) {
-            toolBarMenu.show()
+            val newState = !menuBar.isVisible
+            menuBar.isVisible = newState
+            menuBar.isManaged = newState
         }
 
         val runDataPackButton = createTopBarButton(
@@ -83,8 +110,10 @@ class TopBarView(private val toolBarMenu: ToolBarMenu) : ToolBar() {
 
         updateMaximizeButtonIcon(false)
 
-        items.addAll(
-            hideMenuButton,
+        children.addAll(
+            appIcon,
+            toggleMenuBar,
+            menuBar,
             spacer,
             runDataPackButton,
             settingsButton,
@@ -94,6 +123,41 @@ class TopBarView(private val toolBarMenu: ToolBarMenu) : ToolBar() {
         )
     }
 
+    private fun createMenuBar(): MenuBar {
+        val menuBar = MenuBar()
+        menuBar.menus.addAll(
+
+            Menu("File", null,
+                MenuItem("Open").apply { setOnAction { EventBus.post(ChooseDirectory()) } },
+                MenuItem("New Project").apply { setOnAction { logger.warn("New Project button not implemented yet! ") } },
+                MenuItem("Close Project").apply { setOnAction { logger.warn("Close Project button not implemented yet!") } },
+                MenuItem("Save All").apply { setOnAction { EventBus.post(SaveAllFiles()) } },
+                MenuItem("Exit").apply { setOnAction { EventBus.post(MainWindowClose()) } }
+            ),
+
+            Menu("Edit", null,
+                MenuItem("Undo").apply { setOnAction { EventBus.post(EditorUndo()) } },
+                MenuItem("Redo").apply { setOnAction { EventBus.post(EditorRedo()) } },
+                MenuItem("Cut").apply { setOnAction { EventBus.post(EditorCut()) } },
+                MenuItem("Copy").apply { setOnAction { EventBus.post(EditorCopy()) } },
+                MenuItem("Find").apply { setOnAction { EventBus.post(EditorFind()) } },
+                MenuItem("Select All").apply { setOnAction { EventBus.post(EditorSelectAll()) } }
+            ),
+
+            Menu("Build", null,
+                MenuItem("Reload Datapack").apply { setOnAction { EventBus.post(ReloadDatapack()) } },
+                MenuItem("Zip Datapack").apply { setOnAction { logger.warn("Zip Datapack button not implemented yet!") } },
+                MenuItem("Open Folder").apply { setOnAction { EventBus.post(OpenDatapackFolder()) } }
+            ),
+
+            Menu("Help", null,
+                MenuItem("Discord").apply { setOnAction { EventBus.post(DiscordLink()) } },
+                MenuItem("Github").apply { setOnAction { EventBus.post(GitHubLink()) } },
+                MenuItem("Report a Bug").apply { setOnAction { EventBus.post(ReportBugLink()) } }
+            )
+        )
+        return menuBar
+    }
 
     /**
      * Check if a mouse event is over a draggable area (spacer or empty toolbar space)
@@ -108,7 +172,7 @@ class TopBarView(private val toolBarMenu: ToolBarMenu) : ToolBar() {
 
         if (target == this) {
             val localPoint = sceneToLocal(event.sceneX, event.sceneY)
-            for (item in items) {
+            for (item in children) {
                 if (item is Region && item != spacer) {
                     val bounds = item.boundsInParent
                     if (bounds.contains(localPoint)) {

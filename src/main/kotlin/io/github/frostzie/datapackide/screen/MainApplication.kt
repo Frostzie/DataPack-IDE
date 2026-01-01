@@ -9,7 +9,7 @@ import io.github.frostzie.datapackide.handlers.popup.file.FilePopupHandler
 import io.github.frostzie.datapackide.handlers.popup.settings.SettingsHandler
 import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.modules.bars.LeftBarModule
-import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
+import io.github.frostzie.datapackide.modules.bars.top.TopBarViewModel
 import io.github.frostzie.datapackide.modules.popup.file.FilePopupModule
 import io.github.frostzie.datapackide.modules.popup.settings.SettingsModule
 import io.github.frostzie.datapackide.handlers.popup.settings.ThemeHandler
@@ -17,7 +17,6 @@ import io.github.frostzie.datapackide.modules.popup.settings.ThemeModule
 import io.github.frostzie.datapackide.styling.common.NotificationMessageArea
 import io.github.frostzie.datapackide.screen.elements.bars.BottomBarView
 import io.github.frostzie.datapackide.screen.elements.bars.LeftBarView
-import io.github.frostzie.datapackide.screen.elements.bars.top.ToolBarMenu
 import io.github.frostzie.datapackide.screen.elements.bars.top.TopBarView
 import io.github.frostzie.datapackide.screen.elements.main.FileTreeView
 import io.github.frostzie.datapackide.screen.elements.main.TextEditorView
@@ -69,8 +68,7 @@ class MainApplication {
         private var rootContainer: StackPane? = null
 
         // Modules and Handlers
-        private var toolBarMenu: ToolBarMenu? = null
-        private var topBarModule: TopBarModule? = null
+        private var topBarViewModel: TopBarViewModel? = null
         private var topBarHandler: TopBarHandler? = null
 
         private var leftBarModule: LeftBarModule? = null
@@ -135,21 +133,20 @@ class MainApplication {
             ideLayout = BorderPane()
             stage.icons.add(Image("assets/datapack-ide/icon.png"))
 
-            toolBarMenu = ToolBarMenu()
-            topBarView = TopBarView(toolBarMenu!!)
-            leftBarView = LeftBarView()
-            textEditorView = TextEditorView()
-            fileTreeView = FileTreeView()
-            bottomBarView = BottomBarView()
+            topBarViewModel = TopBarViewModel(stage)
+            topBarView = TopBarView(topBarViewModel!!)
+            topBarHandler = TopBarHandler(topBarViewModel!!)
 
+            leftBarView = LeftBarView()
+            leftBarModule = LeftBarModule(stage)
+            leftBarHandler = LeftBarHandler(leftBarModule!!)
+
+            bottomBarView = BottomBarView()
             bottomBarModule = BottomBarModule
             bottomBarHandler = BottomBarHandler(bottomBarModule!!)
 
-            topBarModule = TopBarModule(stage, topBarView)
-            topBarHandler = TopBarHandler(topBarModule!!)
-
-            leftBarModule = LeftBarModule(stage)
-            leftBarHandler = LeftBarHandler(leftBarModule!!)
+            textEditorView = TextEditorView()
+            fileTreeView = FileTreeView()
 
             themeModule = ThemeModule()
             themeHandler = ThemeHandler(themeModule!!)
@@ -188,7 +185,7 @@ class MainApplication {
             rootContainer = StackPane()
             rootContainer!!.styleClass.add("window")
             // Wrap in modal pane stack
-            val rootStack = StackPane(rootContainer!!, toolBarMenu!!.modalPane, NotificationMessageArea)
+            val rootStack = StackPane(rootContainer!!, NotificationMessageArea)
             setupStageDimensions(stage, rootContainer!!)
 
             // The resizable wrapper should wrap the entire root stack
@@ -201,7 +198,7 @@ class MainApplication {
         private fun saveCurrentLayout() {
             val stage = primaryStage ?: return
             
-            if (stage.isIconified || topBarModule?.isMaximized == true) {
+            if (stage.isIconified || topBarViewModel?.isMaximized == true) {
                 return
             }
             

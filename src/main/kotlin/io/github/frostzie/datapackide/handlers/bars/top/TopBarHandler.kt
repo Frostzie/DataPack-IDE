@@ -10,46 +10,46 @@ import io.github.frostzie.datapackide.events.MainWindowToggleMaximize
 import io.github.frostzie.datapackide.events.OpenDatapackFolder
 import io.github.frostzie.datapackide.events.ReloadDatapack
 import io.github.frostzie.datapackide.events.ReportBugLink
-import io.github.frostzie.datapackide.modules.bars.top.TopBarModule
+import io.github.frostzie.datapackide.modules.bars.top.TopBarViewModel
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.OpenLinks
 
 @Suppress("unused")
-class TopBarHandler(private val topBarModule: TopBarModule) {
+class TopBarHandler(private val topBarViewModel: TopBarViewModel) {
 
     @SubscribeEvent
     fun onMinimize(event: MainWindowMinimize) {
-        topBarModule.minimize()
+        topBarViewModel.minimize()
     }
 
     @SubscribeEvent
     fun onMaximize(event: MainWindowMaximize) {
-        topBarModule.maximize()
+        topBarViewModel.maximize()
     }
 
     @SubscribeEvent
     fun onToggleMaximize(event: MainWindowToggleMaximize) {
-        topBarModule.toggleMaximize()
+        topBarViewModel.toggleMaximize()
     }
 
     @SubscribeEvent
     fun onRestoreBack(event: MainWindowRestore) {
-        topBarModule.restore()
+        topBarViewModel.restore()
     }
 
     @SubscribeEvent
     fun onClose(event: MainWindowClose) {
-        topBarModule.hideWindow()
+        topBarViewModel.hideWindow()
     }
 
     @SubscribeEvent
     fun reloadDatapack(event: ReloadDatapack) {
-        topBarModule.reloadDatapacks()
+        topBarViewModel.reloadDatapacks()
     }
 
     @SubscribeEvent
     fun openDatapackFolder(event: OpenDatapackFolder) {
-        topBarModule.openDatapackFolder()
+        topBarViewModel.openDatapackFolder()
     }
 
     @SubscribeEvent

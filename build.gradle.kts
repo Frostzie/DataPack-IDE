@@ -76,6 +76,7 @@ dependencies {
 	include(libs.wellbehavedfx)
 
 	implementation("io.methvin:directory-watcher:0.19.1")
+	implementation("com.github.weisj:jsvg:2.0.0")
 
 	// JavaFX
 	for (classifier in javafxClassifiers) {
