@@ -1,17 +1,20 @@
 package io.github.frostzie.datapackide.project.metadata
 
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
-//TODO: Add format, features, filter, overlays, language
 data class DatapackMetadata(
+    val packFormat: Int?,
     val description: String,
-    val author: String? = null,
+    val supportedFormats: FormatRange?,
 )
+
+data class FormatRange(val min: Int, val max: Int)
 
 object DatapackParser {
     private val logger = LoggerProvider.getLogger("DatapackParser")
@@ -25,23 +28,78 @@ object DatapackParser {
             val content = mcmetaPath.readText()
             val json = JsonParser.parseString(content).asJsonObject
             val pack = json.getAsJsonObject("pack") ?: return null
-            
-            var rawDescription = parseDescription(pack.get("description"))
-            rawDescription = rawDescription.replace(COLOR_CODE_REGEX, "")
-            
-            // Split author //TODO: Not even sure if we wanna keep this or nah since not everyone does this (Also finicky way of detecting)
-            val (finalDescription, author) = if (rawDescription.contains("\n")) {
-                val parts = rawDescription.split("\n", limit = 2)
-                Pair(parts[0].trim(), parts[1].trim())
-            } else {
-                Pair(rawDescription.trim(), null)
-            }
 
-            DatapackMetadata( finalDescription, author)
+            val packFormat = pack.get("pack_format")?.let { if (it.isJsonPrimitive) it.asInt else null }
+            
+            var description = parseDescription(pack.get("description"))
+            description = description.replace(COLOR_CODE_REGEX, "")
+
+            val supportedFormats = resolveSupportedFormats(pack)
+
+            DatapackMetadata(packFormat, description, supportedFormats)
         } catch (e: Exception) {
             logger.error("Failed to parse pack.mcmeta at $path", e)
             null
         }
+    }
+
+    private fun resolveSupportedFormats(pack: JsonObject): FormatRange? {
+        // 1. Try min_format / max_format
+        val min = parseMajorVersion(pack.get("min_format"))
+        val max = parseMajorVersion(pack.get("max_format"))
+        
+        if (min != null || max != null) {
+            return FormatRange(min ?: 0, max ?: Int.MAX_VALUE)
+        }
+
+        // 2. Try supported_formats field (Legacy)
+        val supported = parseSupportedFormats(pack.get("supported_formats"))
+        if (supported != null) return supported
+
+        // 3. Fallback to pack_format
+        val fmt = pack.get("pack_format")?.let { if (it.isJsonPrimitive) it.asInt else null }
+        if (fmt != null) {
+            return FormatRange(fmt, fmt)
+        }
+
+        return null
+    }
+
+    private fun parseMajorVersion(element: JsonElement?): Int? {
+        if (element == null) return null
+        if (element.isJsonPrimitive && element.asJsonPrimitive.isNumber) return element.asInt
+        if (element.isJsonArray && element.asJsonArray.size() > 0) {
+            return element.asJsonArray.get(0).asInt
+        }
+        return null
+    }
+
+    private fun parseSupportedFormats(element: JsonElement?): FormatRange? {
+        if (element == null) return null
+        
+        if (element.isJsonPrimitive && element.asJsonPrimitive.isNumber) {
+            val fmt = element.asInt
+            return FormatRange(fmt, fmt)
+        }
+        
+        if (element.isJsonArray) {
+            val array = element.asJsonArray
+            if (array.size() == 1) {
+                val f = array.get(0).asInt
+                return FormatRange(f, f)
+            } else if (array.size() >= 2) {
+                return FormatRange(array.get(0).asInt, array.get(1).asInt)
+            }
+        }
+        
+        if (element.isJsonObject) {
+            val obj = element.asJsonObject
+            val min = obj.get("min_inclusive")?.asInt ?: 0
+            val max = obj.get("max_inclusive")?.asInt ?: Int.MAX_VALUE
+            return FormatRange(min, max)
+        }
+        
+        return null
     }
 
     private fun parseDescription(element: JsonElement?): String {
@@ -57,7 +115,11 @@ object DatapackParser {
                  val text = obj.get("text")?.asString ?: ""
                  val extra = obj.get("extra")
                  val extraText = parseDescription(extra)
-                 text + extraText
+                 if (text.isEmpty() && extraText.isEmpty()) {
+                     obj.toString()
+                 } else {
+                     text + extraText
+                 }
              } else {
                  element.toString()
              }

@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.modules.popup.file
 
-import io.github.frostzie.datapackide.screen.elements.popup.MoveConfirmationView
+import io.github.frostzie.datapackide.screen.elements.popup.file.FileOverrideDialogView
+import io.github.frostzie.datapackide.screen.elements.popup.file.MoveConfirmationView
 import javafx.application.Platform
 import javafx.stage.Stage
 import java.nio.file.Path
@@ -29,6 +30,13 @@ class FilePopupModule(private val parentStage: Stage) {
             val viewModel = MoveConfirmationViewModel(sourcePath)
             viewModel.targetDirectory.set(targetPath.parent.toString())
             MoveConfirmationView(viewModel, parentStage).show()
+        }
+    }
+
+    fun showFileOverrideDialog(sourcePath: Path, targetPath: Path) {
+        Platform.runLater {
+            val viewModel = FileOverrideDialogViewModel(sourcePath, targetPath)
+            FileOverrideDialogView(viewModel, parentStage).show()
         }
     }
 }

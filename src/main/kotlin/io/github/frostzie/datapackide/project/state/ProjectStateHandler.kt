@@ -57,6 +57,18 @@ object ProjectStateHandler {
     }
     
     /**
+     * Clears the persisted state for a specific project.
+     */
+    fun clearState(rootPath: Path) {
+        val file = getStateFile(rootPath)
+        try {
+            Files.deleteIfExists(file)
+        } catch (e: Exception) {
+            logger.error("Failed to delete project state for $rootPath", e)
+        }
+    }
+
+    /**
      * Generates a unique filename based on the path hash.
      * Use MD5 or SHA-1 to get a safe filename.
      */

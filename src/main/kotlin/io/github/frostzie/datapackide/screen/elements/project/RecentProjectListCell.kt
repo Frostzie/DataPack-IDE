@@ -2,18 +2,13 @@ package io.github.frostzie.datapackide.screen.elements.project
 
 import atlantafx.base.theme.Styles
 import io.github.frostzie.datapackide.project.Project
+import io.github.frostzie.datapackide.utils.ProjectIconUtils
 import javafx.geometry.Pos
-import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.control.ListCell
-import javafx.scene.image.Image
-import javafx.scene.image.ImageView
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
-import org.kordamp.ikonli.javafx.FontIcon
-import org.kordamp.ikonli.material2.Material2AL
-import java.util.zip.ZipFile
 
 class RecentProjectListCell : ListCell<Project>() {
 
@@ -29,7 +24,7 @@ class RecentProjectListCell : ListCell<Project>() {
             graphic = null
             tooltip = null
         } else {
-            val iconNode = createIcon(item)
+            val iconNode = ProjectIconUtils.getIcon(item.path, 32.0)
 
             val nameLabel = Label(item.name)
             nameLabel.styleClass.add(Styles.TEXT_BOLD)
@@ -79,37 +74,5 @@ class RecentProjectListCell : ListCell<Project>() {
             graphic = root
             text = null
         }
-    }
-
-    private fun createIcon(project: Project): Node {
-        try {
-            val path = project.path
-            val isZip = path.toString().endsWith(".zip")
-
-            val image = if (isZip) {
-                var entryName: String? = null
-                try {
-                    ZipFile(path.toFile()).use { zip ->
-                        if (zip.getEntry("pack.png") != null) entryName = "pack.png"
-                        else if (zip.getEntry("icon.png") != null) entryName = "icon.png"
-                    }
-                } catch (e: Exception) { /* ignore */ }
-                if (entryName != null) Image("jar:${path.toUri()}!/$entryName", 32.0, 32.0, true, true) else null
-            } else {
-                val iconPath = project.iconPath ?: path.resolve("pack.png")
-                if (iconPath.toFile().exists()) Image(iconPath.toUri().toString(), 32.0, 32.0, true, true) else null
-            }
-
-            if (image != null && !image.isError) {
-                return ImageView(image).apply {
-                    fitWidth = 32.0
-                    fitHeight = 32.0
-                }
-            }
-        } catch (e: Exception) {
-            // Fallback
-        }
-        
-        return FontIcon(if (project.path.toString().endsWith(".zip")) Material2AL.ARCHIVE else Material2AL.FOLDER).apply { iconSize = 32 }
     }
 }

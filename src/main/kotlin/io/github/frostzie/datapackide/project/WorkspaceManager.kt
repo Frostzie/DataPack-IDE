@@ -152,7 +152,7 @@ object WorkspaceManager {
         try {
             val children = path.listDirectoryEntries()
             for (child in children) {
-                if (child.isDirectory() && DatapackParser.parse(child) != null) {
+                if ((child.isDirectory() || child.toString().endsWith(".zip")) && DatapackParser.parse(child) != null) {
                     val project = Project(child)
                     project.loadMetadata()
                     workspace.projects.add(project)
@@ -176,6 +176,15 @@ object WorkspaceManager {
 
     fun removeRecentProject(project: Project) {
         sessionState.recentProjects.removeIf { it.path == project.path }
+        save()
+        EventBus.post(WorkspaceUpdated(workspace))
+    }
+
+    fun clearProjectHistory(path: Path) {
+        sessionState.recentProjects.removeIf { it.path == path }
+
+        ProjectStateHandler.clearState(path)
+        
         save()
         EventBus.post(WorkspaceUpdated(workspace))
     }

@@ -143,6 +143,7 @@ class ProjectManagerView : BorderPane() {
              // TODO: Open New Project
              logger.info("New Project clicked (Not Implemented)")
         }
+        newProjectBtn.isDisable = true
 
         val openButtonsBox = HBox(10.0)
         openButtonsBox.alignment = Pos.CENTER
@@ -169,6 +170,7 @@ class ProjectManagerView : BorderPane() {
         val openWorldBtn = createActionButton("Open from World", Material2MZ.PUBLIC) {
              logger.info("Open from World clicked (Not Implemented)")
         }
+        openWorldBtn.isDisable = true
 
         actionsBox.children.addAll(newProjectBtn, openButtonsBox, openWorldBtn)
 
