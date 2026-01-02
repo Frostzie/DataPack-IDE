@@ -75,8 +75,10 @@ dependencies {
 	include(libs.undofx)
 	include(libs.wellbehavedfx)
 
-	implementation("io.methvin:directory-watcher:0.19.1")
-	implementation("com.github.weisj:jsvg:2.0.0")
+	implementation(libs.directoryWatcher)
+	implementation(libs.jsvg)
+	include(libs.jsvg)
+	include(libs.directoryWatcher)
 
 	// JavaFX
 	for (classifier in javafxClassifiers) {
@@ -124,11 +126,12 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.named<Jar>("jar") {
-	from("LICENSE") {
+	from(rootProject.file("LICENSE")) {
 		rename { "${it}_${project.findProperty("archives_base_name")}" }
 	}
-	from("docs") {
+	from(rootProject.file("docs")) {
 		into("docs")
+		exclude("README_Pictures")
 	}
 	exclude("module-info.class")
 	exclude("**/module-info.class")
@@ -138,6 +141,15 @@ tasks.named<Jar>("jar") {
 	exclude("META-INF/*.RSA")
 
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named("remapJar") {
+	doLast {
+		copy {
+			from(outputs.files)
+			into(rootProject.file("build/libs"))
+		}
+	}
 }
 
 publishing {
