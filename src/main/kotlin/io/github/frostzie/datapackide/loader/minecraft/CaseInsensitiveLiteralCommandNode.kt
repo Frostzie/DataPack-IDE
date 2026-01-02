@@ -1,4 +1,4 @@
-package io.github.frostzie.datapackide.utils.minecraft
+package io.github.frostzie.datapackide.loader.minecraft
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.RedirectModifier

@@ -1,6 +1,6 @@
 package io.github.frostzie.datapackide.modules.bars.top
 
-import io.github.frostzie.datapackide.commands.ReloadDataPacksCommand
+import io.github.frostzie.datapackide.loader.minecraft.ReloadDataPacksCommand
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
 import io.github.frostzie.datapackide.screen.MainApplication

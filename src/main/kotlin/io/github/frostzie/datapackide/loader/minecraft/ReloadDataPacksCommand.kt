@@ -1,5 +1,6 @@
-package io.github.frostzie.datapackide.commands
+package io.github.frostzie.datapackide.loader.minecraft
 
+import io.github.frostzie.datapackide.loader.fabric.WorldDetection
 import io.github.frostzie.datapackide.styling.common.IconSource
 import io.github.frostzie.datapackide.styling.messages.MessageFactory
 import io.github.frostzie.datapackide.styling.messages.MessageSeverity
@@ -17,6 +18,11 @@ object ReloadDataPacksCommand {
      * This is typically triggered by a UI button press.
      */
     fun executeCommandButton() {
+        // Tbf this check is basically useless knowing that you can't send cmd when no connected
+        if (!WorldDetection.isWorldOpen()) {
+            logger.warn("Cannot reload datapack: No world detected.")
+            return
+        }
         Minecraft.getInstance().player?.connection?.sendCommand("reload")
         logger.debug("Sent /reload with button press")
         val message = MessageFactory.createAndShow(

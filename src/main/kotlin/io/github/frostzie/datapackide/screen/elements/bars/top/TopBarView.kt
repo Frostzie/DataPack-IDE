@@ -2,6 +2,7 @@ package io.github.frostzie.datapackide.screen.elements.bars.top
 
 import atlantafx.base.theme.Styles
 import io.github.frostzie.datapackide.events.*
+import io.github.frostzie.datapackide.loader.fabric.WorldDetection
 import io.github.frostzie.datapackide.modules.bars.top.TopBarViewModel
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
@@ -78,6 +79,7 @@ class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
             EventBus.post(SaveAllFiles())
             EventBus.post(ReloadDatapack())
         }
+        runDataPackButton.isDisable = !WorldDetection.isWorldOpen()
 
         val settingsButton = createTopBarButton(
             Material2MZ.SETTINGS,
@@ -145,7 +147,10 @@ class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
             ),
 
             Menu("Build", null,
-                MenuItem("Reload Datapack").apply { setOnAction { EventBus.post(ReloadDatapack()) } },
+                MenuItem("Reload Datapack").apply {
+                    setOnAction { EventBus.post(ReloadDatapack()) }
+                    isDisable = !WorldDetection.isWorldOpen()
+                },
                 MenuItem("Zip Datapack").apply { setOnAction { logger.warn("Zip Datapack button not implemented yet!") } },
                 MenuItem("Open Folder").apply { setOnAction { EventBus.post(OpenDatapackFolder()) } }
             ),

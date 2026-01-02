@@ -1,4 +1,4 @@
-package io.github.frostzie.datapackide.commands
+package io.github.frostzie.datapackide.loader.minecraft
 
 import io.github.frostzie.datapackide.screen.MainApplication
 import io.github.frostzie.datapackide.utils.CommandUtils

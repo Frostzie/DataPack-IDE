@@ -1,6 +1,6 @@
 package io.github.frostzie.datapackide
 
-import io.github.frostzie.datapackide.commands.DefaultCommands
+import io.github.frostzie.datapackide.loader.minecraft.DefaultCommands
 import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.loader.fabric.Keybinds
 import io.github.frostzie.datapackide.screen.MainApplication

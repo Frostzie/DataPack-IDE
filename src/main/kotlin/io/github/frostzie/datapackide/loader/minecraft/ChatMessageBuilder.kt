@@ -1,4 +1,4 @@
-package io.github.frostzie.datapackide.utils.minecraft
+package io.github.frostzie.datapackide.loader.minecraft
 
 import io.github.frostzie.datapackide.utils.ColorUtils
 import net.minecraft.client.Minecraft

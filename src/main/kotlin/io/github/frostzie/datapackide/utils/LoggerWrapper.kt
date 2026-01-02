@@ -1,6 +1,6 @@
 package io.github.frostzie.datapackide.utils
 
-import io.github.frostzie.datapackide.utils.minecraft.ChatMessageBuilder
+import io.github.frostzie.datapackide.loader.minecraft.ChatMessageBuilder
 import org.slf4j.Logger
 import org.slf4j.helpers.MessageFormatter
 
