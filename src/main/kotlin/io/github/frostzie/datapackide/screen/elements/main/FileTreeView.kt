@@ -45,6 +45,9 @@ class FileTreeView : VBox() {
         setVgrow(treeView, Priority.ALWAYS)
         children.add(treeView)
 
+        visibleProperty().bind(viewModel.isVisible)
+        managedProperty().bind(viewModel.isVisible)
+
         treeView.rootProperty().bind(viewModel.root)
         treeView.styleClass.add(Tweaks.EDGE_TO_EDGE)
         treeView.styleClass.add(Tweaks.ALT_ICON)

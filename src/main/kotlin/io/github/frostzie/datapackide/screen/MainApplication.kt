@@ -159,14 +159,31 @@ class MainApplication {
 
             setupEventHandlers()
 
+            val defaultDividerPosition = UIConstants.FILE_TREE_DEFAULT_WIDTH / (UIConstants.DEFAULT_WINDOW_WIDTH - UIConstants.LEFT_BAR_WIDTH)
+
             contentArea = SplitPane().apply {
                 items.addAll(fileTreeView, textEditorView)
 
-                val defaultPosition = UIConstants.FILE_TREE_DEFAULT_WIDTH / (UIConstants.DEFAULT_WINDOW_WIDTH - UIConstants.LEFT_BAR_WIDTH)
-                setDividerPosition(0, defaultPosition)
+                setDividerPosition(0, defaultDividerPosition)
 
                 SplitPane.setResizableWithParent(fileTreeView, false)
                 SplitPane.setResizableWithParent(textEditorView, true)
+            }
+
+            var lastDividerPosition = defaultDividerPosition
+            fileTreeView!!.viewModel.isVisible.addListener { _, _, isVisible ->
+                val splitPane = contentArea ?: return@addListener
+                if (isVisible) {
+                    if (!splitPane.items.contains(fileTreeView)) {
+                        splitPane.items.add(0, fileTreeView)
+                        Platform.runLater { splitPane.setDividerPositions(lastDividerPosition) }
+                    }
+                } else {
+                    if (splitPane.items.contains(fileTreeView)) {
+                        if (splitPane.dividers.isNotEmpty()) lastDividerPosition = splitPane.dividers[0].position
+                        splitPane.items.remove(fileTreeView)
+                    }
+                }
             }
 
             val centerContent = HBox().apply {

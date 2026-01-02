@@ -1,7 +1,7 @@
 package io.github.frostzie.datapackide.screen.elements.bars
 
 import atlantafx.base.theme.Styles
-import io.github.frostzie.datapackide.events.ChooseDirectory
+import io.github.frostzie.datapackide.events.ToggleFileTree
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.UIConstants
@@ -27,9 +27,9 @@ class LeftBarView : ToolBar() {
 
         val directoryChooseButton = createLeftBarButton(
             Feather.FOLDER,
-            "Choose Directory"
+            "Toggle File Tree"
         ) {
-            EventBus.post(ChooseDirectory())
+            EventBus.post(ToggleFileTree())
         }
 
         val searchButton = createLeftBarButton(

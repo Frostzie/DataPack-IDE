@@ -4,6 +4,7 @@ import io.github.frostzie.datapackide.events.DirectorySelected
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.FileMoved
 import io.github.frostzie.datapackide.events.MoveFile
+import io.github.frostzie.datapackide.events.ToggleFileTree
 import io.github.frostzie.datapackide.events.WorkspaceUpdated
 import io.github.frostzie.datapackide.project.Project
 import io.github.frostzie.datapackide.project.WorkspaceManager
@@ -13,6 +14,7 @@ import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import io.github.frostzie.datapackide.utils.file.FileSystemUpdate
 import javafx.application.Platform
+import javafx.beans.property.SimpleBooleanProperty
 import java.nio.file.Files
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.control.TreeItem
@@ -30,6 +32,7 @@ class FileTreeViewModel {
     
     // The invisible root of the TreeView. Its children are the Project roots.
     val root = SimpleObjectProperty<TreeItem<FileTreeItem>>()
+    val isVisible = SimpleBooleanProperty(true)
     
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     
@@ -51,6 +54,12 @@ class FileTreeViewModel {
     fun cleanup() {
         scope.cancel()
         EventBus.unregister(this)
+    }
+
+    @Suppress("unused")
+    @SubscribeEvent
+    fun onToggleFileTree(event: ToggleFileTree) {
+        isVisible.set(!isVisible.get())
     }
 
     /**
