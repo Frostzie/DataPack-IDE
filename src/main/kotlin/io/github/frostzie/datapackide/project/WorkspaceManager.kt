@@ -90,7 +90,11 @@ object WorkspaceManager {
                         val validRecentProjects = loadedState.recentProjects
                             .filter { Files.exists(it.path) }
                             
-                        validRecentProjects.forEach { it.loadMetadata() }
+                        validRecentProjects.forEach { 
+                            if (it.additionalPaths.isEmpty()) {
+                                it.loadMetadata() 
+                            }
+                        }
 
                         sessionState = SessionState(
                             Workspace(validActiveProjects), 
@@ -122,12 +126,36 @@ object WorkspaceManager {
         }
     }
 
-    fun addProject(path: Path) {
+    fun addProject(path: Path, shouldAddToRecent: Boolean = false) {
         if (workspace.projects.none { it.path == path }) {
             val project = Project(path)
             project.loadMetadata()
             workspace.projects.add(project)
-            addToRecent(project)
+            
+            if (shouldAddToRecent) {
+                // Preserve additional paths if updating an existing entry
+                val existing = sessionState.recentProjects.find { it.path == path }
+                if (existing != null) {
+                    project.additionalPaths.addAll(existing.additionalPaths)
+                }
+                addToRecent(project)
+            } else {
+                // Importing a secondary project. Update the main recent entry.
+                val mainProject = workspace.projects.firstOrNull()
+                if (mainProject != null) {
+                    val recentEntry = sessionState.recentProjects.find { it.path == mainProject.path }
+                    if (recentEntry != null) {
+                        if (recentEntry.additionalPaths.none { it == path }) {
+                            recentEntry.additionalPaths.add(path)
+                        }
+                        // Mark as multi-project workspace (generic folder icon)
+                        recentEntry.metadata = null
+                        recentEntry.iconPath = null
+                        save()
+                    }
+                }
+            }
+            
             loadCurrentState()
             setupWatcher(path) // Start watching
             save()
@@ -142,9 +170,14 @@ object WorkspaceManager {
         stopWatchers() // Stop previous
         workspace.projects.clear()
         
+        // Capture extra paths from history before they might be reset
+        val recentEntry = sessionState.recentProjects.find { it.path == path }
+        val extraPaths = recentEntry?.additionalPaths?.toList() ?: emptyList()
+        
         if (DatapackParser.parse(path) != null) {
             logger.debug("Detected single datapack at {}", path)
-            addProject(path) // This calls setupWatcher
+            addProject(path, true) // This calls setupWatcher
+            extraPaths.forEach { addProject(it, false) }
             return
         }
         
@@ -165,13 +198,19 @@ object WorkspaceManager {
         }
         
         if (foundDatapacks) {
+             val workspaceProject = Project(path)
+             workspaceProject.loadMetadata()
+             workspaceProject.additionalPaths.addAll(extraPaths)
+             addToRecent(workspaceProject)
              loadCurrentState()
              save()
              EventBus.post(WorkspaceUpdated(workspace))
         } else {
              logger.info("No datapacks detected, opening as generic project: $path")
-             addProject(path)
+             addProject(path, true)
         }
+        
+        extraPaths.forEach { addProject(it, false) }
     }
 
     fun removeRecentProject(project: Project) {
@@ -301,21 +340,35 @@ class ProjectSerializer : TypeAdapter<Project>() {
         }
         out.beginObject()
         out.name("path").value(value.path.toString())
+        
+        if (value.additionalPaths.isNotEmpty()) {
+            out.name("additionalPaths").beginArray()
+            value.additionalPaths.forEach { out.value(it.toString()) }
+            out.endArray()
+        }
         out.endObject()
     }
 
     override fun read(reader: JsonReader): Project? {
         var path: Path? = null
+        val additionalPaths = mutableListOf<Path>()
         
         reader.beginObject()
         while (reader.hasNext()) {
             when (reader.nextName()) {
                 "path" -> path = Paths.get(reader.nextString())
+                "additionalPaths" -> {
+                    reader.beginArray()
+                    while (reader.hasNext()) {
+                        additionalPaths.add(Paths.get(reader.nextString()))
+                    }
+                    reader.endArray()
+                }
                 else -> reader.skipValue()
             }
         }
         reader.endObject()
         
-        return if (path != null) Project(path) else null
+        return if (path != null) Project(path, additionalPaths = additionalPaths) else null
     }
 }

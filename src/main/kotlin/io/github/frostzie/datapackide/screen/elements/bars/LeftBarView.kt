@@ -36,6 +36,7 @@ class LeftBarView : ToolBar() {
             Feather.SEARCH,
             "Search"
         ) {
+            isDisable = true
             logger.warn("Search button not implemented yet!")
         }
 

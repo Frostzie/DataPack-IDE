@@ -19,6 +19,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
+import javafx.stage.DirectoryChooser
 import org.kordamp.ikonli.Ikon
 import org.kordamp.ikonli.feather.Feather
 import org.kordamp.ikonli.javafx.FontIcon
@@ -130,19 +131,29 @@ class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
         menuBar.menus.addAll(
 
             Menu("File", null,
-                MenuItem("Open").apply { setOnAction { EventBus.post(ChooseDirectory()) } },
-                MenuItem("New Project").apply { setOnAction { logger.warn("New Project button not implemented yet! ") } },
-                MenuItem("Close Project").apply { setOnAction { logger.warn("Close Project button not implemented yet!") } },
+                MenuItem("Import").apply { setOnAction {
+                    val dc = DirectoryChooser()
+                    dc.title = "Import Project"
+                    val selected = dc.showDialog(scene.window)
+                    if (selected != null) {
+                        viewModel.importProject(selected.toPath())
+                    }
+                } },
+                MenuItem("New Project").apply { setOnAction { logger.warn("New Project button not implemented yet! ") }; isDisable = true }, //TODO: Enabled when create project added
+                MenuItem("Close Project").apply { setOnAction {
+                    EventBus.post(SaveAllFiles())
+                    EventBus.post(OpenProjectManagerEvent())
+                } },
                 MenuItem("Save All").apply { setOnAction { EventBus.post(SaveAllFiles()) } },
                 MenuItem("Exit").apply { setOnAction { EventBus.post(MainWindowClose()) } }
             ),
 
             Menu("Edit", null,
-                MenuItem("Undo").apply { setOnAction { EventBus.post(EditorUndo()) } },
-                MenuItem("Redo").apply { setOnAction { EventBus.post(EditorRedo()) } },
+                MenuItem("Undo Typing").apply { setOnAction { EventBus.post(EditorUndo()) } },
+                MenuItem("Redo Typing").apply { setOnAction { EventBus.post(EditorRedo()) } },
                 MenuItem("Cut").apply { setOnAction { EventBus.post(EditorCut()) } },
                 MenuItem("Copy").apply { setOnAction { EventBus.post(EditorCopy()) } },
-                MenuItem("Find").apply { setOnAction { EventBus.post(EditorFind()) } },
+                MenuItem("Find").apply { setOnAction { EventBus.post(EditorFind()) }; isDisable = true },
                 MenuItem("Select All").apply { setOnAction { EventBus.post(EditorSelectAll()) } }
             ),
 

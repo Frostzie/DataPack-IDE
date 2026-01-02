@@ -9,6 +9,8 @@ import javafx.scene.control.ListCell
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import org.kordamp.ikonli.javafx.FontIcon
+import org.kordamp.ikonli.material2.Material2AL
 
 class RecentProjectListCell : ListCell<Project>() {
 
@@ -24,7 +26,11 @@ class RecentProjectListCell : ListCell<Project>() {
             graphic = null
             tooltip = null
         } else {
-            val iconNode = ProjectIconUtils.getIcon(item.path, 32.0)
+            val iconNode = if (item.additionalPaths.isNotEmpty()) {
+                FontIcon(Material2AL.FOLDER).apply { iconSize = 32 }
+            } else {
+                ProjectIconUtils.getIcon(item.path, 32.0)
+            }
 
             val nameLabel = Label(item.name)
             nameLabel.styleClass.add(Styles.TEXT_BOLD)

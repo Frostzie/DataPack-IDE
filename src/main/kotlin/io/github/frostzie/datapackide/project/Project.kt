@@ -12,7 +12,8 @@ data class Project(
     val path: Path,
     val name: String = path.fileName.toString(),
     var metadata: DatapackMetadata? = null,
-    var iconPath: Path? = null
+    var iconPath: Path? = null,
+    val additionalPaths: MutableList<Path> = mutableListOf()
 ) {
     fun loadMetadata() {
         metadata = DatapackParser.parse(path)
