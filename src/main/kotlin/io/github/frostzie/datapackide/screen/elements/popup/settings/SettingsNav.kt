@@ -9,6 +9,7 @@ import io.github.frostzie.datapackide.utils.UIConstants
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
 import javafx.scene.control.TextField
+import javafx.scene.control.TextFormatter
 import javafx.scene.control.TreeCell
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
@@ -40,6 +41,13 @@ class SettingsNav : VBox() {
         searchField = TextField().apply {
             styleClass.add("search-field")
             promptText = "Search"
+            textFormatter = TextFormatter<String> { change -> // Limits to 20 char should be enough and no more crash by art
+                if (change.controlNewText.length > 20) {
+                    null
+                } else {
+                    change
+                }
+            }
             textProperty().addListener(ChangeListener { _, _, newValue ->
                 EventBus.post(SettingsSearchQueryChanged(newValue))
             })
