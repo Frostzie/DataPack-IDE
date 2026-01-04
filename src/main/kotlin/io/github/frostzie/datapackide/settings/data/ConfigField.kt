@@ -118,6 +118,16 @@ data class TextFieldConfigField(
     override val editorType: EditorType = EditorType.TEXT_FIELD
 }
 
+data class FolderConfigField(
+    override val objectInstance: Any,
+    override val property: KProperty1<Any, Property<String>>,
+    override val name: String,
+    override val description: String,
+    override val category: ConfigCategory?
+) : ConfigField {
+    override val editorType: EditorType = EditorType.FOLDER
+}
+
 enum class EditorType {
-    BOOLEAN, TEXT, SLIDER, DROPDOWN, BUTTON, KEYBIND, INFO, SPINNER, COLOR_PICKER, TEXT_FIELD
+    BOOLEAN, TEXT, SLIDER, DROPDOWN, BUTTON, KEYBIND, INFO, SPINNER, COLOR_PICKER, TEXT_FIELD, FOLDER
 }

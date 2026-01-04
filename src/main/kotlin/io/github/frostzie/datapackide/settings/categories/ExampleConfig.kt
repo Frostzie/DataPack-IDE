@@ -75,6 +75,12 @@ object ExampleConfig {
     val textField = SimpleStringProperty("Text Field...")
 
     @Expose
+    @ConfigCategory(name = "Example Settings")
+    @ConfigOption(name = "Folder Selector", desc = "Description")
+    @ConfigEditorFolder
+    val universalFolderPath = SimpleStringProperty("")
+
+    @Expose
     @ConfigCategory(name = "Message Showcase")
     @ConfigOption(name = "Title", desc = "Title of the showcase message" +
             "\nYes Art I know you can put inf text here but whats the point of doing that? That's why there is no limit. (Applies to desc too.)")

@@ -24,6 +24,7 @@ internal object ConfigFieldManager {
             property.findAnnotation<ConfigEditorSpinner>() != null -> createSpinnerField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorColorPicker>() != null -> createColorPickerField(instance, property, option, propValue)
             property.findAnnotation<ConfigEditorTextField>() != null -> createTextField(instance, property, option, propValue)
+            property.findAnnotation<ConfigEditorFolder>() != null -> createFolderField(instance, property, option, propValue)
             else -> null
         }
     }
@@ -147,6 +148,18 @@ internal object ConfigFieldManager {
             )
         }
         logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<String> for TextField.")
+        return null
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun createFolderField(instance: Any, property: KProperty1<Any, Any>, option: ConfigOption, propValue: Any): FolderConfigField? {
+        if (propValue is Property<*> && propValue.value is String) {
+            return FolderConfigField(
+                instance, property as KProperty1<Any, Property<String>>, option.name, option.desc,
+                property.findAnnotation()
+            )
+        }
+        logger.warn("Mismatched annotation/type for ${property.name} in ${instance::class.simpleName}. Expected Property<String> for Folder.")
         return null
     }
 }

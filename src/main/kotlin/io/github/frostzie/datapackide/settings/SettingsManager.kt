@@ -70,6 +70,7 @@ object SettingsManager {
                     is SpinnerConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                     is ColorPickerConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                     is TextFieldConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
+                    is FolderConfigField -> defaultValues[field.property] = field.property.get(field.objectInstance).value
                 }
             }
         }
@@ -164,6 +165,7 @@ object SettingsManager {
                             is SpinnerConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                             is ColorPickerConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                             is TextFieldConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
+                            is FolderConfigField -> categoryObject.addProperty(field.property.name, field.property.get(objectInstance).value)
                         }
                     }
                 }
@@ -216,6 +218,7 @@ object SettingsManager {
                                         is SpinnerConfigField -> field.property.get(objectInstance).value = jsonElement.asInt
                                         is ColorPickerConfigField -> field.property.get(objectInstance).value = jsonElement.asString
                                         is TextFieldConfigField -> field.property.get(objectInstance).value = jsonElement.asString
+                                        is FolderConfigField -> field.property.get(objectInstance).value = jsonElement.asString
                                     }
                                     logger.debug("Loaded setting: {} = {}", field.name, jsonElement)
                                 } catch (e: Exception) {

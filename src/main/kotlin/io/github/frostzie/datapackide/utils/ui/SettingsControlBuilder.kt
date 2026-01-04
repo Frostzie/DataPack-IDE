@@ -5,12 +5,18 @@ import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 import io.github.frostzie.datapackide.settings.data.*
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import atlantafx.base.controls.ToggleSwitch
+import io.github.frostzie.datapackide.styling.common.IconSource
 import io.github.frostzie.datapackide.utils.ThemeManager
 import io.github.frostzie.datapackide.utils.ui.controls.KeybindInputButton
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
+import javafx.stage.DirectoryChooser
+import org.kordamp.ikonli.javafx.FontIcon
+import org.kordamp.ikonli.material2.Material2AL
+import java.io.File
 
 /**
  * Builder for creating JavaFX controls for different setting types.
@@ -207,6 +213,42 @@ object SettingsControlBuilder {
                     textProperty().bindBidirectional(prop)
                 }
                 Tiles.LowTile(field.name, field.description.takeIf { it.isNotEmpty() }, textField)
+            }
+
+            is FolderConfigField -> {
+                val prop = field.property.get(field.objectInstance)
+                val textField = TextField().apply {
+                    textProperty().bindBidirectional(prop)
+                    isDisable = true
+                    HBox.setHgrow(this, Priority.ALWAYS)
+                }
+
+                val button = Button(null, FontIcon(Material2AL.FOLDER)).apply {
+                    styleClass.add("field-button")
+                    setOnAction {
+                        val dirChooser = DirectoryChooser()
+                        dirChooser.title = "Select Folder"
+                        
+                        val currentPath = prop.value
+                        if (!currentPath.isNullOrBlank()) {
+                            val file = File(currentPath)
+                            if (file.exists() && file.isDirectory) {
+                                dirChooser.initialDirectory = file
+                            }
+                        }
+
+                        val selectedFile = dirChooser.showDialog(scene.window)
+                        if (selectedFile != null) {
+                            prop.value = selectedFile.absolutePath
+                        }
+                    }
+                }
+
+                val container = HBox(textField, button).apply {
+                    spacing = 5.0
+                    alignment = Pos.CENTER_LEFT
+                }
+                Tiles.LowTile(field.name, field.description.takeIf { it.isNotEmpty() }, container)
             }
         }
     }
