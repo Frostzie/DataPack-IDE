@@ -5,7 +5,6 @@ import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 import io.github.frostzie.datapackide.settings.data.*
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import atlantafx.base.controls.ToggleSwitch
-import io.github.frostzie.datapackide.styling.common.IconSource
 import io.github.frostzie.datapackide.utils.ThemeManager
 import io.github.frostzie.datapackide.utils.ui.controls.KeybindInputButton
 import javafx.geometry.Pos
@@ -14,8 +13,6 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import javafx.stage.DirectoryChooser
-import org.kordamp.ikonli.javafx.FontIcon
-import org.kordamp.ikonli.material2.Material2AL
 import java.io.File
 
 /**
@@ -223,7 +220,8 @@ object SettingsControlBuilder {
                     HBox.setHgrow(this, Priority.ALWAYS)
                 }
 
-                val button = Button(null, FontIcon(Material2AL.FOLDER)).apply {
+                // Yeah yeah using an icon in code kill me now lol, but for now it's fine until I fix IconSource not* working on buttons
+                val button = Button("📁").apply { // Also yeah the reason way I changed it was since the UI otherwise gets way too big
                     styleClass.add("field-button")
                     setOnAction {
                         val dirChooser = DirectoryChooser()
