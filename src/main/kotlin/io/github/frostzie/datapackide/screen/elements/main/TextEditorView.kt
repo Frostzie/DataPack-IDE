@@ -109,6 +109,14 @@ class TextEditorView : VBox() {
                 }
             }
         }
+
+        // Listen for editor actions (Undo, Redo, etc.)
+        viewModel.currentAction.addListener { _, _, action ->
+            if (action != null) {
+                handleEditorAction(action)
+                Platform.runLater { viewModel.currentAction.set(null) }
+            }
+        }
     }
 
     /**
@@ -242,6 +250,21 @@ class TextEditorView : VBox() {
         }
 
         logger.debug("Switched to tab: ${tabData.displayName}, ID: ${tabData.id}")
+    }
+
+    private fun handleEditorAction(action: TextEditorViewModel.EditorAction) {
+        val activeTab = viewModel.activeTab.get() ?: return
+        val codeArea = tabCodeAreas[activeTab.id] ?: return
+
+        when (action) {
+            TextEditorViewModel.EditorAction.UNDO -> codeArea.undo()
+            TextEditorViewModel.EditorAction.REDO -> codeArea.redo()
+            TextEditorViewModel.EditorAction.CUT -> codeArea.cut()
+            TextEditorViewModel.EditorAction.COPY -> codeArea.copy()
+            TextEditorViewModel.EditorAction.PASTE -> codeArea.paste()
+            TextEditorViewModel.EditorAction.SELECT_ALL -> codeArea.selectAll()
+        }
+        codeArea.requestFocus()
     }
 
     /**

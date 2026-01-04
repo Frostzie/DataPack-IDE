@@ -153,6 +153,7 @@ class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
                 MenuItem("Redo Typing").apply { setOnAction { EventBus.post(EditorRedo()) } },
                 MenuItem("Cut").apply { setOnAction { EventBus.post(EditorCut()) } },
                 MenuItem("Copy").apply { setOnAction { EventBus.post(EditorCopy()) } },
+                MenuItem("Paste").apply { setOnAction { EventBus.post(EditorPaste()) } },
                 MenuItem("Find").apply { setOnAction { EventBus.post(EditorFind()) }; isDisable = true },
                 MenuItem("Select All").apply { setOnAction { EventBus.post(EditorSelectAll()) } }
             ),
@@ -162,8 +163,8 @@ class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
                     setOnAction { EventBus.post(ReloadDatapack()) }
                     isDisable = !WorldDetection.isWorldOpen()
                 },
-                MenuItem("Zip Datapack").apply { setOnAction { logger.warn("Zip Datapack button not implemented yet!") } },
-                MenuItem("Open Folder").apply { setOnAction { EventBus.post(OpenDatapackFolder()) } }
+                MenuItem("Zip Datapack").apply { setOnAction { logger.warn("Zip Datapack button not implemented yet!") }; isDisable = true },
+                MenuItem("Open Folder").apply { setOnAction { EventBus.post(OpenWorkspaceFolder()) } }
             ),
 
             Menu("Help", null,

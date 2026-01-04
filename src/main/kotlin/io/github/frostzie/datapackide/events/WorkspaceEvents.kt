@@ -16,3 +16,8 @@ class ResetWorkspaceEvent
  * Event fired to open the project manager.
  */
 class OpenProjectManagerEvent
+
+/**
+ * Event fired to open folder of the currently active workspace
+ */
+class OpenWorkspaceFolder

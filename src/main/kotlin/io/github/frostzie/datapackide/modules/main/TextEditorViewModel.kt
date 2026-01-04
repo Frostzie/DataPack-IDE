@@ -1,12 +1,6 @@
 package io.github.frostzie.datapackide.modules.main
 
-import io.github.frostzie.datapackide.events.EventBus
-import io.github.frostzie.datapackide.events.FileDeleted
-import io.github.frostzie.datapackide.events.FileModified
-import io.github.frostzie.datapackide.events.FileMoved
-import io.github.frostzie.datapackide.events.OpenFile
-import io.github.frostzie.datapackide.events.SaveAllFiles
-import io.github.frostzie.datapackide.events.WorkspaceUpdated
+import io.github.frostzie.datapackide.events.*
 import io.github.frostzie.datapackide.modules.bars.BottomBarModule
 import io.github.frostzie.datapackide.project.WorkspaceManager
 import io.github.frostzie.datapackide.services.FileService
@@ -34,6 +28,12 @@ import java.util.UUID
  */
 class TextEditorViewModel {
     private val logger = LoggerProvider.getLogger("TextEditorViewModel")
+
+    enum class EditorAction {
+        UNDO, REDO, CUT, COPY, PASTE, SELECT_ALL
+    }
+
+    val currentAction = SimpleObjectProperty<EditorAction?>(null)
 
     /**
      * Data class representing a single editor tab
@@ -78,7 +78,7 @@ class TextEditorViewModel {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent @Suppress("unused")
     fun onWorkspaceUpdated(event: WorkspaceUpdated) {
         // Reload open files from session state
         if (isRestoringSession) return
@@ -142,7 +142,7 @@ class TextEditorViewModel {
      * Opens a file in the editor. If the file is already open, switch to that tab.
      * Otherwise, create a new tab.
      */
-    @SubscribeEvent
+    @SubscribeEvent @Suppress("unused")
     fun onOpenFile(event: OpenFile) {
         Platform.runLater {
             val existingTab = tabs.find { it.filePath == event.path }
@@ -160,13 +160,43 @@ class TextEditorViewModel {
     /**
      * Saves all modified files
      */
-    @SubscribeEvent
+    @SubscribeEvent @Suppress("unused")
     fun onSaveAll(event: SaveAllFiles) {
         logger.debug("Saving all modified files...")
         tabs.filter { it.isDirty.get() }.forEach { saveFile(it) }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent @Suppress("unused")
+    fun onEditorUndo(event: EditorUndo) {
+        currentAction.set(EditorAction.UNDO)
+    }
+
+    @SubscribeEvent @Suppress("unused")
+    fun onEditorRedo(event: EditorRedo) {
+        currentAction.set(EditorAction.REDO)
+    }
+
+    @SubscribeEvent @Suppress("unused")
+    fun onEditorCut(event: EditorCut) {
+        currentAction.set(EditorAction.CUT)
+    }
+
+    @SubscribeEvent @Suppress("unused")
+    fun onEditorCopy(event: EditorCopy) {
+        currentAction.set(EditorAction.COPY)
+    }
+
+    @SubscribeEvent @Suppress("unused")
+    fun onEditorPaste(event: EditorPaste) {
+        currentAction.set(EditorAction.PASTE)
+    }
+
+    @SubscribeEvent @Suppress("unused")
+    fun onEditorSelectAll(event: EditorSelectAll) {
+        currentAction.set(EditorAction.SELECT_ALL)
+    }
+
+    @SubscribeEvent @Suppress("unused")
     fun onFileModified(event: FileModified) {
         Platform.runLater {
             val tab = tabs.find { it.filePath == event.path } ?: return@runLater
@@ -184,7 +214,7 @@ class TextEditorViewModel {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent @Suppress("unused")
     fun onFileDeleted(event: FileDeleted) {
         Platform.runLater {
             val tab = tabs.find { it.filePath == event.path } ?: return@runLater
@@ -193,7 +223,7 @@ class TextEditorViewModel {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent @Suppress("unused")
     fun onFileMoved(event: FileMoved) {
         Platform.runLater {
             val oldTab = tabs.find { it.filePath == event.oldPath } ?: return@runLater

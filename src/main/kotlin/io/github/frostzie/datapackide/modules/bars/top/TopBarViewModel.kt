@@ -5,11 +5,10 @@ import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
 import io.github.frostzie.datapackide.project.WorkspaceManager
 import io.github.frostzie.datapackide.screen.MainApplication
-import io.github.frostzie.datapackide.utils.file.DirectoryChooseUtils
 import javafx.geometry.Rectangle2D
 import javafx.stage.Screen
 import javafx.stage.Stage
-import net.minecraft.Util
+import net.minecraft.Util //TODO: Wrap
 import java.nio.file.Path
 
 class TopBarViewModel(private val stage: Stage?) {
@@ -67,8 +66,8 @@ class TopBarViewModel(private val stage: Stage?) {
         ReloadDataPacksCommand.executeCommandButton()
     }
 
-    fun openDatapackFolder() {
-        DirectoryChooseUtils.getDatapackPath()?.let {
+    fun openWorkspaceFolder() {
+        WorkspaceManager.currentWorkspaceRoot?.let {
             Util.getPlatform().openFile(it.toFile())
         }
     }

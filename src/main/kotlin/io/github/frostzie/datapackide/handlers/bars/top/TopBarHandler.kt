@@ -1,15 +1,6 @@
 package io.github.frostzie.datapackide.handlers.bars.top
 
-import io.github.frostzie.datapackide.events.DiscordLink
-import io.github.frostzie.datapackide.events.GitHubLink
-import io.github.frostzie.datapackide.events.MainWindowClose
-import io.github.frostzie.datapackide.events.MainWindowMaximize
-import io.github.frostzie.datapackide.events.MainWindowMinimize
-import io.github.frostzie.datapackide.events.MainWindowRestore
-import io.github.frostzie.datapackide.events.MainWindowToggleMaximize
-import io.github.frostzie.datapackide.events.OpenDatapackFolder
-import io.github.frostzie.datapackide.events.ReloadDatapack
-import io.github.frostzie.datapackide.events.ReportBugLink
+import io.github.frostzie.datapackide.events.*
 import io.github.frostzie.datapackide.modules.bars.top.TopBarViewModel
 import io.github.frostzie.datapackide.settings.annotations.SubscribeEvent
 import io.github.frostzie.datapackide.utils.OpenLinks
@@ -48,8 +39,8 @@ class TopBarHandler(private val topBarViewModel: TopBarViewModel) {
     }
 
     @SubscribeEvent
-    fun openDatapackFolder(event: OpenDatapackFolder) {
-        topBarViewModel.openDatapackFolder()
+    fun openDatapackFolder(event: OpenWorkspaceFolder) {
+        topBarViewModel.openWorkspaceFolder()
     }
 
     @SubscribeEvent
