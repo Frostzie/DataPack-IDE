@@ -28,7 +28,6 @@ object ConfigManager {
             logger.debug("Created config directory: {}", configDir)
         }
 
-        AssetsConfig.initialize()
         LayoutManager.initialize()
         WorkspaceManager.initialize()
 
