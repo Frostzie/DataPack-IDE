@@ -11,6 +11,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
 import javafx.scene.paint.Color
 import javafx.stage.DirectoryChooser
 import java.io.File
@@ -124,6 +125,7 @@ object SettingsControlBuilder {
                 val action = field.property.get(field.objectInstance)
                 val button = Button(field.buttonAnnotation.text).apply {
                     styleClass.add("field-button")
+                    minWidth = Region.USE_PREF_SIZE // Makes it so a text can't push buttons
                     setOnAction {
                         try {
                             action.invoke()
