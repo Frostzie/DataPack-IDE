@@ -65,7 +65,7 @@ object MainConfig {
 
     @Expose
     @ConfigCategory(name = "File")
-    @ConfigOption(name = "Folder Path", desc = "Select where the universal folder would be located.\nIt will create a folder named ``Nodex`` inside selected path.")
+    @ConfigOption(name = "Folder Path", desc = "Select where the universal folder would be located.\nIt will create a folder named ``Nodex`` inside selected path, with configs in ``Nodex/config``.")
     @ConfigEditorFolder
     val universalFolderPath = SimpleStringProperty("")
 

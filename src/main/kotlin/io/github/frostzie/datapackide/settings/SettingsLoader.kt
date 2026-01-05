@@ -68,7 +68,7 @@ object SettingsLoader {
             if (!pathStr.isNullOrBlank()) {
                 try {
                     val rootPath = Paths.get(pathStr)
-                    val nodexPath = rootPath.resolve("Nodex").toAbsolutePath()
+                    val nodexPath = rootPath.resolve("Nodex").resolve("config").toAbsolutePath()
 
                     // Prevents unnecessary reloads if the user chooses the same path
                     if (currentConfigPath == nodexPath) {
