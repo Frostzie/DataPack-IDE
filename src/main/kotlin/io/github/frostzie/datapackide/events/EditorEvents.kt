@@ -1,5 +1,7 @@
 package io.github.frostzie.datapackide.events
 
+import java.nio.file.Path
+
 class EditorCopy
 class EditorCut
 class EditorPaste
@@ -10,3 +12,4 @@ class EditorCloseTab
 class EditorFind
 
 data class EditorCursorPosition(val line: Int, val column: Int)
+class ActiveTabChangedEvent(val path: Path?)

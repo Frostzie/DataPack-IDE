@@ -68,8 +68,9 @@ class TextEditorViewModel {
              persistState()
         })
         
-        activeTab.addListener { _, _, _ ->
+        activeTab.addListener { _, _, newTab ->
              persistState()
+             EventBus.post(ActiveTabChangedEvent(newTab?.filePath))
         }
 
         // Initial session restoration for when the VM is created after WorkspaceManager is already ready
@@ -164,6 +165,18 @@ class TextEditorViewModel {
     fun onSaveAll(event: SaveAllFiles) {
         logger.debug("Saving all modified files...")
         tabs.filter { it.isDirty.get() }.forEach { saveFile(it) }
+    }
+
+    // Currently only used for while editing Theme, but overall file saving should move out of this
+    //TODO: should be stricter MVVM
+    @SubscribeEvent @Suppress("unused")
+    fun onSaveFile(event: SaveFileEvent) {
+        Platform.runLater {
+            val tab = tabs.find { it.filePath == event.path }
+            if (tab != null) {
+                saveFile(tab)
+            }
+        }
     }
 
     @SubscribeEvent @Suppress("unused")

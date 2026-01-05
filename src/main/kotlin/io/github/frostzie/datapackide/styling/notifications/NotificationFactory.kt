@@ -8,6 +8,7 @@ import io.github.frostzie.datapackide.styling.messages.MessageSeverity
 import io.github.frostzie.datapackide.styling.messages.NotificationPosition
 import io.github.frostzie.datapackide.styling.notifications.appliers.NotificationStyleApplier
 import javafx.scene.Node
+import javafx.scene.layout.Pane
 import org.kordamp.ikonli.javafx.FontIcon
 
 object NotificationFactory {
@@ -88,5 +89,12 @@ object NotificationFactory {
      */
     fun show(notification: Notification, position: NotificationPosition, durationMillis: Long = 5000, maxMessages: Int = 5) {
         NotificationMessageArea.show(notification, position, durationMillis, maxMessages)
+    }
+
+    /**
+     * Hides an existing notification from the notification overlay.
+     */
+    fun hide(notification: Notification) {
+        (notification.parent as? Pane)?.children?.remove(notification)
     }
 }
