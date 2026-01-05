@@ -22,7 +22,7 @@ import kotlin.reflect.full.findAnnotation
 object SettingsManager {
     private val logger = LoggerProvider.getLogger("SettingsManager")
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-    private val settingsFile = ConfigManager.configDir.resolve("settings.json").toFile()
+    private val settingsFile get() = ConfigManager.configDir.resolve("settings.json").toFile()
     private val defaultValues = mutableMapOf<KProperty1<*, *>, Any?>()
 
     // Stores a list of registered configuration categories, mapping a category name to its KClass.

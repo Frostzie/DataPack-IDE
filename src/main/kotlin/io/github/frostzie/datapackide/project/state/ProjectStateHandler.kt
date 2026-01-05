@@ -12,18 +12,12 @@ import kotlin.io.path.exists
 
 object ProjectStateHandler {
     private val logger = LoggerProvider.getLogger("ProjectStateHandler")
-    private val statesDir = ConfigManager.configDir.resolve("project_states")
+    private val statesDir get() = ConfigManager.configDir.resolve("project_states")
     
     private val gson: Gson = GsonBuilder()
         .setPrettyPrinting()
         .registerTypeHierarchyAdapter(Path::class.java, PathTypeAdapter())
         .create()
-
-    init {
-        if (!statesDir.exists()) {
-            Files.createDirectories(statesDir)
-        }
-    }
 
     /**
      * Loads the UI state for a specific project/workspace root.
@@ -73,6 +67,9 @@ object ProjectStateHandler {
      * Use MD5 or SHA-1 to get a safe filename.
      */
     private fun getStateFile(path: Path): Path {
+        if (!statesDir.exists()) {
+            Files.createDirectories(statesDir)
+        }
         val hash = hashString(path.toAbsolutePath().toString())
         return statesDir.resolve("$hash.json")
     }

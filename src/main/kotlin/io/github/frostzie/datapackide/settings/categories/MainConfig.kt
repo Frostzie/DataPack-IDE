@@ -1,12 +1,16 @@
 package io.github.frostzie.datapackide.settings.categories
 
+import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.settings.annotations.*
 import io.github.frostzie.datapackide.utils.OpenLinks
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
+import java.nio.file.Files
+import java.nio.file.Paths
 
 object MainConfig {
 
+    // UI Category
     @Expose
     @ConfigCategory(name = "UI")
     @ConfigOption(
@@ -46,7 +50,44 @@ object MainConfig {
     @ConfigEditorColorPicker
     val caretColor = SimpleStringProperty("#000000")
 
+    // File Category
+    @Expose
+    @ConfigCategory(name = "File")
+    @ConfigOption(name = "", desc = "")
+    @ConfigEditorInfo
+    val infoFile = ""
 
+    @Expose
+    @ConfigCategory(name = "File")
+    @ConfigOption(name = "Universal Folder", desc = "Toggles Universal Folder system. When enabled mod will save to directory selected below.")
+    @ConfigEditorBoolean
+    val universalFolderToggle = SimpleBooleanProperty(false)
+
+    @Expose
+    @ConfigCategory(name = "File")
+    @ConfigOption(name = "Folder Path", desc = "Select where the universal folder would be located.\nIt will create a folder named ``Nodex`` inside selected path.")
+    @ConfigEditorFolder
+    val universalFolderPath = SimpleStringProperty("")
+
+    @Expose
+    @ConfigCategory(name = "File")
+    @ConfigOption(name = "Universal Config", desc = "Select if Config files should be saved to universal folder.")
+    @ConfigEditorBoolean
+    val universalConfigToggle = SimpleBooleanProperty(false)
+
+    @Expose
+    @ConfigCategory(name = "File")
+    @ConfigOption(name = "Universal Datapack", desc = "Select if Datapack Files should be saved to universal folder.")
+    @ConfigEditorBoolean
+    val universalDatapackToggle = SimpleBooleanProperty(false)
+
+    @Expose
+    @ConfigCategory(name = "File")
+    @ConfigOption(name = "Sync Configs", desc = "Press to sync with files if universal path has been used.")
+    @ConfigEditorButton("Sync")
+    var syncConfigFiles: () -> Unit = {}
+    
+    // Link Category
     @Expose
     @ConfigCategory(name = "Links")
     @ConfigOption(name = "Discord Server", desc = "Join our Discord server for support and community!")

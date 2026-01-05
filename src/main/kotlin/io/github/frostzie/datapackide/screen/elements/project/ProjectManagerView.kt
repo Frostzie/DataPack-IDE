@@ -3,6 +3,7 @@ package io.github.frostzie.datapackide.screen.elements.project
 import atlantafx.base.theme.Styles
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowClose
+import io.github.frostzie.datapackide.events.SettingsWindowOpen
 import io.github.frostzie.datapackide.modules.project.ProjectManagerViewModel
 import io.github.frostzie.datapackide.project.Project
 import io.github.frostzie.datapackide.styling.common.IconSource
@@ -28,6 +29,7 @@ import org.kordamp.ikonli.Ikon
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.material2.Material2AL
 import org.kordamp.ikonli.material2.Material2MZ
+import java.awt.Font
 
 class ProjectManagerView : BorderPane() {
     private val logger = LoggerProvider.getLogger("ProjectManagerView")
@@ -79,7 +81,15 @@ class ProjectManagerView : BorderPane() {
             EventBus.post(MainWindowClose()) 
         }
 
-        hBox.children.addAll(logo, appTitle, spacer, closeBtn)
+        val settingsBtn = Button()
+        settingsBtn.graphic = FontIcon(Material2MZ.SETTINGS)
+        settingsBtn.styleClass.addAll((Styles.FLAT))
+        settingsBtn.tooltip = Tooltip("Settings")
+        settingsBtn.setOnAction {
+            EventBus.post(SettingsWindowOpen())
+        }
+
+        hBox.children.addAll(logo, appTitle, spacer, settingsBtn, closeBtn)
         
         root.children.addAll(hBox, Separator())
         return root

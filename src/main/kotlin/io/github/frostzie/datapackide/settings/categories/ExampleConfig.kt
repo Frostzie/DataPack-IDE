@@ -78,7 +78,7 @@ object ExampleConfig {
     @ConfigCategory(name = "Example Settings")
     @ConfigOption(name = "Folder Selector", desc = "Description")
     @ConfigEditorFolder
-    val universalFolderPath = SimpleStringProperty("")
+    val folder = SimpleStringProperty("")
 
     @Expose
     @ConfigCategory(name = "Message Showcase")

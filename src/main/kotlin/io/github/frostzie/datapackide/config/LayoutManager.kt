@@ -25,7 +25,7 @@ data class LayoutConfig(
 object LayoutManager {
     private val logger = LoggerProvider.getLogger("LayoutManager")
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-    private val layoutFile = ConfigManager.configDir.resolve("layout.json")
+    private val layoutFile get() = ConfigManager.configDir.resolve("layout.json")
 
     var config = LayoutConfig()
         private set

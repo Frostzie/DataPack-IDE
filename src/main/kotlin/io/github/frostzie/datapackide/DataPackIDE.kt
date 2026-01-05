@@ -4,6 +4,7 @@ import io.github.frostzie.datapackide.loader.minecraft.DefaultCommands
 import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.loader.fabric.Keybinds
 import io.github.frostzie.datapackide.screen.MainApplication
+import io.github.frostzie.datapackide.settings.SettingsLoader
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import net.fabricmc.api.ModInitializer
@@ -22,8 +23,9 @@ class DataPackIDE : ModInitializer {
             logger.warn("JavaFX is not available - GUI features will be disabled")
         }
 
-        ConfigManager.initialize()
-        DefaultCommands.registerCommands()
-        Keybinds.register()
+        ConfigManager.initialize() // Loads config file management and Layout system and Workspace data
+        SettingsLoader.initialize() // Loads settings and their builder and universal logic
+        DefaultCommands.registerCommands() // Loads commands //TODO: Fix /ide
+        Keybinds.register() // Loads Minecraft (Fabric) keybinds
     }
 }

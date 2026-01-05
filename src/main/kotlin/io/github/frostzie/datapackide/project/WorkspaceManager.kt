@@ -40,7 +40,7 @@ data class SessionState(
  */
 object WorkspaceManager {
     private val logger = LoggerProvider.getLogger("WorkspaceManager")
-    private val workspaceFile = ConfigManager.configDir.resolve("workspace.json")
+    private val workspaceFile get() = ConfigManager.configDir.resolve("workspace.json")
     
     private val gson: Gson = GsonBuilder()
         .setPrettyPrinting()
