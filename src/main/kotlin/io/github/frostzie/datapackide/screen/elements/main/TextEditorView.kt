@@ -5,7 +5,10 @@ import atlantafx.base.controls.TabLine
 import atlantafx.base.theme.Styles
 import io.github.frostzie.datapackide.features.FeatureRegistry
 import io.github.frostzie.datapackide.modules.main.TextEditorViewModel
+import io.github.frostzie.datapackide.RichJsonFX
+import io.github.frostzie.datapackide.settings.categories.ThemeConfig
 import io.github.frostzie.datapackide.utils.LoggerProvider
+import javafx.animation.PauseTransition
 import javafx.application.Platform
 import javafx.beans.InvalidationListener
 import javafx.beans.value.ChangeListener
@@ -23,6 +26,8 @@ import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.material2.Material2AL
+import javafx.util.Duration
+import java.nio.file.Path
 
 /**
  * View for the text editor that displays multiple tabs using AtlantaFX TabLine.
@@ -39,6 +44,7 @@ class TextEditorView : VBox() {
     private val contentArea = StackPane()
     private val decoratorCleanups = mutableMapOf<String, MutableList<() -> Unit>>()
     private val tabCodeAreas = mutableMapOf<String, CodeArea>()
+    private var currentThemeStyleSheet: String? = null
 
     init {
         styleClass.add("text-editor-container")
@@ -46,9 +52,51 @@ class TextEditorView : VBox() {
         setupTabLine()
         setupContentArea()
         setupListeners()
+        setupThemeListener()
 
         children.addAll(tabLine, contentArea)
         setVgrow(contentArea, Priority.ALWAYS)
+    }
+
+    // Temp for Json syntax
+    private fun setupThemeListener() {
+        val updateListener = InvalidationListener { updateThemeColors() }
+        ThemeConfig.jsonStartObjectColor.addListener(updateListener)
+        ThemeConfig.jsonPropertyColor.addListener(updateListener)
+        ThemeConfig.jsonStringColor.addListener(updateListener)
+        ThemeConfig.jsonArrayColor.addListener(updateListener)
+        ThemeConfig.jsonFloatColor.addListener(updateListener)
+        ThemeConfig.jsonIntColor.addListener(updateListener)
+        ThemeConfig.jsonNullColor.addListener(updateListener)
+        ThemeConfig.jsonEmbeddedColor.addListener(updateListener)
+        ThemeConfig.jsonTrueColor.addListener(updateListener)
+        ThemeConfig.jsonFalseColor.addListener(updateListener)
+
+        updateThemeColors()
+    }
+
+    private fun updateThemeColors() {
+        val css = """
+            .code-area .json-start-object, .code-area .json-end-object { -fx-fill: ${ThemeConfig.jsonStartObjectColor.get()}; }
+            .code-area .json-property { -fx-fill: ${ThemeConfig.jsonPropertyColor.get()}; }
+            .code-area .json-string { -fx-fill: ${ThemeConfig.jsonStringColor.get()}; }
+            .code-area .json-start-array, .code-area .json-end-array { -fx-fill: ${ThemeConfig.jsonArrayColor.get()}; }
+            .code-area .json-float { -fx-fill: ${ThemeConfig.jsonFloatColor.get()}; }
+            .code-area .json-int { -fx-fill: ${ThemeConfig.jsonIntColor.get()}; }
+            .code-area .json-null { -fx-fill: ${ThemeConfig.jsonNullColor.get()}; }
+            .code-area .json-embedded { -fx-fill: ${ThemeConfig.jsonEmbeddedColor.get()}; }
+            .code-area .json-true { -fx-fill: ${ThemeConfig.jsonTrueColor.get()}; }
+            .code-area .json-false { -fx-fill: ${ThemeConfig.jsonFalseColor.get()}; }
+        """.trimIndent()
+
+        val dataUri = "data:text/css;base64," + java.util.Base64.getEncoder().encodeToString(css.toByteArray())
+
+        if (currentThemeStyleSheet != null) {
+            this.stylesheets.remove(currentThemeStyleSheet)
+        }
+
+        this.stylesheets.add(dataUri)
+        currentThemeStyleSheet = dataUri
     }
 
     /**
@@ -127,6 +175,11 @@ class TextEditorView : VBox() {
         val codeArea = CodeArea(tabData.content.get())
         codeArea.paragraphGraphicFactory = LineNumberFactory.get(codeArea)
         codeArea.styleClass.add("code-area")
+
+        // Temp for json syntax
+        if (isJsonFile(tabData.filePath)) {
+            setupJsonSyntaxHighlighting(codeArea)
+        }
         
         // Listener to sync CodeArea -> ViewModel (User typing)
         val textListener = InvalidationListener {
@@ -204,6 +257,34 @@ class TextEditorView : VBox() {
         tabLine.selectionModel.select(tab)
 
         logger.debug("Added tab: ${tabData.displayName}, ID: ${tabData.id}")
+    }
+
+    // Temp Json syntax highlighting
+    private fun isJsonFile(path: Path): Boolean {
+        val fileName = path.fileName.toString().lowercase()
+        return fileName.endsWith(".json") || fileName.endsWith(".mcmeta")
+    }
+
+    private fun setupJsonSyntaxHighlighting(codeArea: CodeArea) {
+        val highlighter = RichJsonFX()
+        val debounce = PauseTransition(Duration.millis(300.0))
+
+        fun applyHighlighting() {
+            try {
+                highlighter.highlightCodeArea(codeArea)
+            } catch (e: Exception) {
+                // Ignore parsing errors while typing (e.g. incomplete JSON)
+            }
+        }
+
+        debounce.setOnFinished { applyHighlighting() }
+
+        codeArea.textProperty().addListener { _, _, _ ->
+            debounce.playFromStart()
+        }
+
+        // Initial highlight
+        applyHighlighting()
     }
 
     /**

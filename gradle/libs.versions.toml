@@ -13,11 +13,13 @@ undoFXv = "2.1.1"
 wellbehavedFXv = "0.3.3"
 directoryWatcherV = "0.19.1"
 jsvgV = "2.0.0"
+jacksonCoreV = "2.17.1"
 
 [libraries]
 fabric_kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric_kotlin" }
 devauth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
 
+jacksonCore = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jacksonCoreV" }
 directoryWatcher = { module = "io.methvin:directory-watcher", version.ref = "directoryWatcherV" }
 jsvg = { module = "com.github.weisj:jsvg", version.ref = "jsvgV" }
 richTextFX = { module = "org.fxmisc.richtext:richtextfx", version.ref = "richTextFXv"}

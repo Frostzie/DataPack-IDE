@@ -75,10 +75,12 @@ dependencies {
 	include(libs.undofx)
 	include(libs.wellbehavedfx)
 
+	implementation(libs.jacksonCore)
 	implementation(libs.directoryWatcher)
 	implementation(libs.jsvg)
 	include(libs.jsvg)
 	include(libs.directoryWatcher)
+	include(libs.jacksonCore)
 
 	// JavaFX
 	for (classifier in javafxClassifiers) {
