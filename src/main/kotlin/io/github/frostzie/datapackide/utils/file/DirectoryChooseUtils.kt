@@ -2,20 +2,24 @@ package io.github.frostzie.datapackide.utils.file
 
 import io.github.frostzie.datapackide.events.DirectorySelected
 import io.github.frostzie.datapackide.events.EventBus
+import io.github.frostzie.datapackide.loader.minecraft.MCInterface
+import io.github.frostzie.datapackide.modules.universal.UniversalPackManager
+import io.github.frostzie.datapackide.settings.categories.MainConfig
 import io.github.frostzie.datapackide.utils.LoggerProvider
 import javafx.stage.DirectoryChooser
 import javafx.stage.Window
-import net.minecraft.client.Minecraft
-import net.minecraft.client.server.IntegratedServer
-import net.minecraft.world.level.storage.LevelResource
 import java.nio.file.Path
 import io.github.frostzie.datapackide.project.validation.ProjectValidator
 import io.github.frostzie.datapackide.project.validation.ValidationResult
 import io.github.frostzie.datapackide.modules.project.preview.*
 import io.github.frostzie.datapackide.screen.elements.project.preview.ProjectPreviewView
+import javafx.scene.control.Alert
 import javafx.scene.control.ButtonBar
+import javafx.scene.control.ButtonType
+import javafx.scene.control.TextInputDialog
 import javafx.stage.FileChooser
 import javafx.concurrent.Task
+import kotlin.io.path.name
 
 object DirectoryChooseUtils {
     private val logger = LoggerProvider.getLogger("DirectoryChooseUtils")
@@ -80,7 +84,34 @@ object DirectoryChooseUtils {
                 }
             }
 
-            task.setOnSucceeded { EventBus.post(DirectorySelected(task.value)) }
+            task.setOnSucceeded {
+                var finalPath = task.value
+
+                // Universal Import Logic
+                if (MainConfig.universalDatapackToggle.get() && !UniversalPackManager.isUniversalProject(finalPath)) {
+                    val confirm = Alert(Alert.AlertType.CONFIRMATION).apply {
+                        title = "Universal Import"
+                        headerText = "Import to Universal Folder?"
+                        contentText = "Do you want to import '${finalPath.name}' to the Universal Datapack folder?"
+                        buttonTypes.setAll(ButtonType.YES, ButtonType.NO)
+                    }.showAndWait()
+
+                    if (confirm.isPresent && confirm.get() == ButtonType.YES) {
+                        try {
+                            finalPath = handleUniversalImport(finalPath) ?: finalPath
+                        } catch (e: Exception) {
+                            logger.error("Failed to import project", e)
+                            Alert(Alert.AlertType.ERROR).apply {
+                                title = "Import Failed"
+                                headerText = "Failed to import project"
+                                contentText = e.message
+                            }.showAndWait()
+                        }
+                    }
+                }
+
+                EventBus.post(DirectorySelected(finalPath))
+            }
             
             task.setOnFailed {
                 logger.error("Failed to open/import project", task.exception)
@@ -90,13 +121,49 @@ object DirectoryChooseUtils {
         }
     }
 
+    //TODO: Move UI out of here
+    private fun handleUniversalImport(source: Path): Path? {
+        val folderName = source.name
+
+        if (UniversalPackManager.existsInUniversal(folderName)) {
+            val renameBtn = ButtonType("Rename")
+            val overwriteBtn = ButtonType("Overwrite")
+            val cancelBtn = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
+
+            val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
+                title = "Conflict"
+                headerText = "Project already exists"
+                contentText = "A project named '$folderName' already exists in the Universal Folder."
+                buttonTypes.setAll(renameBtn, overwriteBtn, cancelBtn)
+            }
+
+            val result = alert.showAndWait()
+            if (result.isEmpty || result.get().buttonData == ButtonBar.ButtonData.CANCEL_CLOSE) {
+                return null
+            }
+
+            if (result.get() == renameBtn) {
+                val input = TextInputDialog("$folderName (1)").apply {
+                    title = "Rename Project"
+                    headerText = "Enter a new name for the project:"
+                    graphic = null
+                }
+                val nameResult = input.showAndWait()
+                if (nameResult.isPresent) {
+                    return UniversalPackManager.importProject(source, nameResult.get())
+                }
+                return null
+            }
+        }
+
+        return UniversalPackManager.importProject(source, folderName)
+    }
+
     /**
      * Gets the instance folder path.
      */
     fun getInstancePath(): Path? {
-        val client = Minecraft.getInstance()
-
-        return client.gameDirectory?.toPath()
+        return MCInterface.getGamePath()
     }
 
     /**
@@ -104,17 +171,13 @@ object DirectoryChooseUtils {
      * Returns null if not in singleplayer.
      */
     fun getDatapackPath(): Path? {
-        val client = Minecraft.getInstance()
-        val server: IntegratedServer? = client.singleplayerServer
-
-        return server?.getWorldPath(LevelResource.DATAPACK_DIR)
+        return MCInterface.getWorldPath()?.resolve("datapacks")
     }
 
     /**
      * Checks if the player is in singleplayer (integrated server).
      */
     fun isSingleplayer(): Boolean {
-        val client = Minecraft.getInstance()
-        return client.hasSingleplayerServer()
+        return MCInterface.isSingleplayer
     }
 }

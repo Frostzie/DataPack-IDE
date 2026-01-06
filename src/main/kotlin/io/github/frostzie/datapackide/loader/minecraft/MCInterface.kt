@@ -42,4 +42,11 @@ object MCInterface {
     fun getWorldPath(): Path? {
         return Minecraft.getInstance().singleplayerServer?.getWorldPath(LevelResource.ROOT)
     }
+
+    /**
+     * Gets the game directory path.
+     */
+    fun getGamePath(): Path? {
+        return Minecraft.getInstance().gameDirectory?.toPath()
+    }
 }
