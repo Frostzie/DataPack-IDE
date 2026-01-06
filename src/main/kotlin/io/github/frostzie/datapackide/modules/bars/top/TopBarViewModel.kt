@@ -3,8 +3,10 @@ package io.github.frostzie.datapackide.modules.bars.top
 import io.github.frostzie.datapackide.ingame.ReloadDataPacksCommand
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
+import io.github.frostzie.datapackide.modules.universal.UniversalPackManager
 import io.github.frostzie.datapackide.project.WorkspaceManager
 import io.github.frostzie.datapackide.screen.MainApplication
+import io.github.frostzie.datapackide.settings.categories.MainConfig
 import javafx.geometry.Rectangle2D
 import javafx.stage.Screen
 import javafx.stage.Stage
@@ -63,6 +65,12 @@ class TopBarViewModel(private val stage: Stage?) {
     }
 
     fun reloadDatapacks() {
+        val root = WorkspaceManager.currentWorkspaceRoot
+        if (root != null && MainConfig.universalFolderToggle.get() && MainConfig.universalDatapackToggle.get()) {
+            if (UniversalPackManager.isUniversalProject(root)) {
+                UniversalPackManager.mirrorToWorld(root)
+            }
+        }
         ReloadDataPacksCommand.reload()
     }
 
