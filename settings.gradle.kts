@@ -22,4 +22,4 @@ stonecutter {
 	create(rootProject)
 }
 
-rootProject.name = "Datapack-IDE"
+rootProject.name = "Nodex"

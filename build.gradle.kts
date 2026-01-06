@@ -25,7 +25,7 @@ fun javafxDep(module: String, classifier: String) =
 
 // Naming examples
 // Version Name: 0.0.1-fabric+mc1.20.5-1.21.8
-// Jar Name: Datapack-IDE-0.0.1-fabric+mc1.20.5-1.21.8.jar
+// Jar Name: Nodex-0.0.1-fabric+mc1.20.5-1.21.8.jar
 version = "${property("mod.version")}-fabric+mc${property("mod.mc_targets").toString().replace(" ", "-")}"
 group = project.findProperty("maven_group") as String
 
@@ -75,6 +75,13 @@ dependencies {
 	include(libs.undofx)
 	include(libs.wellbehavedfx)
 
+	implementation(libs.jacksonCore)
+	implementation(libs.directoryWatcher)
+	implementation(libs.jsvg)
+	include(libs.jsvg)
+	include(libs.directoryWatcher)
+	include(libs.jacksonCore)
+
 	// JavaFX
 	for (classifier in javafxClassifiers) {
 		implementation(javafxDep("base", classifier))
@@ -121,11 +128,12 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.named<Jar>("jar") {
-	from("LICENSE") {
+	from(rootProject.file("LICENSE")) {
 		rename { "${it}_${project.findProperty("archives_base_name")}" }
 	}
-	from("docs") {
+	from(rootProject.file("docs")) {
 		into("docs")
+		exclude("README_Pictures")
 	}
 	exclude("module-info.class")
 	exclude("**/module-info.class")
@@ -135,6 +143,15 @@ tasks.named<Jar>("jar") {
 	exclude("META-INF/*.RSA")
 
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named("remapJar") {
+	doLast {
+		copy {
+			from(outputs.files)
+			into(rootProject.file("build/libs"))
+		}
+	}
 }
 
 publishing {
