@@ -1,4 +1,4 @@
-package io.github.frostzie.datapackide.utils
+package io.github.frostzie.datapackide.loader.fabric
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import io.github.frostzie.datapackide.loader.minecraft.CaseInsensitiveLiteralCommandNode

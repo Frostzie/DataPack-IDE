@@ -2,10 +2,6 @@ package io.github.frostzie.datapackide.utils
 
 import javafx.scene.effect.ColorAdjust
 import javafx.scene.paint.Color
-import net.minecraft.network.chat.MutableComponent
-import net.minecraft.network.chat.Style
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextColor
 
 /**
  * Utility class for color manipulation and conversion to ColorAdjust parameters
@@ -61,31 +57,5 @@ object ColorUtils {
             logger.error("Failed to parse hex color: $hexColor", e)
             Color.WHITE
         }
-    }
-
-    fun dataPackIDEPrefixChat(): MutableComponent {
-        val text = "DataPack IDE"
-        val colors = listOf(
-            0x14EE72, // D
-            0x19E77F, // a
-            0x1FE08B, // t
-            0x24D998, // a
-            0x29D1A4, // P
-            0x2FCAB1, // a
-            0x34C3BD, // c
-            0x2AB9CA, // k
-            0x000000, //
-            0x15A4E5, // I
-            0x0A9AF2, // D
-            0x0090FF, // E
-        )
-        val result = Component.empty()
-        for (i in text.indices) {
-            result.append(
-                Component.literal(text[i].toString())
-                    .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(colors[i])))
-            )
-        }
-        return result
     }
 }

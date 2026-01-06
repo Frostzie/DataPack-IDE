@@ -1,8 +1,9 @@
 package io.github.frostzie.datapackide
 
-import io.github.frostzie.datapackide.loader.minecraft.DefaultCommands
+import io.github.frostzie.datapackide.ingame.DefaultCommands
 import io.github.frostzie.datapackide.config.ConfigManager
 import io.github.frostzie.datapackide.loader.fabric.Keybinds
+import io.github.frostzie.datapackide.modules.universal.UniversalWorldIntegration
 import io.github.frostzie.datapackide.screen.MainApplication
 import io.github.frostzie.datapackide.settings.SettingsLoader
 import io.github.frostzie.datapackide.utils.JavaFXInitializer
@@ -25,7 +26,8 @@ class DataPackIDE : ModInitializer {
 
         ConfigManager.initialize() // Loads config file management and Layout system and Workspace data
         SettingsLoader.initialize() // Loads settings and their builder and universal logic
-        DefaultCommands.registerCommands() // Loads commands //TODO: Fix /ide
+        DefaultCommands.registerCommands() // Loads commands
         Keybinds.register() // Loads Minecraft (Fabric) keybinds
+        UniversalWorldIntegration.initialize() // Loads world detection for universal datapacks
     }
 }

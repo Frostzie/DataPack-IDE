@@ -1,6 +1,7 @@
 package io.github.frostzie.datapackide.settings.categories
 
 import io.github.frostzie.datapackide.events.*
+import io.github.frostzie.datapackide.loader.minecraft.ChatMessageBuilder
 import io.github.frostzie.datapackide.settings.annotations.*
 import javafx.beans.property.SimpleBooleanProperty
 
@@ -14,13 +15,7 @@ object AdvancedConfig {
 
     @Expose
     @ConfigCategory(name = "Dev")
-    @ConfigOption(name = "Open Project Manager", desc = "Closes the current project and returns to the start screen")
-    @ConfigEditorButton(text = "Open Project Manager")
-    val openProjectManager: () -> Unit = { EventBus.post(OpenProjectManagerEvent()) }
-
-    @Expose
-    @ConfigCategory(name = "Dev")
-    @ConfigOption(name = "Reset Workspace", desc = "Resets ALL workspace history and settings, and returns to start screen")
+    @ConfigOption(name = "Reset Workspace", desc = "Resets ALL workspace history and returns to start screen")
     @ConfigEditorButton(text = "Reset Workspace")
     val resetWorkspace: () -> Unit = { EventBus.post(ResetWorkspaceEvent()) }
 
@@ -41,4 +36,16 @@ object AdvancedConfig {
     @ConfigOption(name = "Show Resize Handles", desc = "Shows visual borders for window resize handles")
     @ConfigEditorBoolean
     val debugResizeHandles = SimpleBooleanProperty(false)
+
+    @Expose
+    @ConfigCategory(name = "Debug")
+    @ConfigOption(name = "Test Warning", desc = "Sends a test warning message to chat")
+    @ConfigEditorButton(text = "Test Warning")
+    val testWarning: () -> Unit = { ChatMessageBuilder.testWarning() }
+
+    @Expose
+    @ConfigCategory(name = "Debug")
+    @ConfigOption(name = "Test Error", desc = "Sends a test error message to chat")
+    @ConfigEditorButton(text = "Test Error")
+    val testError: () -> Unit = { ChatMessageBuilder.testError() }
 }

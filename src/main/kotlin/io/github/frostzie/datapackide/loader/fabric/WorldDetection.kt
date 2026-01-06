@@ -1,7 +1,7 @@
 package io.github.frostzie.datapackide.loader.fabric
 
-import net.minecraft.client.Minecraft
-import net.minecraft.world.level.storage.LevelResource
+import io.github.frostzie.datapackide.loader.minecraft.MCInterface
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import java.nio.file.Path
 
 object WorldDetection {
@@ -9,27 +9,36 @@ object WorldDetection {
      * Check if player connected to a world
      */
     fun isWorldOpen(): Boolean {
-        return Minecraft.getInstance().level != null
+        return MCInterface.isWorldOpen
     }
 
     /**
      * Check if player connected to singleplayer
      */
     fun isSingleplayer(): Boolean {
-        return Minecraft.getInstance().singleplayerServer != null
+        return MCInterface.isSingleplayer
     }
 
     /**
      * Check if player connected to server
      */
     fun isServer(): Boolean {
-        return Minecraft.getInstance().currentServer != null
+        return MCInterface.isServer
     }
 
     /**
      * Get world path
      */
     fun getWorldPath(): Path? {
-        return Minecraft.getInstance().singleplayerServer?.getWorldPath(LevelResource.ROOT)
+        return MCInterface.getWorldPath()
+    }
+
+    /**
+     * Register a listener for world join events
+     */
+    fun registerWorldJoinListener(listener: () -> Unit) {
+        ClientPlayConnectionEvents.JOIN.register { _, _, _ ->
+            listener()
+        }
     }
 }
