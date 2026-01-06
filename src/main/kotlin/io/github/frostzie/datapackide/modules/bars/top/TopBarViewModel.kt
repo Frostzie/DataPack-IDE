@@ -1,6 +1,6 @@
 package io.github.frostzie.datapackide.modules.bars.top
 
-import io.github.frostzie.datapackide.loader.minecraft.ReloadDataPacksCommand
+import io.github.frostzie.datapackide.ingame.ReloadDataPacksCommand
 import io.github.frostzie.datapackide.events.EventBus
 import io.github.frostzie.datapackide.events.MainWindowMaximizedStateChanged
 import io.github.frostzie.datapackide.project.WorkspaceManager
@@ -8,7 +8,7 @@ import io.github.frostzie.datapackide.screen.MainApplication
 import javafx.geometry.Rectangle2D
 import javafx.stage.Screen
 import javafx.stage.Stage
-import net.minecraft.Util //TODO: Wrap
+import net.minecraft.Util
 import java.nio.file.Path
 
 class TopBarViewModel(private val stage: Stage?) {
@@ -63,7 +63,7 @@ class TopBarViewModel(private val stage: Stage?) {
     }
 
     fun reloadDatapacks() {
-        ReloadDataPacksCommand.executeCommandButton()
+        ReloadDataPacksCommand.reload()
     }
 
     fun openWorkspaceFolder() {

@@ -34,11 +34,6 @@ class TopBarHandler(private val topBarViewModel: TopBarViewModel) {
     }
 
     @SubscribeEvent
-    fun reloadDatapack(event: ReloadDatapack) {
-        topBarViewModel.reloadDatapacks()
-    }
-
-    @SubscribeEvent
     fun openDatapackFolder(event: OpenWorkspaceFolder) {
         topBarViewModel.openWorkspaceFolder()
     }

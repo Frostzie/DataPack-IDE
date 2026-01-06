@@ -29,6 +29,7 @@ import org.kordamp.ikonli.material2.Material2MZ
 import org.kordamp.ikonli.material2.Material2OutlinedMZ
 import io.github.frostzie.datapackide.utils.IconUtils
 import io.github.frostzie.datapackide.styling.common.IconSource
+import io.github.frostzie.datapackide.styling.messages.*
 
 class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
 
@@ -78,9 +79,10 @@ class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
             "Reload Datapack"
         ) {
             EventBus.post(SaveAllFiles())
-            EventBus.post(ReloadDatapack())
+            viewModel.reloadDatapacks()
+            showReloadNotification()
         }
-        runDataPackButton.isDisable = !WorldDetection.isWorldOpen()
+        //runDataPackButton.isDisable = !WorldDetection.isWorldOpen()
 
         val settingsButton = createTopBarButton(
             Material2MZ.SETTINGS,
@@ -160,8 +162,12 @@ class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
 
             Menu("Build", null,
                 MenuItem("Reload Datapack").apply {
-                    setOnAction { EventBus.post(ReloadDatapack()) }
-                    isDisable = !WorldDetection.isWorldOpen()
+                    setOnAction {
+                        EventBus.post(SaveAllFiles())
+                        viewModel.reloadDatapacks()
+                        showReloadNotification()
+                    }
+                    //isDisable = !WorldDetection.isWorldOpen()
                 },
                 MenuItem("Zip Datapack").apply { setOnAction { logger.warn("Zip Datapack button not implemented yet!") }; isDisable = true },
                 MenuItem("Open Folder").apply { setOnAction { EventBus.post(OpenWorkspaceFolder()) } }
@@ -201,6 +207,19 @@ class TopBarView(private val viewModel: TopBarViewModel) : HBox() {
         }
 
         return false
+    }
+
+    //TODO: only show when world is open also disable buttons when world isn't opened
+    private fun showReloadNotification() {
+        MessageFactory.createAndShow(
+            title = "Reloaded",
+            description = "Datapack Reloaded!",
+            severity = MessageSeverity.SUCCESS,
+            position = NotificationPosition.BOTTOM_RIGHT,
+            icon = IconSource.IkonIcon(Material2OutlinedMZ.REFRESH),
+            maxMessages = 1,
+            durationMillis = 2500
+        )
     }
 
     private fun createTopBarButton(icon: Ikon, tooltipText: String, vararg styleClasses: String, action: () -> Unit): Button {
