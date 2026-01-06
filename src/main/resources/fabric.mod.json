@@ -16,7 +16,7 @@
 		"sources": "https://github.com/Frostzie/Nodex",
 		"issues": "https://github.com/Frostzie/Nodex/issues"
 	},
-	"license": "LGPL-2.1",
+	"license": "LGPL-2.1 or later",
 	"icon": "assets/nodex/icon.png",
 	"environment": "client",
 	"entrypoints": {
