@@ -25,7 +25,7 @@ fun javafxDep(module: String, classifier: String) =
 
 // Naming examples
 // Version Name: 0.0.1-fabric+mc1.20.5-1.21.8
-// Jar Name: Datapack-IDE-0.0.1-fabric+mc1.20.5-1.21.8.jar
+// Jar Name: Nodex-0.0.1-fabric+mc1.20.5-1.21.8.jar
 version = "${property("mod.version")}-fabric+mc${property("mod.mc_targets").toString().replace(" ", "-")}"
 group = project.findProperty("maven_group") as String
 

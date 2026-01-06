@@ -12,23 +12,23 @@
 		"Huckle"
 	],
 	"contact": {
-		"homepage": "https://github.com/Frostzie/Datapack-IDE",
-		"sources": "https://github.com/Frostzie/Datapack-IDE",
-		"issues": "https://github.com/Frostzie/Datapack-IDE/issues"
+		"homepage": "https://github.com/Frostzie/Nodex",
+		"sources": "https://github.com/Frostzie/Nodex",
+		"issues": "https://github.com/Frostzie/Nodex/issues"
 	},
 	"license": "LGPL-2.1",
-	"icon": "assets/datapack-ide/icon.png",
+	"icon": "assets/nodex/icon.png",
 	"environment": "client",
 	"entrypoints": {
 		"main": [
 			{
-				"value": "io.github.frostzie.datapackide.DataPackIDE",
+				"value": "io.github.frostzie.nodex.Nodex",
 				"adapter": "kotlin"
 			}
 		]
 	},
 	"mixins": [
-		"datapack-ide.mixins.json"
+		"nodex.mixins.json"
 	],
 	"depends": {
 		"fabric-language-kotlin": "*",
@@ -38,7 +38,7 @@
 		"modmenu": {
 			"links": {
 				"modmenu.discord": "https://discord.gg/qZ885qTvkx",
-				"modmenu.modrinth": "https://modrinth.com/mod/datapack-ide",
+				"modmenu.modrinth": "https://modrinth.com/project/XlilVGvF",
 				"modmenu.buymeacoffee": "https://buymeacoffee.com/frostzie"
 			}
 		}
