@@ -2,7 +2,7 @@ import org.gradle.api.tasks.bundling.Jar
 import kotlin.String
 
 plugins {
-	id("fabric-loom")
+	id("net.fabricmc.fabric-loom-remap")
 	java
 	`maven-publish`
 	alias(libs.plugins.kotlin.jvm)
@@ -40,14 +40,22 @@ repositories {
 dependencies {
 	minecraft("com.mojang:minecraft:$mcVersion")
 
-	mappings(loom.officialMojangMappings())
+	if (mcVersion == "1.21.10" || mcVersion == "1.21.8") {
+		mappings(loom.officialMojangMappings())
+		implementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
 
-	modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+		implementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
 
-	modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+		implementation(libs.fabric.kotlin)
+		runtimeOnly(libs.devauth)
+	} else {
+		implementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
 
-	modImplementation(libs.fabric.kotlin)
-	modRuntimeOnly(libs.devauth)
+		implementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+
+		implementation(libs.fabric.kotlin)
+		runtimeOnly(libs.devauth)
+	}
 
 	// Style and icon packs
 	implementation(libs.atlantaFX)

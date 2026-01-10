@@ -1,6 +1,7 @@
 plugins {
     id("dev.kikugie.stonecutter")
-    id("fabric-loom") version "1.13-SNAPSHOT" apply false
+    //id("fabric-loom") version "1.13-SNAPSHOT" apply false
+    id("net.fabricmc.fabric-loom-remap") version "1.14-SNAPSHOT" apply false
 
 }
 
